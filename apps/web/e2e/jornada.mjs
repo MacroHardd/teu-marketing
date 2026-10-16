@@ -94,6 +94,33 @@ await abre(c, `${BASE}/posts`)
 await c.getByText('Exportado').waitFor()
 log('Meus Posts mostra Exportado')
 
+// ------------------------------------------------------------------ Post com foto (M3)
+const FOTO = new URL('../../../packages/oraculo/fotos/clara.png', import.meta.url).pathname
+/** Cor de um pixel do preview (canvas 1080×1350). */
+const pixel = (x, y) => c.$eval('canvas[aria-label="Prévia do Post"]', (cv, [x, y]) => [...cv.getContext('2d').getImageData(x, y, 1, 1).data.slice(0, 3)], [x, y])
+await c.getByRole('button', { name: 'Novo Post' }).first().click()
+await c.waitForURL('**/posts/*')
+await abre(c)
+await c.fill('textarea', 'Feito à mão, feito pra você')
+await c.setInputFiles('[data-testid=input-foto]', FOTO)
+await c.getByRole('button', { name: 'Trocar foto' }).waitFor({ timeout: 20000 })
+await c.getByRole('button', { name: /Letra fina\s*sugerido/ }).waitFor()
+const [r, g, b] = await pixel(540, 1300)
+if (!(r === g && g === b)) throw new Error(`Letra fina devia mostrar a foto em cinza, veio ${r},${g},${b}`)
+log('foto enviada → Letra fina sugerida, foto em preto e branco no preview')
+await c.getByRole('button', { name: 'Foto e legenda' }).click()
+await c.getByText('Salvo', { exact: true }).waitFor({ timeout: 10000 })
+await c.reload()
+await abre(c)
+await c.getByRole('button', { name: 'Trocar foto' }).waitFor()
+await c.waitForFunction(() => {
+  const d = document.querySelector('canvas[aria-label="Prévia do Post"]').getContext('2d').getImageData(540, 60, 1, 1).data
+  return d[2] > d[0] // céu azulado da foto (sem foto, o bloco seria laranja, da cor de acento)
+}, null, { timeout: 15000 })
+log('recarregou: Foto e legenda com a foto do Storage')
+const [download2] = await Promise.all([c.waitForEvent('download'), c.getByRole('button', { name: 'Baixar imagem' }).click()])
+log('PNG com foto baixado:', download2.suggestedFilename())
+
 // o mesmo link de Convite ainda entra (mesmo usuário), não ocupa outro Assento
 const c2 = await novaAba()
 await c2.goto(linkDe(convite, /\/convite\//))

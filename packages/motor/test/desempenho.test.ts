@@ -21,5 +21,5 @@ describe('desempenho', () => {
     const p95 = tempos[Math.floor(tempos.length * 0.95)]!
     console.log(`p95 ${p95.toFixed(1)} ms · p50 ${tempos[tempos.length >> 1]!.toFixed(1)} ms · n=${tempos.length}`)
     expect(p95).toBeLessThan(50)
-  })
+  }, 30_000) // ~400 quadros + preparo dos filtros de foto: o limite padrão de 5 s é do teste, não do quadro
 })

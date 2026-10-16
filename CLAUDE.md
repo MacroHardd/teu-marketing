@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado atual
 
-Monorepo, spike do motor (M1, Estilo Acento) e fatia vertical local (M2: Admin → Parceiro → Convite → Cliente → PNG) prontos. Falta staging. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
+Monorepo, spike do motor (M1, Estilo Acento) e fatia vertical local (M2: Admin → Parceiro → Convite → Cliente → PNG) prontos; M3 em andamento (foto + Estilos Letra fina e Foto e legenda feitos). Falta staging. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
 
 Produto: **Teu Marketing**, uma plataforma B2B2C. O Parceiro (escritório, mentor ou agência) distribui o acesso aos seus Clientes, e o Cliente cria sozinho posts estáticos de Instagram. O objetivo é **vender o mais rápido possível**: o MVP precisa funcionar, não precisa estar perfeito. O alvo de construção é [`docs/mvp.md`](docs/mvp.md) (jornadas + checklist de aceite + corte), e não o PRD inteiro.
 
@@ -48,6 +48,10 @@ supabase/         migrations, RLS, seed, testes de RLS, metricas/*.sql
 
 - Templates reaproveitados e o que adaptar de cada um: `docs/templates.md`. Login vem do template `saas` (`UAuthForm`, só o campo de email). Upload vem do template `chat` (`useFileUpload`). Manter as licenças MIT.
 - Infra: **Vercel Hobby + Supabase Free + Resend Free** até o primeiro cliente pagante. Limites que afetam o código: cron no máximo 1x por dia, Resend com 100 emails/dia (Convites em fila), Supabase sem backup (`pg_dump` via Actions). Regiões: São Paulo (gru1 / sa-east-1). As rotas de servidor ficam pequenas e sem APIs específicas da Vercel.
+## Pronto = build de produção passando
+
+Nenhuma iteração é dada como concluída (nem se pede para o usuário olhar) sem rodar, localmente: `pnpm lint && pnpm typecheck && pnpm test && pnpm db:test`, **`pnpm build`** e o E2E contra o build (`node apps/web/.output/server/index.mjs` na porta 3000). O deploy é Vercel: `NITRO_PRESET=vercel pnpm build` é o que o CI roda. Build quebrado no início da sessão se corrige antes de qualquer outra coisa.
+
 ## Comandos
 
 ```bash
@@ -58,12 +62,15 @@ pnpm parceiro:criar --nome "Escritório X" --email x@teste.dev --assentos 5   # 
 pnpm lint && pnpm typecheck && pnpm test
 pnpm db:test                 # testes de RLS (pgTAP, supabase/tests)
 pnpm db:tipos                # regenera apps/web/app/types/database.types.ts depois de migration
-pnpm --filter @teu/web e2e   # jornada J1→J3 num Chrome headless (precisa supabase + dev rodando)
+pnpm --filter @teu/web e2e   # jornada J1→J3 (+ Post com foto) num Chrome headless (precisa supabase + app na :3000)
 pnpm --filter @teu/motor exec vitest run test/campos.test.ts   # um arquivo
 pnpm --filter @teu/motor exec vitest run -t "curta"            # um teste pelo nome
 # referências do oráculo (precisa antes da regressão visual; sem elas os testes de regressão pulam)
 packages/oraculo/.venv/bin/python packages/oraculo/gerar.py
 ```
+
+- `supabase migration new <nome>` **lê o stdin** como corpo da migration: nunca rodar com heredoc/pipe na mesma linha (cria migration vazia). Criar o arquivo e escrever depois. Comandos da CLI em script: `< /dev/null`.
+- Para rodar o build/E2E contra o Supabase local sem mexer no `apps/web/.env` (que pode apontar para o hospedado): exportar `NUXT_PUBLIC_SUPABASE_URL/KEY`, `NUXT_SUPABASE_SECRET_KEY` e `NUXT_MAILPIT_URL` a partir de `pnpm exec supabase status -o env`. Variável do processo vence o `.env`.
 
 Venv do oráculo: ver `packages/oraculo/README.md` (usar `uv`: o Python do sistema não tem `ensurepip`). Diferenças visuais que reprovam ficam em `packages/motor/test/__diff__/`.
 
@@ -80,6 +87,8 @@ Venv do oráculo: ver `packages/oraculo/README.md` (usar `uv`: o Python do siste
 - Métrica de fonte **linear** (opentype.js), sem hinting; o oráculo é ajustado para medir igual (`packages/oraculo/README.md`).
 - O Desenhista desenha texto como **contorno de glifo** (não usa `ctx.font`): sai igual em qualquer browser e no Node.
 - Trava de área de cor é calculada pela geometria dos glifos, sem ler pixel.
+- Foto: analisada uma vez no upload (`analisaFoto` → grade 32×32 de luminância, `MetaFoto`, salva em `posts.foto_meta`). Decisões que o publi tira do pixel (ex.: letra clara/escura na Letra fina) saem da grade. O recorte é o `ImageOps.fit` do Pillow (`recorteCover`) + enquadramento/zoom. Filtro de pixel (`aplicaFiltro`) roda fora do Motor, no provedor de foto do app/teste, com cache por filtro.
+- Caso de regressão com foto: `"foto": "clara.png"` (fotos sintéticas em `packages/oraculo/fotos`, geradas por `gerar_fotos.py`).
 - `\b` do Python é Unicode; no TS ele é emulado em `campos.ts`. Porte regex do publi sempre por ali.
 
 ## Referência de terceiro

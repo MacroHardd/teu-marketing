@@ -1,0 +1,51 @@
+import type { H3Event } from 'h3'
+import { z } from 'zod'
+
+// Telemetria (docs/medicao/tecnico.md): props só com metadados, NUNCA conteúdo do Cliente.
+// .strict() recusa qualquer campo a mais (ex.: texto da legenda colado por engano).
+export const PROPS = {
+  convite_enviado: z.object({ lote_id: z.uuid(), origem: z.enum(['manual', 'planilha']) }).strict(),
+  editor_aberto: z.object({ novo: z.boolean() }).strict(),
+  post_criado: z.object({ tem_foto: z.boolean(), tem_pauta: z.boolean(), n_palavras: z.int().min(0) }).strict(),
+  post_exportado: z.object({
+    estilo: z.string().max(20),
+    variacao: z.string().max(20).nullable(),
+    n_trocas_estilo: z.int().min(0),
+    n_ajustes: z.int().min(0),
+    tempo_ativo_ms: z.int().min(0),
+    ms_export: z.number().min(0),
+    reexport: z.boolean()
+  }).strict(),
+  erro_motor: z.object({
+    estilo: z.string().max(20),
+    variacao: z.string().max(20).nullable(),
+    etapa: z.enum(['layout', 'desenho', 'exportacao']),
+    mensagem_curta: z.string().max(120)
+  }).strict()
+} as const
+
+export type NomeEvento = keyof typeof PROPS
+
+/** Eventos que o browser do Cliente pode mandar por /api/eventos. */
+export const DO_CLIENTE = ['editor_aberto', 'post_criado', 'post_exportado', 'erro_motor'] as const satisfies NomeEvento[]
+
+export async function registraEvento(event: H3Event, e: {
+  nome: NomeEvento
+  parceiro_id: string
+  cliente_id?: string | null
+  post_id?: string | null
+  sessao_id?: string | null
+  props: unknown
+}) {
+  const props = PROPS[e.nome].parse(e.props)
+  const { error } = await servico(event).from('eventos').insert({
+    nome: e.nome,
+    parceiro_id: e.parceiro_id,
+    cliente_id: e.cliente_id ?? null,
+    post_id: e.post_id ?? null,
+    sessao_id: e.sessao_id ?? null,
+    props,
+    versao_app: useRuntimeConfig().public.versaoApp
+  })
+  if (error) console.error('evento não gravado', e.nome, error.message)
+}

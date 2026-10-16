@@ -72,6 +72,19 @@ docs/
 | staging | preview da Vercel | 2º projeto Supabase Free |
 | produção | Vercel (domínio próprio) | projeto Supabase Free (vira Pro no 1º cliente pagante) |
 
+## Configuração de produção (painel, não código)
+
+Variáveis do app: [`apps/web/.env.example`](../apps/web/.env.example), no formato exato da Vercel.
+
+**Supabase** (espelho do `supabase/config.toml` local):
+- Authentication → Sign In / Providers: **Allow new users to sign up = OFF** (ninguém se cadastra sozinho). Provedor **Email = ON** (desligar o provedor derruba o link mágico de todo mundo).
+- Authentication → URL Configuration: Site URL = `NUXT_PUBLIC_SITE_URL`; Redirect URLs = `<NUXT_PUBLIC_SITE_URL>/**`.
+- Authentication → SMTP: Resend (`smtp.resend.com`, porta 465, usuário `resend`, senha = API key). Sem isso o Supabase manda só ~2 emails/hora.
+- Migrations: `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push`.
+- Primeiro Parceiro: `pnpm parceiro:criar --nome ... --email ... --assentos N` com as variáveis de produção no ambiente.
+
+**Vercel:** Root Directory `apps/web`, região de functions `gru1`, variáveis do `.env.example` em Production.
+
 ## Custo
 
 | Momento | US$/mês |

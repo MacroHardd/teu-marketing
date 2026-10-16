@@ -4,12 +4,12 @@
 
 ## Agora
 
-- **Fase:** construção. M1 (spike do motor) **aprovado**; M0 parcial.
+- **Fase:** construção. M1 aprovado; **M2 pronto local** (jornada J1→J3 passa no E2E); M0 só falta staging.
 - **Handoff da última sessão:** [handoff.md](handoff.md).
-- **Feito no M0:** `git init`; trabalho commitado na branch `m0-m1-motor-acento` (a main está vazia; o usuário configura remoto e aprova PR), monorepo pnpm (`apps/web` do template dashboard com LICENSE MIT, `packages/motor`, `packages/oraculo`), CI com lint, typecheck, oráculo e testes.
-- **Falta no M0:** Supabase local (CLI não instalada; Docker ok) + primeiras migrations; staging Vercel + Supabase Free; "hello" autenticado.
-- **Próximo passo:** Supabase local (Docker) + migrations + auth por link mágico → M2 (fatia vertical) local. Staging quando o usuário criar Supabase sa-east-1 + Vercel e preencher as variáveis no `.env`/painel. Depois, quebrar M2 em issues (skill `to-issues`).
-- **Bloqueios:** só o staging depende do usuário (projeto Supabase, projeto Vercel, Resend). O trabalho local segue sem isso.
+- **Branch:** `m0-m1-motor-acento` (main vazia; o usuário configura remoto e aprova PR).
+- **Falta no M0:** staging (Vercel + Supabase sa-east-1 + Resend) e "hello" autenticado lá. O que configurar: [infra.md](infra.md#configuração-de-produção-painel-não-código) + `apps/web/.env.example`.
+- **Próximo passo:** M3 (foto + Ajustes + Variações + Travas ao vivo). Em paralelo, quando o usuário criar as contas: staging e rodar o CI pela 1ª vez (testes de RLS no CI ainda não rodaram em Actions).
+- **Bloqueios:** só staging depende do usuário.
 - **Pendência no publi:** `_numero` corta data/hora ("20/11" → "11"). Corrigir no publi antes de portar Número e Herói (ver `packages/oraculo/README.md`).
 - **Valores assumidos sem confirmação explícita do usuário:**
   - o Convite expira em 7 dias
@@ -19,6 +19,14 @@
   - corte do MVP com 5 Estilos (ver [mvp.md](mvp.md))
 
 ## Histórico
+
+### 2026-10-16. M2 local: Supabase, RLS, Convite e editor mínimo
+- Supabase local (CLI 2.121 fixada no repo). Migration `inicio`: parceiros, clientes, convites, posts, eventos; RLS em tudo; aceite do Convite em função só do servidor. Advisors limpos.
+- 24 testes de RLS (pgTAP): Parceiro não lê Posts nem eventos nem dados de outro Parceiro; Cliente só os próprios Posts; anônimo nada; aceite respeita prazo, Assento e outro Parceiro.
+- App: template limpo (sem Inbox/Customers/inglês), entrada por link mágico (`/entrar`), Convite com 1 clique (`/convite/<token>`), painel do Parceiro (Assentos, convidar com prévia, Convites com reenviar, Clientes), Meus Posts e editor com Acento, salvamento automático e Exportação PNG. Página `/spike` removida (o editor substitui).
+- Telemetria: `convite_enviado`, `convite_aceito`, `editor_aberto`, `post_criado`, `post_exportado`, `erro_motor`, com props validadas por zod `.strict()` (sem conteúdo do Cliente; conferido no banco).
+- `pnpm parceiro:criar` (J1 por script). E2E `pnpm --filter @teu/web e2e` cobre J1→J3 em Chrome headless.
+- Achados: `[auth.email] enable_signup=false` desliga o login por email inteiro; `@nuxtjs/supabase` pegava h3 v2 (corrigido com `packageExtensions`).
 
 ### 2026-10-16. Monorepo + spike do motor (M1)
 - Monorepo pnpm montado; publi extraído em `packages/oraculo/publi/` (versionado, roda no CI).

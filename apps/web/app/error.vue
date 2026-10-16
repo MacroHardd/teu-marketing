@@ -6,19 +6,18 @@ defineProps<{
 }>()
 
 useSeoMeta({
-  title: 'Page not found',
-  description: 'We are sorry but this page could not be found.'
+  title: 'Página não encontrada'
 })
 
 useHead({
   htmlAttrs: {
-    lang: 'en'
+    lang: 'pt-BR'
   }
 })
 </script>
 
 <template>
   <UApp>
-    <UError :error="error" />
+    <UError :error="error" :clear="{ label: 'Voltar ao início' }" />
   </UApp>
 </template>

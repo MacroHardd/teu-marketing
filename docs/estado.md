@@ -26,6 +26,9 @@
 
 ## Histórico
 
+### 2026-10-16. Passo a passo de teste local
+- Usuário travou em "Verifique seu email" (o email estava no Mailpit; o fluxo funcionava). `README.md` ganhou "Rodar e testar localmente", com problemas comuns. A tela Entrar mostra "Abrir o Mailpit", só no `nuxt dev`.
+
 ### 2026-10-16. Usuários de teste locais
 - `pnpm teste:usuarios` (recusa rodar fora do Supabase local; idempotente) e `pnpm dev:local` (`apps/web/scripts/local.mjs` injeta as chaves de `supabase status`). Verificado: os links entram como Parceiro A, Cliente e Parceiro B no build de produção; Parceiro B só vê o próprio Cliente.
 - Parceiro do E2E renomeado para "Escritório E2E" (não confundir com o de teste manual).

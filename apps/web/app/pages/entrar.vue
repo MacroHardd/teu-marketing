@@ -10,6 +10,7 @@ const config = useRuntimeConfig()
 const enviadoPara = ref('')
 const erro = ref('')
 const carregando = ref(false)
+const dev = import.meta.dev
 
 const fields: AuthFormField[] = [{ name: 'email', type: 'email', label: 'Email', placeholder: 'voce@email.com', required: true }]
 const schema = z.object({ email: z.email('Email inválido') })
@@ -40,6 +41,17 @@ async function entrar(e: FormSubmitEvent<z.output<typeof schema>>) {
       Enviamos um link de entrada para <strong>{{ enviadoPara }}</strong>. Abra no mesmo navegador.
     </p>
     <UButton variant="link" label="Usar outro email" @click="enviadoPara = ''" />
+    <!-- só no `nuxt dev`: com o Supabase local, o email cai no Mailpit, não numa caixa de verdade -->
+    <UAlert
+      v-if="dev"
+      color="info"
+      variant="subtle"
+      icon="i-lucide-flask-conical"
+      title="Ambiente local"
+      description="O email está no Mailpit. Abra a mensagem e clique no link, neste mesmo navegador."
+      :actions="[{ label: 'Abrir o Mailpit', to: 'http://127.0.0.1:54324', target: '_blank', color: 'info', variant: 'outline' }]"
+      class="text-left"
+    />
   </div>
   <UAuthForm
     v-else

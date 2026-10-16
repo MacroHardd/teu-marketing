@@ -1,7 +1,7 @@
 # Handoff: Teu Marketing (2026-10-16, fim da sessão M1 + M2 local)
 
 ## Onde estamos
-M1 (spike do motor) aprovado. **M2 pronto local**: Admin por script → Parceiro entra por link mágico → convida → Cliente entra pelo Convite com 1 clique → escreve → Estilo Acento → baixa o PNG. O M0 só não tem staging, que depende das contas do usuário. Tudo está na branch `m0-m1-motor-acento`; a main está vazia.
+M1 (spike do motor) aprovado. **M2 pronto local**: Admin por script → Parceiro entra por link mágico → convida → Cliente entra pelo Convite com 1 clique → escreve → Estilo Acento → baixa o PNG. O M0 só não tem staging, que depende das contas do usuário. O trabalho está na branch `m0-m1-motor-acento`. A `main` (prod) está no 1º commit, e o usuário vai abrir e aprovar o PR da branch para a main. O build de produção passa desde o commit `e3672b5`.
 
 **Leia nesta ordem:**
 1. `CLAUDE.md`: comandos, pegadinhas de auth/Convite, como a paridade com o publi funciona
@@ -22,7 +22,7 @@ M1 (spike do motor) aprovado. **M2 pronto local**: Admin por script → Parceiro
 Em paralelo, quando o usuário avisar que criou as contas: staging conforme `docs/infra.md` → "Configuração de produção" e depois rodar o CI pela 1ª vez (o passo de RLS no Actions nunca rodou).
 
 ## Contexto que não está nos docs
-- **Git:** o usuário configura remoto e contas; você não tem acesso ao GitHub dele. Commitar só em branch, nunca na main. PR quem aprova é ele; abrir só se der sem pedir permissão. Nunca pedir chaves no chat: ele preenche `.env` e o painel.
+- **Git:** remoto `git@github.com:MacroHardd/teu-marketing.git`, e o push por SSH funciona daqui. Sem `gh` instalado: não dá para abrir PR. Commitar só em branch, nunca na main. Para o M3, criar uma branch nova a partir da main depois do merge. PR quem aprova é ele; abrir só se der sem pedir permissão. Nunca pedir chaves no chat: ele preenche `.env` e o painel.
 - **Como o usuário trabalha:** quer rapidez ("precisa funcionar"), decide rápido, pediu respostas no estilo caveman em PT-BR. Interface limpa, **nunca virar Canva**.
 - **Ambiente:**
   - O Python do sistema não tem `ensurepip`: use `uv` para o venv do oráculo.
@@ -30,7 +30,7 @@ Em paralelo, quando o usuário avisar que criou as contas: staging conforme `doc
   - Não use `pkill -f "nuxt dev"`, que mata o próprio shell. Pare o dev pelo PID da porta (`ss -ltnp | grep :3000`).
   - No dev, clicar antes da hidratação perde o evento. Espere `networkidle` (o E2E já faz isso).
 - **Estado local:**
-  - `apps/web/.env` existe, gitignored, com as chaves de demo do Supabase local.
+  - `apps/web/.env` **agora aponta para o Supabase hospedado do usuário**, que ainda não tem as migrations. Por isso o app e o E2E falham com `PGRST205`. Para trabalhar local, peça ao usuário para usar as chaves de `pnpm exec supabase status` (ou criar um `.env` local separado). Não edite o `.env` dele sem pedir.
   - O Supabase local tem Parceiros de teste criados pelos E2E. `pnpm exec supabase db reset` zera tudo.
   - Depois de uma migration nova: `pnpm db:tipos`, `pnpm db:test` e `pnpm exec supabase db advisors --local`.
 - **Domínio** `app.teumarketing.com.br` no `.env.example` é um palpite, ainda não confirmado.

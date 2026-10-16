@@ -6,7 +6,8 @@
 
 - **Fase:** construção. M1 aprovado; **M2 pronto local** (jornada J1→J3 passa no E2E); M0 só falta staging.
 - **Handoff da última sessão:** [handoff.md](handoff.md). Entregáveis e roteiro de teste: [entregaveis-2026-10-16.md](entregaveis-2026-10-16.md).
-- **Branch:** `m0-m1-motor-acento` (main vazia; o usuário configura remoto e aprova PR).
+- **Git:** remoto `MacroHardd/teu-marketing`. `main` = branch de prod, criada no 1º commit (M0+M1). PR `m0-m1-motor-acento → main` (M2 + fix do build) aberto pelo usuário e aprovado por ele; o merge deixa prod verde.
+- **Supabase hospedado:** o usuário criou o projeto e apontou `apps/web/.env` para ele, mas as **migrations não foram aplicadas** lá (erro `PGRST205 Could not find the table`). Falta: `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push` + configurar o painel (`docs/infra.md`). Para desenvolver local, o `.env` precisa voltar às chaves de `pnpm exec supabase status`.
 - **Falta no M0:** staging (Vercel + Supabase sa-east-1 + Resend) e "hello" autenticado lá. O que configurar: [infra.md](infra.md#configuração-de-produção-painel-não-código) + `apps/web/.env.example`.
 - **Próximo passo:** M3 (foto + Ajustes + Variações + Travas ao vivo). Em paralelo, quando o usuário criar as contas: staging e rodar o CI pela 1ª vez (testes de RLS no CI ainda não rodaram em Actions).
 - **Bloqueios:** só staging depende do usuário.
@@ -19,6 +20,10 @@
   - corte do MVP com 5 Estilos (ver [mvp.md](mvp.md))
 
 ## Histórico
+
+### 2026-10-16. Build de produção corrigido + main
+- `nuxt build` falhava: `"default" is not exported by opentype.js` (o dist ESM do 1.3.5 não tem default; o dev aceitava). Import nomeado + versão fixada. Build ok (52 s) e E2E passou contra o build rodando com `node .output/server/index.mjs`.
+- `main` criada no 1º commit e enviada; a branch de trabalho foi enviada com o fix.
 
 ### 2026-10-16. M2 local: Supabase, RLS, Convite e editor mínimo
 - Supabase local (CLI 2.121 fixada no repo). Migration `inicio`: parceiros, clientes, convites, posts, eventos; RLS em tudo; aceite do Convite em função só do servidor. Advisors limpos.

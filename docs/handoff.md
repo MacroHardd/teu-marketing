@@ -1,12 +1,12 @@
 # Handoff: Teu Marketing (2026-10-16, fim da sessão do spike)
 
 ## Onde estamos
-M1 (spike do motor) aprovado; M0 parcial. Repo git iniciado **sem nenhum commit** e sem remoto. Status completo em `docs/estado.md`.
+M1 (spike do motor) aprovado; M0 parcial. Trabalho na branch `m0-m1-motor-acento` (main vazia, sem remoto: o usuário configura). Status completo em `docs/estado.md`.
 
 **Leia nesta ordem:** `CLAUDE.md` (agora com comandos e como a paridade com o publi funciona) → `docs/estado.md` → `docs/mvp.md` → `CONTEXT.md` → `docs/plano.md`.
 
 ## Próxima tarefa (terminar M0, depois M2)
-1. Pedir ao usuário: repo no GitHub **pessoal** (sem `gh` na máquina), projeto Supabase (sa-east-1), Vercel Hobby. Confirmar remoto antes de push. Commitar só quando ele pedir.
+1. Git: o usuário configura remoto e contas. Commitar só em branch (nunca main); PR ele aprova. Trabalho atual na branch `m0-m1-motor-acento`. Para staging, pedir só o que estiver em `docs/estado.md` (Bloqueios).
 2. Supabase local: `pnpm dlx supabase init/start` (Docker funciona). Primeiras migrations com RLS, auth por link mágico.
 3. Staging + "hello" autenticado.
 4. M2: fatia vertical (Admin→Parceiro→Convite→Cliente→texto→Acento→PNG). Limpar páginas de demo do template (Inbox, Customers, textos em inglês) quando mexer no layout.

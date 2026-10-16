@@ -6,10 +6,10 @@
 
 - **Fase:** construção. M1 (spike do motor) **aprovado**; M0 parcial.
 - **Handoff da última sessão:** [handoff.md](handoff.md).
-- **Feito no M0:** `git init` (sem commit), monorepo pnpm (`apps/web` do template dashboard com LICENSE MIT, `packages/motor`, `packages/oraculo`), CI com lint, typecheck, oráculo e testes.
-- **Falta no M0:** Supabase local (CLI não instalada; Docker ok) + primeiras migrations; remoto no GitHub pessoal; staging Vercel + Supabase Free; "hello" autenticado.
-- **Próximo passo:** usuário cria/aponta repo GitHub pessoal, projeto Supabase (sa-east-1) e Vercel → terminar M0 → M2 (fatia vertical). Depois, quebrar M2 em issues (skill `to-issues`).
-- **Bloqueios:** contas externas (GitHub, Vercel, Supabase, Resend) dependem do usuário.
+- **Feito no M0:** `git init`; trabalho commitado na branch `m0-m1-motor-acento` (a main está vazia; o usuário configura remoto e aprova PR), monorepo pnpm (`apps/web` do template dashboard com LICENSE MIT, `packages/motor`, `packages/oraculo`), CI com lint, typecheck, oráculo e testes.
+- **Falta no M0:** Supabase local (CLI não instalada; Docker ok) + primeiras migrations; staging Vercel + Supabase Free; "hello" autenticado.
+- **Próximo passo:** Supabase local (Docker) + migrations + auth por link mágico → M2 (fatia vertical) local. Staging quando o usuário criar Supabase sa-east-1 + Vercel e preencher as variáveis no `.env`/painel. Depois, quebrar M2 em issues (skill `to-issues`).
+- **Bloqueios:** só o staging depende do usuário (projeto Supabase, projeto Vercel, Resend). O trabalho local segue sem isso.
 - **Pendência no publi:** `_numero` corta data/hora ("20/11" → "11"). Corrigir no publi antes de portar Número e Herói (ver `packages/oraculo/README.md`).
 - **Valores assumidos sem confirmação explícita do usuário:**
   - o Convite expira em 7 dias

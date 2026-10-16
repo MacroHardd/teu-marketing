@@ -36,17 +36,26 @@ const cssA = (c: CorA) => `rgba(${c[0]},${c[1]},${c[2]},${c[3]})`
 /**
  * Único Desenhista: preview e Exportação passam por aqui. `escala` = px do canvas por px da peça
  * (1 na Exportação 1080×1350). Texto vira contorno de glifo, sem depender da fonte do sistema.
+ * `logo` = a imagem do logo do Perfil de Marca, já carregada.
  */
-export function desenha(ctx: Ctx2D, cena: Cena, fontes: Fontes, escala = 1, foto?: ProvedorFoto): void {
+export function desenha(ctx: Ctx2D, cena: Cena, fontes: Fontes, escala = 1, foto?: ProvedorFoto, logo?: unknown): void {
   ctx.save()
   ctx.scale(escala, escala)
   ctx.fillStyle = css(cena.fundo)
   ctx.fillRect(0, 0, cena.largura, cena.altura)
-  for (const it of cena.itens) item(ctx, it, fontes, foto)
+  for (const it of cena.itens) item(ctx, it, fontes, foto, logo)
   ctx.restore()
 }
 
-function item(ctx: Ctx2D, it: Item, fontes: Fontes, foto?: ProvedorFoto) {
+function item(ctx: Ctx2D, it: Item, fontes: Fontes, foto?: ProvedorFoto, logo?: unknown) {
+  if (it.tipo === 'imagem') {
+    const img = logo as { width: number, height: number } | undefined
+    if (!img) return
+    ctx.imageSmoothingEnabled = true
+    ctx.imageSmoothingQuality = 'high'
+    ctx.drawImage(img, 0, 0, img.width, img.height, it.x, it.y, it.w, it.h)
+    return
+  }
   if (it.tipo === 'foto') {
     const img = foto?.(it.filtro)
     if (!img) return

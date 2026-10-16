@@ -16,7 +16,7 @@ import { casos, entrada, foto, fontes, referencia, renderiza, RAIZ, temSaida } f
 const LIMITE_PCT = 1
 const DIFF = join(RAIZ, 'test', '__diff__')
 
-for (const conjunto of ['acento', 'fina', 'ogilvy']) {
+for (const conjunto of ['acento', 'manchete', 'fina', 'ogilvy']) {
   describe.skipIf(!temSaida(conjunto))(`regressão ${conjunto}`, () => {
     for (const c of casos(conjunto)) {
       it(c.id, () => {
@@ -33,6 +33,7 @@ for (const conjunto of ['acento', 'fina', 'ogilvy']) {
           expect(r.cena.travas.letra).toBe(ref.json.travas.letra)
           expect(Math.abs(r.cena.travas.luminanciaAtras! - ref.json.travas.luminancia_atras)).toBeLessThanOrEqual(6)
         }
+        if (ref.json.travas.corpo_px !== undefined) expect(r.cena.travas.corpoPx).toBe(ref.json.travas.corpo_px)
         if (ref.json.travas.titulo_px !== undefined) expect(r.cena.travas.tituloPx).toBe(ref.json.travas.titulo_px)
         const a = PNG.sync.read(ref.png)
         const cv = renderiza(r.cena, c.foto ? foto(c.foto).provedor : undefined)

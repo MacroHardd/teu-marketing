@@ -12,6 +12,8 @@ export type Item =
   | { tipo: 'ret', x: number, y: number, w: number, h: number, cor: Cor }
   /** A foto do Cliente: `recorte` (px da foto) vai para a caixa x/y/w/h, com `filtro` opcional. */
   | { tipo: 'foto', x: number, y: number, w: number, h: number, recorte: Recorte, filtro?: Filtro }
+  /** Imagem da marca (o logo), em contain na caixa. O app entrega a imagem pela `chave`. */
+  | { tipo: 'imagem', chave: 'logo', x: number, y: number, w: number, h: number }
   /** Degradê vertical de `de` (topo) até `ate` (base). */
   | { tipo: 'degrade', x: number, y: number, w: number, h: number, de: CorA, ate: CorA }
 
@@ -24,6 +26,10 @@ export interface Travas {
   letra?: 'clara' | 'escura'
   /** Tamanho do título (Foto e legenda). */
   tituloPx?: number
+  /** Tamanho do corpo (Manchete). */
+  corpoPx?: number
+  /** Contraste (WCAG) entre a letra e o que está atrás dela; com foto, no pior trecho relevante. */
+  contraste?: number
   avisos: string[]
 }
 

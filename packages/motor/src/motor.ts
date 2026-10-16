@@ -4,11 +4,13 @@ import { escolhe, separa, type Campos, type TipoEstilo } from './campos'
 import type { Fontes } from './fontes'
 import { acento } from './estilos/acento'
 import { fina } from './estilos/fina'
+import { manchete } from './estilos/manchete'
 import { ogilvy } from './estilos/ogilvy'
 import { ENQUADRAMENTO_PADRAO, type Enquadramento, type MetaFoto } from './foto'
 import type { Contexto, Formato, Marca, Saida } from './estilos/comum'
+import { ELEMENTOS, ESCALA, type Ajustes, type Elemento } from './ajustes'
 
-const ESTILOS: Partial<Record<TipoEstilo, (c: Contexto) => Saida>> = { acento, fina, ogilvy }
+const ESTILOS: Partial<Record<TipoEstilo, (c: Contexto) => Saida>> = { acento, manchete, fina, ogilvy }
 
 export const estilosPortados = () => Object.keys(ESTILOS) as TipoEstilo[]
 
@@ -25,6 +27,7 @@ export interface Entrada {
   /** Metadado da foto (analisada no upload). O Motor nunca vê os pixels. */
   foto?: MetaFoto
   enquadramento?: Enquadramento
+  ajustes?: Ajustes
 }
 
 export interface Resultado {
@@ -45,10 +48,24 @@ export function motor(e: Entrada, fontes: Fontes): Resultado {
   const W = 1080
   const H = formato === 'story' ? 1920 : 1350
   const marca = e.marca ?? {}
+  const aj = e.ajustes ?? {}
   const av: string[] = []
-  const t = tema({ cor: marca.cor, modo: e.modo, tema: e.tema })
+  const modo = aj.modo ?? e.modo
+  // cor da paleta: tema curado escolhido > cor da marca > tema da Entrada
+  const cor = aj.cor && aj.cor !== 'marca' ? undefined : marca.cor
+  const t = tema({ cor, modo, tema: aj.cor && aj.cor !== 'marca' ? aj.cor : e.tema })
   const enquadramento = e.enquadramento ?? ENQUADRAMENTO_PADRAO
-  const s = desenha({ p: { campos: c, formato, marca, modo: e.modo, foto: e.foto, enquadramento }, W, H, t, av, fontes })
+  const cta = (aj.cta ?? '').trim()
+  const tem: Record<Elemento, boolean> = {
+    assinatura: !!(marca.perfil || marca.nome), contato: !!marca.contato, logo: !!marca.logo, selo: false, cta: !!cta,
+  }
+  // um Elemento só liga se o dado existe
+  const el = Object.fromEntries(ELEMENTOS.map(k => [k, (aj.elementos?.[k] ?? tem[k]) && (k === 'selo' ? !!(marca.nome || marca.perfil) : tem[k])])) as Record<Elemento, boolean>
+  const p = {
+    campos: c, formato, marca, modo, foto: e.foto, enquadramento,
+    k: ESCALA[aj.tamanho ?? 'M'], zona: aj.zona, el, cta, reforco: !!aj.reforco,
+  }
+  const s = desenha({ p, W, H, t, av, fontes })
   return {
     estilo,
     campos: c,

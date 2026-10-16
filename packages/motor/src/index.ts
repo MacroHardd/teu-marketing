@@ -1,0 +1,6 @@
+export { motor, estilosPortados, type Entrada, type Resultado } from './motor'
+export { desenha, type Ctx2D } from './desenhista'
+export { carregaFontes, NOMES_FONTES, type Fontes, type NomeFonte } from './fontes'
+export { escolhe, separa, campos, confere, destaque, type TipoEstilo, type Campos } from './campos'
+export { TEMAS, type NomeTema, type Cor } from './cor'
+export type { Cena, Item, Travas } from './cena'

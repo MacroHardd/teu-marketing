@@ -1,0 +1,13 @@
+{
+  "name": "teu-marketing",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @teu/web dev",
+    "build": "pnpm --filter @teu/web build",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test"
+  },
+  "packageManager": "pnpm@11.8.0"
+}

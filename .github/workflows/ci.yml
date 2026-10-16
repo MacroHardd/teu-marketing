@@ -1,0 +1,50 @@
+name: ci
+
+on: push
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pnpm install
+          python -m venv packages/oraculo/.venv
+          packages/oraculo/.venv/bin/pip install -r packages/oraculo/requirements.txt
+
+      - name: Oráculo (publi gera as referências)
+        run: packages/oraculo/.venv/bin/python packages/oraculo/gerar.py
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Testes (motor + regressão visual)
+        run: pnpm run test
+
+      - name: Diferenças visuais
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff-motor
+          path: packages/motor/test/__diff__/

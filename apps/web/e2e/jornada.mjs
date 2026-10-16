@@ -34,7 +34,7 @@ function linkDe(msg, re) {
   return links.find(h => re.test(h))
 }
 
-execFileSync('node', ['--env-file-if-exists=.env', 'scripts/criar-parceiro.ts', '--nome', 'Escritório Teste', '--email', PARCEIRO, '--assentos', '2'], { stdio: 'inherit' })
+execFileSync('node', ['--env-file-if-exists=.env', 'scripts/criar-parceiro.ts', '--nome', 'Escritório E2E', '--email', PARCEIRO, '--assentos', '2'], { stdio: 'inherit' })
 
 const browser = await chromium.launch({ executablePath: process.env.CHROME ?? '/usr/bin/google-chrome', headless: true })
 const erros = []

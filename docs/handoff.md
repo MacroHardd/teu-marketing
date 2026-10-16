@@ -18,9 +18,15 @@ O checkout pode estar na `main` velha: confira `git branch` e trabalhe em `m3-fo
 - **Manchete** (sem foto, fácil) e **Número** (depende do fix do `_numero` no publi).
 - Telemetria: `ajuste_aplicado`, `trava_disparada`/`trava_resolvida` (schemas em `apps/web/server/utils/eventos.ts`).
 
+## Roteiro de teste manual (o que existe hoje)
+`pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:local` → abrir cada link numa janela anônima.
+- **Parceiro** (`parceiro@teste.dev`): vê 2 de 3 em uso, os 2 Clientes, o Convite pendente; convida um email novo (chega no Mailpit :54324); reenvia.
+- **Cliente** (`cliente@teste.dev`): Novo Post → texto → enviar foto → Letra fina sugerida → trocar para Foto e legenda → arrastar/zoom → Baixar imagem → recarregar e conferir que salvou.
+- **Isolamento** (`parceiro-b@teste.dev`): só vê `cliente-b@`.
+
 ## Contexto que não está nos docs
-- **Git:** remoto `MacroHardd/teu-marketing`, push por SSH funciona. Sem `gh`/token: não dá para abrir PR, mergear nem trocar a branch padrão (está `m0-m1-motor-acento`; o usuário foi avisado). Commitar só em branch, nunca na `main`. `m3-foto` ainda não foi enviada ao remoto (enviar só se o usuário pedir).
-- **E2E contra o Supabase local sem mexer no `.env` do usuário:** exportar as variáveis a partir de `pnpm exec supabase status -o env` (receita no `CLAUDE.md`) e subir `node apps/web/.output/server/index.mjs` na porta 3000. Parar pelo PID da porta (`ss -ltnp | grep :3000`), nunca `pkill -f` (mata o próprio shell).
+- **Git:** remoto `MacroHardd/teu-marketing`, push por SSH funciona. Sem `gh`/token: não dá para abrir PR, mergear nem trocar a branch padrão (está `m0-m1-motor-acento`; o usuário foi avisado). Commitar só em branch, nunca na `main`. `m3-foto` está no remoto; o usuário abre e aceita os PRs pelo painel.
+- **O usuário costuma deixar um `nuxt dev` dele na porta 3000.** Não matar. Para o build/teste próprio: `PORT=3001 node apps/web/scripts/local.mjs node apps/web/.output/server/index.mjs` (links do `teste:usuarios` com `PORT=3001` também). O E2E tem `BASE` fixo em 3000 e o redirect do Auth local aponta para 3000: só roda com a porta livre. Parar pelo PID da porta (`ss -ltnp | grep :3000`), nunca `pkill -f` (mata o próprio shell).
 - O Supabase local foi resetado nesta sessão (`db reset`): só tem dados dos E2E.
 - **Fotos de teste** são sintéticas (`packages/oraculo/fotos/gerar_fotos.py`), suaves de propósito: Pillow e Canvas reamostram diferente.
 - **HEIC não foi testado** (sem arquivo). Se aparecer problema: `preparaFoto` em `apps/web/app/composables/useFoto.ts`.

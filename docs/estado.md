@@ -8,11 +8,13 @@
 - **Handoff da última sessão:** [handoff.md](handoff.md).
 - **Git / produção:**
   - `origin/main` ainda está no 1º commit (`c5ea7ad`), **sem o fix do build**: o deploy da `main` quebra até o merge do PR `m0-m1-motor-acento → main`. Na branch o build passa (`pnpm build` e `NITRO_PRESET=vercel`).
+  - `m3-foto` enviada ao GitHub (PR pelo painel).
   - A branch padrão do GitHub está como `m0-m1-motor-acento`. Trocar para `main` em Settings → General → Default branch (sem `gh`/token aqui, não dá para fazer daqui).
   - Ordem sugerida: trocar a default para `main` → mergear `m0-m1-motor-acento` → abrir PR `m3-foto → main`.
 - **Supabase hospedado:** projeto criado, `apps/web/.env` aponta para ele, mas as **migrations não foram aplicadas** (erro `PGRST205`). Falta `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push` (agora são 2 migrations: `inicio` e `foto`, que cria o bucket `fotos`) + configurar o painel (`docs/infra.md`).
 - **Feito no M3 até agora:** foto (upload JPEG/PNG/HEIC até 10 MB, reduzida a 2160 px no browser, analisada, bucket privado), Estilos Letra fina e Foto e legenda portados e passando na regressão, troca de Estilo com 1 clique (com sugestão), enquadramento (arrastar) e zoom.
 - **Falta no M3:** Variações (precisam nascer no publi; alinhar com o usuário antes), demais Ajustes (P/M/G, zona, cor da paleta, Elementos, CTA), Trava de rosto (detecção no upload), Trava de contraste com ação de correção, telemetria `ajuste_aplicado`/`trava_*`, Manchete e Número (este depende do fix do `_numero` no publi).
+- **Teste manual local:** `pnpm teste:usuarios` + `pnpm dev:local` (ver [plano.md](plano.md#como-validamos-cada-feature)). Usuários: `parceiro@teste.dev` (Escritório Teste, 3 Assentos: `cliente@`, `cliente2@`, Convite pendente `pendente@`) e `parceiro-b@teste.dev` (Agência Outra: `cliente-b@`), todos `@teste.dev`.
 - **Bloqueios:** staging e merge/default branch dependem do usuário.
 - **Pendência no publi:** `_numero` corta data/hora ("20/11" → "11"). Corrigir no publi antes de portar Número e Herói (ver `packages/oraculo/README.md`).
 - **Valores assumidos sem confirmação explícita do usuário:**
@@ -23,6 +25,10 @@
   - corte do MVP com 5 Estilos (ver [mvp.md](mvp.md))
 
 ## Histórico
+
+### 2026-10-16. Usuários de teste locais
+- `pnpm teste:usuarios` (recusa rodar fora do Supabase local; idempotente) e `pnpm dev:local` (`apps/web/scripts/local.mjs` injeta as chaves de `supabase status`). Verificado: os links entram como Parceiro A, Cliente e Parceiro B no build de produção; Parceiro B só vê o próprio Cliente.
+- Parceiro do E2E renomeado para "Escritório E2E" (não confundir com o de teste manual).
 
 ### 2026-10-16. Build verificado + M3 (foto, Letra fina, Foto e legenda)
 - A sessão abriu com o checkout local na `main` velha (build quebrado: `opentype.js` sem default). O fix já estava na branch; trabalho seguiu nela. Build verificado de 3 jeitos: `node .output`, preset `vercel` e clone limpo com pnpm 10 (que troca sozinho para o pnpm 11.8 do `packageManager`).

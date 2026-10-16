@@ -5,12 +5,14 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:local": "node scripts/local.mjs nuxt dev",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "typecheck": "nuxt typecheck",
     "parceiro:criar": "node --env-file-if-exists=.env scripts/criar-parceiro.ts",
-    "e2e": "node e2e/jornada.mjs"
+    "e2e": "node e2e/jornada.mjs",
+    "teste:usuarios": "node scripts/local.mjs node scripts/usuarios-teste.ts"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.142",

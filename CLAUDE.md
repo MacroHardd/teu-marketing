@@ -57,7 +57,9 @@ Nenhuma iteração é dada como concluída (nem se pede para o usuário olhar) s
 ```bash
 pnpm install
 pnpm exec supabase start     # Docker. Copiar apps/web/.env.example → apps/web/.env com as chaves locais (supabase status)
-pnpm dev                     # apps/web em http://localhost:3000; emails (link mágico e Convite) no Mailpit :54324
+pnpm dev                     # apps/web em http://localhost:3000 com apps/web/.env; emails no Mailpit :54324
+pnpm dev:local               # idem, mas forçando as chaves do Supabase local (ignora o .env, que pode ser do hospedado)
+pnpm teste:usuarios          # (só local) Parceiros/Clientes de teste + link de entrada de cada um; `pnpm teste:usuarios <email>` = link novo
 pnpm parceiro:criar --nome "Escritório X" --email x@teste.dev --assentos 5   # J1: Admin cria Parceiro (sem `--`)
 pnpm lint && pnpm typecheck && pnpm test
 pnpm db:test                 # testes de RLS (pgTAP, supabase/tests)

@@ -47,6 +47,11 @@ jobs:
           pnpm exec supabase db start
           pnpm run db:test
 
+      - name: Build de produção (preset da Vercel, como no deploy)
+        run: pnpm run build
+        env:
+          NITRO_PRESET: vercel
+
       - name: Diferenças visuais
         if: failure()
         uses: actions/upload-artifact@v4

@@ -95,6 +95,15 @@ M0 → M1 → M2 → M3 → M4
 
 M4 (catálogo) e M5/M6 podem andar em paralelo depois do M3.
 
+## Como validamos cada feature
+
+Toda feature termina com um roteiro curto de teste manual **dos dois lados**, Parceiro e Cliente, que o usuário roda antes de aprovar o PR:
+
+1. **Local, a cada feature:** `pnpm exec supabase start` → `pnpm teste:usuarios` (cria Escritório Teste e Agência Outra com Clientes e um Convite pendente, e imprime um link de entrada por usuário) → `pnpm dev:local`. Cada link numa janela anônima.
+2. **Staging, a cada PR mergeado** (quando o M0 fechar): mesmo roteiro no preview da Vercel, com emails de verdade.
+
+O roteiro de cada feature vai no fim do handoff da sessão e na descrição do PR.
+
 ## Próximo passo
 
 Quebrar M0 a M2 em issues de fatias verticais (skill `to-issues`) depois que este plano for aprovado.

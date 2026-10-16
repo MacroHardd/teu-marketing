@@ -1,6 +1,7 @@
 """Gera as imagens de referência do publi para a regressão visual do Motor TS.
 
 Uso: .venv/bin/python gerar.py [casos/acento.json ...]   (padrão: todos os casos/*.json)
+Caso com "foto": "<arquivo>" usa fotos/<arquivo> (fotos de teste: fotos/gerar_fotos.py).
 Saída: saida/<arquivo>/<id>.png + saida/<arquivo>/<id>.json (campos e travas).
 
 Métrica linear: o publi mede o texto com o avanço do FreeType com hinting, que não existe no
@@ -70,16 +71,19 @@ def gera(arquivo):
     os.makedirs(pasta, exist_ok=True)
     for c in casos:
         texto = c["texto"]
-        tipo = c.get("tipo") or publi._escolhe(texto, None)
+        foto = os.path.join(AQUI, "fotos", c["foto"]) if c.get("foto") else None
+        tipo = c.get("tipo") or publi._escolhe(texto, "f" if foto else None)
         campos = publi._campos(tipo, texto, c.get("destaque", True))
         assert publi._confere(texto, campos), c["id"]
         pedido = {"tipo": tipo, "formato": c.get("formato", "post"), "marca": c.get("marca") or {}, **campos,
                   "nome": c["id"], "pasta": pasta}
+        if foto:
+            pedido["imagem"] = foto
         for k in ("modo", "tema"):
             if c.get(k):
                 pedido[k] = c[k]
         r = publi.render(pedido)
-        json.dump({"id": c["id"], "tipo": tipo, "escolhido": publi._escolhe(texto, None), "campos": campos,
+        json.dump({"id": c["id"], "tipo": tipo, "escolhido": publi._escolhe(texto, "f" if foto else None), "campos": campos,
                    "travas": r["travas"]}, open(os.path.join(pasta, c["id"] + ".json"), "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
 

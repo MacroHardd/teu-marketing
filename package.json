@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --filter @teu/web dev",
+    "dev:local": "pnpm --filter @teu/web dev:local",
+    "teste:usuarios": "pnpm --filter @teu/web teste:usuarios",
     "build": "pnpm --filter @teu/web build",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",

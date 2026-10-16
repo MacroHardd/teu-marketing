@@ -4,22 +4,43 @@
 
 ## Agora
 
-- **Fase:** construção. M1 aprovado; **M2 pronto local** (jornada J1→J3 passa no E2E); M0 só falta staging.
-- **Handoff da última sessão:** [handoff.md](handoff.md). Entregáveis e roteiro de teste: [entregaveis-2026-10-16.md](entregaveis-2026-10-16.md).
-- **Git:** remoto `MacroHardd/teu-marketing`. `main` = branch de prod, criada no 1º commit (M0+M1). PR `m0-m1-motor-acento → main` (M2 + fix do build) aberto pelo usuário e aprovado por ele; o merge deixa prod verde.
-- **Supabase hospedado:** o usuário criou o projeto e apontou `apps/web/.env` para ele, mas as **migrations não foram aplicadas** lá (erro `PGRST205 Could not find the table`). Falta: `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push` + configurar o painel (`docs/infra.md`). Para desenvolver local, o `.env` precisa voltar às chaves de `pnpm exec supabase status`.
-- **Falta no M0:** staging (Vercel + Supabase sa-east-1 + Resend) e "hello" autenticado lá. O que configurar: [infra.md](infra.md#configuração-de-produção-painel-não-código) + `apps/web/.env.example`.
-- **Próximo passo:** M3 (foto + Ajustes + Variações + Travas ao vivo). Em paralelo, quando o usuário criar as contas: staging e rodar o CI pela 1ª vez (testes de RLS no CI ainda não rodaram em Actions).
-- **Bloqueios:** só staging depende do usuário.
+- **Fase:** construção. M1 aprovado; M2 pronto local; **M3 em andamento** na branch `m3-foto` (criada a partir de `m0-m1-motor-acento`, porque o PR para a `main` ainda não foi mergeado). M0 só falta staging.
+- **Handoff da última sessão:** [handoff.md](handoff.md).
+- **Git / produção:**
+  - `origin/main` ainda está no 1º commit (`c5ea7ad`), **sem o fix do build**: o deploy da `main` quebra até o merge do PR `m0-m1-motor-acento → main`. Na branch o build passa (`pnpm build` e `NITRO_PRESET=vercel`).
+  - `m3-foto` enviada ao GitHub (PR pelo painel).
+  - A branch padrão do GitHub está como `m0-m1-motor-acento`. Trocar para `main` em Settings → General → Default branch (sem `gh`/token aqui, não dá para fazer daqui).
+  - Ordem sugerida: trocar a default para `main` → mergear `m0-m1-motor-acento` → abrir PR `m3-foto → main`.
+- **Supabase hospedado:** projeto criado, `apps/web/.env` aponta para ele, mas as **migrations não foram aplicadas** (erro `PGRST205`). Falta `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push` (agora são 2 migrations: `inicio` e `foto`, que cria o bucket `fotos`) + configurar o painel (`docs/infra.md`).
+- **Feito no M3 até agora:** foto (upload JPEG/PNG/HEIC até 10 MB, reduzida a 2160 px no browser, analisada, bucket privado), Estilos Letra fina e Foto e legenda portados e passando na regressão, troca de Estilo com 1 clique (com sugestão), enquadramento (arrastar) e zoom.
+- **Falta no M3:** Variações (precisam nascer no publi; alinhar com o usuário antes), demais Ajustes (P/M/G, zona, cor da paleta, Elementos, CTA), Trava de rosto (detecção no upload), Trava de contraste com ação de correção, telemetria `ajuste_aplicado`/`trava_*`, Manchete e Número (este depende do fix do `_numero` no publi).
+- **Teste manual local:** `pnpm teste:usuarios` + `pnpm dev:local` (ver [plano.md](plano.md#como-validamos-cada-feature)). Usuários: `parceiro@teste.dev` (Escritório Teste, 3 Assentos: `cliente@`, `cliente2@`, Convite pendente `pendente@`) e `parceiro-b@teste.dev` (Agência Outra: `cliente-b@`), todos `@teste.dev`.
+- **Bloqueios:** staging e merge/default branch dependem do usuário.
 - **Pendência no publi:** `_numero` corta data/hora ("20/11" → "11"). Corrigir no publi antes de portar Número e Herói (ver `packages/oraculo/README.md`).
 - **Valores assumidos sem confirmação explícita do usuário:**
   - o Convite expira em 7 dias
   - um Cliente é considerado parado depois de 14 dias
-  - a foto é reduzida para no máximo 2160 px
-  - Trava bloqueante impede a Exportação
+  - a foto é reduzida para no máximo 2160 px (JPEG 88%); grade de luminância 32×32
+  - Trava bloqueante impede a Exportação; texto que não cabe na Letra fina é bloqueante (o publi corta em 6 linhas)
   - corte do MVP com 5 Estilos (ver [mvp.md](mvp.md))
 
 ## Histórico
+
+### 2026-10-16. Passo a passo de teste local
+- Usuário travou em "Verifique seu email" (o email estava no Mailpit; o fluxo funcionava). `README.md` ganhou "Rodar e testar localmente", com problemas comuns. A tela Entrar mostra "Abrir o Mailpit", só no `nuxt dev`.
+
+### 2026-10-16. Usuários de teste locais
+- `pnpm teste:usuarios` (recusa rodar fora do Supabase local; idempotente) e `pnpm dev:local` (`apps/web/scripts/local.mjs` injeta as chaves de `supabase status`). Verificado: os links entram como Parceiro A, Cliente e Parceiro B no build de produção; Parceiro B só vê o próprio Cliente.
+- Parceiro do E2E renomeado para "Escritório E2E" (não confundir com o de teste manual).
+
+### 2026-10-16. Build verificado + M3 (foto, Letra fina, Foto e legenda)
+- A sessão abriu com o checkout local na `main` velha (build quebrado: `opentype.js` sem default). O fix já estava na branch; trabalho seguiu nela. Build verificado de 3 jeitos: `node .output`, preset `vercel` e clone limpo com pnpm 10 (que troca sozinho para o pnpm 11.8 do `packageManager`).
+- CI ganhou o passo de **build de produção** (preset vercel): antes só lint/typecheck/testes, por isso o build quebrado passou. `.vercel/` no `.gitignore`.
+- Regra registrada no `CLAUDE.md`: só é "pronto" com build de produção + E2E passando local.
+- Motor: `foto.ts` (MetaFoto, `recorteCover` = `ImageOps.fit`, filtro cinza feito à mão), itens `foto` e `degrade` na Cena, Estilos `fina` e `ogilvy`. Regressão: 19 casos novos com fotos sintéticas, diff ≤ 0,9%, luminância atrás do texto ±1 do publi. p95 com foto 18,7 ms (Node).
+- Banco: migration `foto` (colunas `foto_path`, `foto_meta`; bucket privado `fotos` por pasta do Cliente) + 9 testes pgTAP (Parceiro e outro Cliente não leem nem escrevem; Cliente desativado perde acesso).
+- App: editor com foto, Estilos com sugestão, arrastar para enquadrar, zoom. Eventos `estilo_trocado` e `foto_enviada`. E2E cobre Post com foto (upload → Storage → recarregar → exportar), rodado contra o build de produção.
+- Não verificado: HEIC (sem arquivo de teste; caminho = `createImageBitmap`, e `heic2any` carregado sob demanda se falhar), Safari/Edge reais.
 
 ### 2026-10-16. Build de produção corrigido + main
 - `nuxt build` falhava: `"default" is not exported by opentype.js` (o dist ESM do 1.3.5 não tem default; o dev aceitava). Import nomeado + versão fixada. Build ok (52 s) e E2E passou contra o build rodando com `node .output/server/index.mjs`.

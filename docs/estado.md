@@ -5,7 +5,7 @@
 ## Agora
 
 - **Fase:** construção. M1 aprovado; **M2 pronto local** (jornada J1→J3 passa no E2E); M0 só falta staging.
-- **Handoff da última sessão:** [handoff.md](handoff.md).
+- **Handoff da última sessão:** [handoff.md](handoff.md). Entregáveis e roteiro de teste: [entregaveis-2026-10-16.md](entregaveis-2026-10-16.md).
 - **Branch:** `m0-m1-motor-acento` (main vazia; o usuário configura remoto e aprova PR).
 - **Falta no M0:** staging (Vercel + Supabase sa-east-1 + Resend) e "hello" autenticado lá. O que configurar: [infra.md](infra.md#configuração-de-produção-painel-não-código) + `apps/web/.env.example`.
 - **Próximo passo:** M3 (foto + Ajustes + Variações + Travas ao vivo). Em paralelo, quando o usuário criar as contas: staging e rodar o CI pela 1ª vez (testes de RLS no CI ainda não rodaram em Actions).

@@ -233,3 +233,15 @@ export function texto(fonte: NomeFonte, tam2x: number, x2x: number, yb2x: number
 export function ret(x0: number, y0: number, x1: number, y1: number, cor: Cor): Item {
   return { tipo: 'ret', x: x0 / S, y: y0 / S, w: (x1 - x0) / S, h: (y1 - y0) / S, cor }
 }
+
+/** 1ª frase (até . ! ? : ou quebra de linha) e o resto, sem trocar palavra (`separa_frase` do publi). */
+export function separaFrase(texto: string): [string, string] {
+  const t = texto.trim()
+  if (t.includes('\n')) {
+    const i = t.indexOf('\n')
+    return [t.slice(0, i).trim(), split(t.slice(i + 1)).join(' ')]
+  }
+  const m = /^([\s\S]+?[.!?:])\s+(\S[\s\S]*)$/u.exec(t)
+  if (m) return [m[1]!.trim(), m[2]!.trim()]
+  return [t, '']
+}

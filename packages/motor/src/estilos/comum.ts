@@ -1,6 +1,7 @@
 import type { Cor, Tema } from '../cor'
-import type { Item } from '../cena'
+import type { Item, Travas } from '../cena'
 import type { Fontes } from '../fontes'
+import { recorteCover, type Enquadramento, type Filtro, type MetaFoto } from '../foto'
 import { fonte, largura, px, texto } from '../texto'
 
 export type Formato = 'post' | 'story'
@@ -17,6 +18,8 @@ export interface Pedido {
   formato: Formato
   marca: Marca
   modo?: 'claro' | 'escuro'
+  foto?: MetaFoto
+  enquadramento: Enquadramento
 }
 
 export interface Contexto {
@@ -31,7 +34,7 @@ export interface Contexto {
 export interface Saida {
   fundo: Cor
   itens: Item[]
-  travas: { acentoAreaPct?: number }
+  travas: Omit<Travas, 'avisos'>
 }
 
 /** Retângulo útil (x0, y0, x1, y1): margem 72; no story, fora da interface do Instagram. */
@@ -64,10 +67,19 @@ export function assinatura(fontes: Fontes, t: Tema, marca: Marca, x: number, y: 
 export function areaDaCor(itens: Item[], cor: Cor, fontes: Fontes, W: number, H: number): number {
   let soma = 0
   for (const it of itens) {
+    if (it.tipo === 'foto' || it.tipo === 'degrade') continue
     if (it.cor.some((v, i) => v !== cor[i])) continue
     if (it.tipo === 'texto') soma += fontes[it.fonte].tinta(it.texto, it.tam)
     else if (it.tipo === 'circulo') soma += Math.PI * it.r * it.r
     else soma += it.w * it.h
   }
   return soma / (W * H) * 100
+}
+
+/** Foto em cover na caixa (x0, y0, x1, y1), como o `tela.foto` do publi (tamanho medido em 2x). */
+export function fotoCover(p: Pedido, x0: number, y0: number, x1: number, y1: number, filtro?: Filtro): Item | null {
+  if (!p.foto) return null
+  const w = px(x1 - x0)
+  const h = px(y1 - y0)
+  return { tipo: 'foto', x: px(x0) / 2, y: px(y0) / 2, w: w / 2, h: h / 2, recorte: recorteCover(p.foto, w, h, p.enquadramento), filtro }
 }

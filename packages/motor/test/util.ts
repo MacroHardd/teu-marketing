@@ -1,7 +1,9 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { createCanvas } from '@napi-rs/canvas'
-import { carregaFontes, desenha, NOMES_FONTES, type Cena, type Ctx2D, type Fontes, type NomeFonte, type NomeTema, type TipoEstilo } from '../src'
+import { createCanvas, type Canvas } from '@napi-rs/canvas'
+import { PNG } from 'pngjs'
+import { analisaFoto, aplicaFiltro, carregaFontes, chaveFiltro, desenha, NOMES_FONTES, type Cena, type Ctx2D, type Filtro, type Fontes,
+  type MetaFoto, type NomeFonte, type NomeTema, type ProvedorFoto, type TipoEstilo } from '../src'
 
 export const RAIZ = join(import.meta.dirname, '..')
 export const ORACULO = join(RAIZ, '..', 'oraculo')
@@ -19,9 +21,41 @@ export function fontes(): Fontes {
   return _fontes
 }
 
-export function renderiza(cena: Cena) {
+export interface FotoTeste {
+  meta: MetaFoto
+  provedor: ProvedorFoto
+}
+
+const _fotos = new Map<string, FotoTeste>()
+/** Foto de teste do oráculo: metadado (como no upload) + provedor com cache por filtro (como no app). */
+export function foto(arquivo: string): FotoTeste {
+  let f = _fotos.get(arquivo)
+  if (!f) {
+    const img = PNG.sync.read(readFileSync(join(ORACULO, 'fotos', arquivo)))
+    const dados = { data: new Uint8ClampedArray(img.data) }
+    const meta = analisaFoto(dados.data, img.width, img.height)
+    const cache = new Map<string, Canvas>()
+    const provedor = (filtro?: Filtro) => {
+      const k = chaveFiltro(filtro)
+      if (!cache.has(k)) {
+        const c = createCanvas(img.width, img.height)
+        const d = c.getContext('2d').createImageData(img.width, img.height)
+        d.data.set(dados.data)
+        if (filtro) aplicaFiltro(d.data, filtro)
+        c.getContext('2d').putImageData(d, 0, 0)
+        cache.set(k, c)
+      }
+      return cache.get(k)
+    }
+    f = { meta, provedor }
+    _fotos.set(arquivo, f)
+  }
+  return f
+}
+
+export function renderiza(cena: Cena, provedor?: ProvedorFoto) {
   const cv = createCanvas(cena.largura, cena.altura)
-  desenha(cv.getContext('2d') as unknown as Ctx2D, cena, fontes())
+  desenha(cv.getContext('2d') as unknown as Ctx2D, cena, fontes(), 1, provedor)
   return cv
 }
 
@@ -34,6 +68,8 @@ export interface Caso {
   modo?: 'claro' | 'escuro'
   tema?: NomeTema
   destaque?: boolean
+  /** Arquivo em packages/oraculo/fotos. */
+  foto?: string
 }
 
 export function casos(conjunto: string): Caso[] {
@@ -49,4 +85,4 @@ export function referencia(conjunto: string, id: string) {
 export const temSaida = (conjunto: string) => existsSync(join(ORACULO, 'saida', conjunto)) && readdirSync(join(ORACULO, 'saida', conjunto)).length > 0
 
 /** Caso do oráculo → Entrada do Motor (o `tipo` do caso força o Estilo). */
-export const entrada = (c: Caso) => ({ ...c, estilo: c.tipo as TipoEstilo | undefined })
+export const entrada = (c: Caso) => ({ ...c, estilo: c.tipo as TipoEstilo | undefined, foto: c.foto ? foto(c.foto).meta : undefined })

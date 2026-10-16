@@ -1,19 +1,46 @@
-# Handoff: Teu Marketing (2026-10-16, fim da sessão do M2 local)
+# Handoff: Teu Marketing (2026-10-16, fim da sessão M1 + M2 local)
 
 ## Onde estamos
-M1 aprovado e **M2 pronto local**: Admin (script) → Parceiro entra por link mágico → convida → Cliente entra pelo Convite com 1 clique → escreve → Acento → baixa PNG. Tudo na branch `m0-m1-motor-acento`. Falta staging (contas do usuário). Status em `docs/estado.md`.
+M1 (spike do motor) aprovado. **M2 pronto local**: Admin por script → Parceiro entra por link mágico → convida → Cliente entra pelo Convite com 1 clique → escreve → Estilo Acento → baixa o PNG. O M0 só não tem staging, que depende das contas do usuário. Tudo está na branch `m0-m1-motor-acento`; a main está vazia.
 
-**Leia nesta ordem:** `CLAUDE.md` (comandos + pegadinhas de auth) → `docs/estado.md` → `docs/mvp.md` → `CONTEXT.md` → `docs/plano.md`.
+**Leia nesta ordem:**
+1. `CLAUDE.md`: comandos, pegadinhas de auth/Convite, como a paridade com o publi funciona
+2. `docs/estado.md`: status, próximo passo, valores assumidos, pendência do publi
+3. `docs/entregaveis-2026-10-16.md`: o que foi entregue, roteiro de teste manual, o que o usuário precisa fazer
+4. `docs/mvp.md`: o alvo e o checklist de aceite
+5. `docs/plano.md`: M3 em diante
+6. Conforme a necessidade: `CONTEXT.md`, `docs/infra.md` (configuração de prod), `docs/adr/*`, `packages/oraculo/README.md`
 
 ## Próxima tarefa
-1. **M3** (`docs/plano.md`): upload de foto (padrão do template chat), Ajustes da lista fechada, Variações, Travas ao vivo. Exige portar mais Estilos/Variações do publi (Letra fina e Foto e legenda usam foto). Antes de Número/Herói: corrigir `_numero` no publi.
-2. **Staging**, quando o usuário criar Supabase (sa-east-1), Vercel e Resend: seguir `docs/infra.md` → "Configuração de produção" e `apps/web/.env.example`. Ele mesmo preenche as chaves; nunca pedir chave no chat.
-3. Rodar o CI pela 1ª vez quando houver remoto (o passo de RLS sobe Supabase em Docker no Actions; ainda não testado lá).
+**M3** (`docs/plano.md`): foto (upload, HEIC→JPEG, redimensionar, análise de luminância/cor/rosto), Ajustes da lista fechada, Variações, Travas ao vivo com ação de correção. Na prática:
+- Os Estilos com foto do corte do MVP (**Letra fina** `p_fina` e **Foto e legenda** `p_ogilvy`) precisam ser portados. O fluxo de porte está em `CLAUDE.md`: caso em `packages/oraculo/casos/<tipo>.json` → `gerar.py` → conjunto no laço de `test/regressao.test.ts`. O oráculo ainda não aceita foto nos casos: falta passar `imagem` no `gerar.py`.
+- O Motor nunca lê pixel. A análise da foto vira metadado no upload (ADR 0001). O publi lê pixel da foto (`foto_cover`, `energia` etc.), então a porta precisa trocar isso por metadados equivalentes.
+- **Variações** ainda não existem no publi. Elas nascem no publi e depois são portadas (regra do `CLAUDE.md`). Antes de inventar, alinhar com o usuário.
+- Antes de portar Número/Herói: corrigir `_numero` no publi (veja `packages/oraculo/README.md`).
+- O editor atual (`apps/web/app/pages/posts/[id].vue`) só tem texto e Acento fixo. As Travas mapeiam os avisos do Motor por regex (array `AVISOS`).
+
+Em paralelo, quando o usuário avisar que criou as contas: staging conforme `docs/infra.md` → "Configuração de produção" e depois rodar o CI pela 1ª vez (o passo de RLS no Actions nunca rodou).
 
 ## Contexto que não está nos docs
-- **Git:** o usuário configura remoto e contas. Commitar só em branch (nunca main); PR ele aprova.
-- **Como o usuário trabalha:** rápido, respostas curtas (caveman, PT-BR), interface limpa (nunca Canva).
-- **Ambiente:** Python sem `ensurepip` → `uv` para o venv do oráculo. Extensão Chrome não conecta; E2E usa `playwright-core` + `/usr/bin/google-chrome`. `pkill -f "nuxt dev"` mata o próprio shell: parar o dev pelo PID da porta (`ss -ltnp | grep :3000`).
-- **Dev:** `apps/web/.env` local já existe (chaves públicas de demo do Supabase local). Supabase local guarda os dados entre `stop/start`; `pnpm exec supabase db reset` zera.
-- **Editor M2** só tem texto + Acento; "Trava bloqueante" hoje = texto cortado (desabilita "Baixar imagem"). Legenda, Perfil de Marca e foto ficam para M3/M5.
-- **Fontes do publi:** usar como estão; não levantar licença. **IA:** fora do MVP.
+- **Git:** o usuário configura remoto e contas; você não tem acesso ao GitHub dele. Commitar só em branch, nunca na main. PR quem aprova é ele; abrir só se der sem pedir permissão. Nunca pedir chaves no chat: ele preenche `.env` e o painel.
+- **Como o usuário trabalha:** quer rapidez ("precisa funcionar"), decide rápido, pediu respostas no estilo caveman em PT-BR. Interface limpa, **nunca virar Canva**.
+- **Ambiente:**
+  - O Python do sistema não tem `ensurepip`: use `uv` para o venv do oráculo.
+  - A extensão Chrome não conecta. Para ver a UI, use `playwright-core` (já é devDependency do web) com `/usr/bin/google-chrome`.
+  - Não use `pkill -f "nuxt dev"`, que mata o próprio shell. Pare o dev pelo PID da porta (`ss -ltnp | grep :3000`).
+  - No dev, clicar antes da hidratação perde o evento. Espere `networkidle` (o E2E já faz isso).
+- **Estado local:**
+  - `apps/web/.env` existe, gitignored, com as chaves de demo do Supabase local.
+  - O Supabase local tem Parceiros de teste criados pelos E2E. `pnpm exec supabase db reset` zera tudo.
+  - Depois de uma migration nova: `pnpm db:tipos`, `pnpm db:test` e `pnpm exec supabase db advisors --local`.
+- **Domínio** `app.teumarketing.com.br` no `.env.example` é um palpite, ainda não confirmado.
+- **Fontes do publi:** usar como estão, sem levantar licença. **IA:** fora do MVP, não propor.
+
+## Skills sugeridas
+- `supabase`: migrations, RLS, Storage (bucket privado de fotos com URL assinada no M3), advisors
+- `nuxt-ui`: componentes da barra de Ajustes e da grade de Estilos/Variações
+- `tdd`: porte de cada Estilo/Variação (Motor puro) e regras das Travas
+- `diagnose`: divergência entre preview e PNG ou regressão visual reprovando
+- `grill-with-docs`: quando surgir decisão de domínio (Variações, Ajustes); atualiza `CONTEXT.md` e ADRs
+- `product-designer` / `ui-ux-pro-max`: revisar o editor para manter a interface leiga
+- `to-issues`: quebrar o M3 em fatias quando houver tracker

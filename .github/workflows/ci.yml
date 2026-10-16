@@ -42,6 +42,11 @@ jobs:
       - name: Testes (motor + regressão visual)
         run: pnpm run test
 
+      - name: Testes de RLS (Supabase local)
+        run: |
+          pnpm exec supabase db start
+          pnpm run db:test
+
       - name: Diferenças visuais
         if: failure()
         uses: actions/upload-artifact@v4

@@ -7,7 +7,13 @@
     "build": "pnpm --filter @teu/web build",
     "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
-    "test": "pnpm -r --if-present test"
+    "test": "pnpm -r --if-present test",
+    "parceiro:criar": "pnpm --filter @teu/web parceiro:criar",
+    "db:test": "supabase test db",
+    "db:tipos": "supabase gen types typescript --local > apps/web/app/types/database.types.ts"
   },
-  "packageManager": "pnpm@11.8.0"
+  "packageManager": "pnpm@11.8.0",
+  "devDependencies": {
+    "supabase": "2.121.0"
+  }
 }

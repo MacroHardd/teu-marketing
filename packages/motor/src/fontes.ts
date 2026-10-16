@@ -1,4 +1,4 @@
-import opentype from 'opentype.js'
+import { parse, type Font, type PathCommand } from 'opentype.js'
 
 /** Fontes do publi (OFL). O Motor mede e o Desenhista desenha com os mesmos arquivos. */
 export const NOMES_FONTES = ['cut', 'grot', 'grot-med', 'grot-semi', 'grot-bold', 'grot-xbold', 'thin', 'thin-reg', 'hand'] as const
@@ -11,7 +11,7 @@ interface Glifo {
 }
 
 /** Área do contorno (shoelace com as curvas achatadas). Contornos internos têm o sentido oposto e descontam. */
-function areaPath(cmds: opentype.PathCommand[]): number {
+function areaPath(cmds: PathCommand[]): number {
   let soma = 0
   let x0 = 0, y0 = 0, x = 0, y = 0
   const seg = (nx: number, ny: number) => {
@@ -49,7 +49,7 @@ export class Fonte {
   readonly upm: number
   private glifos = new Map<string, Glifo>()
 
-  constructor(readonly nome: NomeFonte, readonly ot: opentype.Font) {
+  constructor(readonly nome: NomeFonte, readonly ot: Font) {
     this.upm = ot.unitsPerEm
   }
 
@@ -103,6 +103,6 @@ export type Fontes = Record<NomeFonte, Fonte>
 /** Recebe os .ttf (browser: fetch; Node: readFile) e devolve as fontes prontas. */
 export function carregaFontes(arquivos: Record<NomeFonte, ArrayBuffer>): Fontes {
   const out = {} as Fontes
-  for (const nome of NOMES_FONTES) out[nome] = new Fonte(nome, opentype.parse(arquivos[nome]))
+  for (const nome of NOMES_FONTES) out[nome] = new Fonte(nome, parse(arquivos[nome]))
   return out
 }

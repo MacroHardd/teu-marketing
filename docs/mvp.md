@@ -41,8 +41,8 @@
 - [ ] Funciona nas versões atuais de Chrome, Safari e Edge no desktop, e não quebra em 375 px de largura.
 
 ### Entrada e Convites
-- [ ] Ninguém se cadastra sozinho. Um email que não foi convidado vê a mensagem "peça acesso ao seu parceiro".
-- [ ] O Convite aceito ocupa um Assento. Sem Assento livre, o Convite não pode ser aceito e aparece uma mensagem clara.
+- [x] Ninguém se cadastra sozinho. Um email que não foi convidado vê a mensagem "peça acesso ao seu parceiro".
+- [x] O Convite aceito ocupa um Assento. Sem Assento livre, o Convite não pode ser aceito e aparece uma mensagem clara.
 - [ ] O Convite expira em 7 dias, o reenvio gera um link novo e o mesmo email não pode estar ativo em dois Parceiros.
 - [ ] O envio respeita o limite do Resend: o excedente fica na fila para o dia seguinte, e o status mostra "agendado".
 

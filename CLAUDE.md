@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado atual
 
-Monorepo criado (M0 parcial) e spike do motor (M1) aprovado com o Estilo Acento. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
+Monorepo, spike do motor (M1, Estilo Acento) e fatia vertical local (M2: Admin → Parceiro → Convite → Cliente → PNG) prontos. Falta staging. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
 
 Produto: **Teu Marketing**, uma plataforma B2B2C. O Parceiro (escritório, mentor ou agência) distribui o acesso aos seus Clientes, e o Cliente cria sozinho posts estáticos de Instagram. O objetivo é **vender o mais rápido possível**: o MVP precisa funcionar, não precisa estar perfeito. O alvo de construção é [`docs/mvp.md`](docs/mvp.md) (jornadas + checklist de aceite + corte), e não o PRD inteiro.
 
@@ -52,8 +52,13 @@ supabase/         migrations, RLS, seed, testes de RLS, metricas/*.sql
 
 ```bash
 pnpm install
-pnpm dev                     # apps/web em http://localhost:3000 (spike do motor: /spike)
+pnpm exec supabase start     # Docker. Copiar apps/web/.env.example → apps/web/.env com as chaves locais (supabase status)
+pnpm dev                     # apps/web em http://localhost:3000; emails (link mágico e Convite) no Mailpit :54324
+pnpm parceiro:criar --nome "Escritório X" --email x@teste.dev --assentos 5   # J1: Admin cria Parceiro (sem `--`)
 pnpm lint && pnpm typecheck && pnpm test
+pnpm db:test                 # testes de RLS (pgTAP, supabase/tests)
+pnpm db:tipos                # regenera apps/web/app/types/database.types.ts depois de migration
+pnpm --filter @teu/web e2e   # jornada J1→J3 num Chrome headless (precisa supabase + dev rodando)
 pnpm --filter @teu/motor exec vitest run test/campos.test.ts   # um arquivo
 pnpm --filter @teu/motor exec vitest run -t "curta"            # um teste pelo nome
 # referências do oráculo (precisa antes da regressão visual; sem elas os testes de regressão pulam)
@@ -61,6 +66,13 @@ packages/oraculo/.venv/bin/python packages/oraculo/gerar.py
 ```
 
 Venv do oráculo: ver `packages/oraculo/README.md` (usar `uv`: o Python do sistema não tem `ensurepip`). Diferenças visuais que reprovam ficam em `packages/motor/test/__diff__/`.
+
+## Auth e Convite (pegadinhas)
+
+- `supabase/config.toml`: `[auth] enable_signup = false` bloqueia cadastro; `[auth.email] enable_signup` tem que ficar **true** (é o provedor de email; false derruba o link mágico).
+- Link do Convite = `/convite/<token>` (rota de servidor). Aceita no banco (`aceitar_convite`: prazo, Assento, outro Parceiro), gera o link mágico no servidor e entra direto via `/confirmar?token_hash=`. Um clique, sem segundo email.
+- `@nuxtjs/supabase` importa `h3` sem declarar: o `pnpm-workspace.yaml` força h3 v1 (`packageExtensions`). Sem isso: `event.req.headers.get is not a function`.
+- Escritas sensíveis (Convite, aceite, eventos) só no servidor com a chave secreta; o browser só lê/escreve o que a RLS deixa.
 
 ## Motor: como a paridade com o publi funciona
 

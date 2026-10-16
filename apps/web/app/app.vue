@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { pt_br as ptBR } from '@nuxt/ui/locale'
+
 const colorMode = useColorMode()
 
 const color = computed(() => colorMode.value === 'dark' ? '#1b1718' : 'white')
@@ -13,25 +15,18 @@ useHead({
     { rel: 'icon', href: '/favicon.ico' }
   ],
   htmlAttrs: {
-    lang: 'en'
-  }
+    lang: 'pt-BR'
+  },
+  titleTemplate: t => t ? `${t} · Teu Marketing` : 'Teu Marketing'
 })
 
-const title = 'Nuxt Dashboard Template'
-const description = 'A professional dashboard template built with Nuxt UI, featuring multiple pages, data visualization, and comprehensive management capabilities for creating powerful admin interfaces.'
-
 useSeoMeta({
-  title,
-  description,
-  ogTitle: title,
-  ogDescription: description,
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/dashboard-light.png',
-  twitterCard: 'summary_large_image'
+  description: 'Posts de Instagram prontos em minutos, sem precisar saber design.'
 })
 </script>
 
 <template>
-  <UApp>
+  <UApp :locale="ptBR">
     <NuxtLoadingIndicator />
 
     <NuxtLayout>

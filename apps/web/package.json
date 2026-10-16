@@ -8,13 +8,17 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "parceiro:criar": "node --env-file-if-exists=.env scripts/criar-parceiro.ts",
+    "e2e": "node e2e/jornada.mjs"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.142",
     "@iconify-json/simple-icons": "^1.2.99",
     "@internationalized/date": "^3.12.4",
     "@nuxt/ui": "^4.11.3",
+    "@nuxtjs/supabase": "2.1.0",
+    "@supabase/supabase-js": "2.118.0",
     "@tanstack/table-core": "^8.21.3",
     "@teu/motor": "workspace:*",
     "@unovis/ts": "^1.7.1",
@@ -32,6 +36,7 @@
     "@nuxt/eslint": "^1.17.0",
     "eslint": "^10.12.0",
     "eslint-plugin-better-tailwindcss": "^4.9.0",
+    "playwright-core": "1.64.1",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.13"
   }

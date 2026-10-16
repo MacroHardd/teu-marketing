@@ -3,7 +3,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
-    '@vueuse/nuxt'
+    '@vueuse/nuxt',
+    '@nuxtjs/supabase'
   ],
 
   devtools: {
@@ -12,9 +13,15 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
-  routeRules: {
-    '/api/**': {
-      cors: true
+  // Valores vêm do ambiente (NUXT_*). Ver .env.example.
+  runtimeConfig: {
+    resendApiKey: '',
+    emailRemetente: 'Teu Marketing <convite@teumarketing.com.br>',
+    // só em dev, sem Resend: os emails do app caem no Mailpit do Supabase local
+    mailpitUrl: '',
+    public: {
+      siteUrl: 'http://localhost:3000',
+      versaoApp: 'dev'
     }
   },
 
@@ -26,6 +33,15 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  supabase: {
+    types: '~/types/database.types.ts',
+    redirectOptions: {
+      login: '/entrar',
+      callback: '/confirmar',
+      exclude: ['/acesso/*']
     }
   }
 })

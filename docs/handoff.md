@@ -1,7 +1,7 @@
 # Handoff: Teu Marketing (2026-10-17, Cliente direto)
 
 ## Onde estamos
-Branch **`m-b2c-assinatura`** (só local), empilhada sobre `m5-meus-posts` → `m3-estilos` → `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`. Nenhum PR mergeado.
+Branch **`m-b2c-assinatura`** (no GitHub; todas as branches da pilha enviadas em 2026-10-17, o usuário organiza os PRs), empilhada sobre `m5-meus-posts` → `m3-estilos` → `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`. Nenhum PR mergeado.
 
 - **Feito nesta sessão:** Cliente direto (ADR 0005). A pessoa assina sozinha (mensal ou anual, Asaas, sem trial) e vira Cliente do **Parceiro da casa** (`parceiros.direto`). O fluxo do Parceiro não muda: mesma RLS, mesmo `parceiro_id`, mesmo Convite. A única mudança no Convite é a migração: Cliente direto que aceita um Convite passa para o Parceiro.
 - **Testado só com pagamento simulado** (`NUXT_ASAAS_SIMULADO=1`, posto pelo `scripts/local.mjs`). O caminho real do Asaas (`server/utils/asaas.ts`) foi escrito pela documentação da API v3 e **ainda não rodou contra o sandbox**.
@@ -43,14 +43,14 @@ Preparar: `pnpm exec supabase migration up < /dev/null` (migration `assinatura`)
 
 ## Pendências do usuário
 - **Preços** mensal e anual (hoje aparece "preço a definir": `NUXT_PUBLIC_PRECO_MENSAL/ANUAL`).
-- **Conta de sandbox do Asaas** + API key, para validar o caminho real: fatura, webhook, renovação, atraso, reembolso e cancelamento. O webhook precisa de URL pública, ou seja, staging.
+- **Teste no staging com o sandbox do Asaas** (webhook já criado pelo usuário: v3, envio sequencial, todos os eventos de cobrança e assinatura). Faltam no staging: migrations (`db push`) + variáveis `NUXT_ASAAS_*`, `NUXT_PUBLIC_PRECO_*`, `CRON_SECRET`.
 - Confirmar os valores assumidos acima (carência de 3 dias, reembolso na migração).
 - **Vercel Pro antes de vender direto:** o Hobby proíbe uso comercial.
 - CNPJ/NF e textos legais de venda ao consumidor (CDC: arrependimento em 7 dias). O termo do M7 precisa cobrir o Cliente direto.
 - Seguem as pendências antigas:
   - Trava de rosto: fica no MVP ou vai para o backlog?
   - E0 da estilização
-  - push e PRs (agora com `m-b2c-assinatura` no fim da fila)
+  - PRs na ordem da pilha: `m0-m1-motor-acento → main`, `m3-foto`, `m3-ajustes`, `m3-estilos`, `m5-meus-posts`, `m-b2c-assinatura`
   - publi-lab
   - staging
   - arquivos de textura

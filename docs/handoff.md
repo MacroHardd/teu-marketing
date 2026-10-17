@@ -66,9 +66,23 @@ Preparar: `pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:loc
   - Vercel e Resend
   - no painel do hospedado, Auth → Email Templates → Magic Link: copiar `supabase/templates/magic_link.html`
 
-## Próximo passo
-1. Receber o retorno do usuário sobre as Fases A e B.
-2. Depois: Riscada e misturas (quando ele pedir), features de imagem (incluindo a Trava de rosto), Número (precisa do fix do `_numero` no publi) e staging.
+## Próximo passo (a próxima sessão faz, nesta ordem)
+1. **Abrir:** `git branch` (deve estar em `m3-ajustes`) → `pnpm build`. Se quebrar, corrigir antes de tudo.
+2. **Retorno do usuário sobre as Fases A/B:** perguntar o que ele achou no teste e corrigir. Se ele não tiver testado, seguir.
+3. **Teste de desempenho:** rodar `pnpm --filter @teu/motor exec vitest run test/desempenho.test.ts` com a máquina livre (`uptime` com load < 2).
+   - Se passar, só anotar no `estado.md`.
+   - Se falhar com a máquina livre, otimizar o Motor. Não mexer no limite de 50 ms.
+4. **M5, o que falta (J4):** Meus Posts com **duplicar** e **excluir**, mais os eventos `post_duplicado`/`post_excluido`. Miniatura do Post na grade, se for barato (mesmo Motor).
+5. **M6 (J5), sem depender do usuário:**
+   - Convite por **CSV**
+   - **fila** de envio no limite de 100/dia do Resend, com status "agendado"
+   - **expiração** do Convite (7 dias) por cron diário
+   - **desativar Cliente** liberando o Assento
+   - destaque do **Cliente parado** (14 dias)
+   - o Parceiro continua sem ver conteúdo (RLS + pgTAP)
+6. Fechar com lint, typecheck, test, `db:test`, build e E2E, mais o roteiro de teste Parceiro/Cliente para o usuário.
+
+Fora da próxima sessão, até o usuário pedir: Riscada e misturas, features de imagem (Trava de rosto), Número (falta o fix do `_numero` no publi) e staging (contas dele).
 
 ## Contexto que não está nos docs
 - **O usuário deixa o `dev:local` rodando na 3000.** Não mate.

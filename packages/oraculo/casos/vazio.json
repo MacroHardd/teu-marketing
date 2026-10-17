@@ -1,0 +1,10 @@
+[
+  {"id": "curta", "tipo": "vazio", "texto": "Pense pequeno", "foto": "clara.png"},
+  {"id": "marca", "tipo": "vazio", "texto": "O essencial cabe na mão", "foto": "escura.png", "marca": {"nome": "Ateliê Sol", "perfil": "@ateliesol"}},
+  {"id": "destaque", "tipo": "vazio", "texto": "Menos é *mais*", "foto": "mista.png"},
+  {"id": "longo", "tipo": "vazio", "texto": "Um produto simples, feito à mão, com material bom e acabamento que dura muitos anos", "foto": "clara.png"},
+  {"id": "sem-foto", "tipo": "vazio", "texto": "Pense pequeno"},
+  {"id": "cor-marca", "tipo": "vazio", "texto": "Feito para durar", "foto": "clara.png", "marca": {"perfil": "@marcenaria", "cor": "#2443d6"}},
+  {"id": "escuro", "tipo": "vazio", "texto": "Feito para durar", "foto": "escura.png", "modo": "escuro"},
+  {"id": "story", "tipo": "vazio", "texto": "O essencial cabe na mão", "foto": "clara.png", "formato": "story", "marca": {"perfil": "@ateliesol"}}
+]

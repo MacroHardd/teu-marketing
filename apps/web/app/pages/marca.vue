@@ -97,7 +97,7 @@ function previa() {
     marca: marcaDoPerfil(form),
     ajustes: { cor: form.cor ? 'marca' : undefined }
   }, fontes.value)
-  desenha(canvas.value.getContext('2d') as unknown as Ctx2D, r.cena, fontes.value, canvas.value.width / 1080, undefined, logoImg.value)
+  desenha(canvas.value.getContext('2d') as unknown as Ctx2D, r.cena, fontes.value, canvas.value.width / 1080, undefined, logoImg.value, novaTela)
 }
 watch(form, previa, { deep: true })
 watch(logoImg, previa)

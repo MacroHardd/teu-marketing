@@ -8,11 +8,20 @@ import { manchete } from './estilos/manchete'
 import { zona } from './estilos/zona'
 import { sincope } from './estilos/sincope'
 import { ogilvy } from './estilos/ogilvy'
+import { numero } from './estilos/numero'
+import { selo } from './estilos/selo'
+import { duotom } from './estilos/duotom'
+import { vazio } from './estilos/vazio'
+import { heroi } from './estilos/heroi'
+import { citacao } from './estilos/citacao'
+import { riscada } from './estilos/riscada'
 import { ENQUADRAMENTO_PADRAO, type Enquadramento, type MetaFoto } from './foto'
 import type { Contexto, Formato, Marca, Saida } from './estilos/comum'
 import { ELEMENTOS, ESCALA, VARIACOES, variacaoPadrao, type Ajustes, type Elemento } from './ajustes'
 
-const ESTILOS: Partial<Record<TipoEstilo, (c: Contexto) => Saida>> = { acento, manchete, fina, ogilvy, zona, sincope }
+const ESTILOS: Partial<Record<TipoEstilo, (c: Contexto) => Saida>> = {
+  acento, manchete, numero, fina, selo, duotom, vazio, ogilvy, heroi, citacao, zona, sincope, riscada,
+}
 
 export const estilosPortados = () => Object.keys(ESTILOS) as TipoEstilo[]
 
@@ -55,7 +64,7 @@ export function motor(e: Entrada, fontes: Fontes): Resultado {
   const H = formato === 'story' ? 1920 : 1350
   const marca = e.marca ?? {}
   const aj = e.ajustes ?? {}
-  const variacao = VARIACOES[estilo]?.some(v => v.id === e.variacao) ? e.variacao : variacaoPadrao(estilo, foto)
+  const variacao = VARIACOES[estilo]?.some(v => v.id === e.variacao) ? e.variacao : variacaoPadrao(estilo, foto, !!e.marca?.cor)
   const av: string[] = []
   const modo = aj.modo ?? e.modo
   // cor da paleta: tema curado escolhido > cor da marca > tema da Entrada

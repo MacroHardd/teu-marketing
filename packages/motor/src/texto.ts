@@ -225,6 +225,17 @@ export class Bloco {
   }
 }
 
+/** Linha única: encolhe até `smin` e, se ainda não couber, corta com reticências (`uma_linha` do publi). */
+export function umaLinha(fontes: Fontes, s: string, nome: NomeFonte, tam: number, wmax: number, smin?: number): [string, F, number] {
+  while (smin && tam > smin && largura(fonte(fontes, nome, px(tam)), s) > px(wmax)) tam -= 1
+  const f = fonte(fontes, nome, px(tam))
+  if (largura(f, s) > px(wmax)) {
+    while (s && largura(f, s + '…') > px(wmax)) s = s.slice(0, -1)
+    s = s.trimEnd() + '…'
+  }
+  return [s, f, tam]
+}
+
 // ------------------------------------------------------------------ itens da Cena (entrada em 2x, saída em 1x)
 export function texto(fonte: NomeFonte, tam2x: number, x2x: number, yb2x: number, s: string, cor: Cor): Item {
   return { tipo: 'texto', fonte, tam: tam2x / S, x: x2x / S, y: yb2x / S, texto: s, cor }

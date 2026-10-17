@@ -26,7 +26,7 @@ describe('analisaFoto', () => {
     const px = new Uint8ClampedArray(w * h * 4)
     for (let i = 0; i < w * h; i++) px.set(i < 8 ? [255, 255, 255, 255] : [0, 0, 0, 255], i * 4)
     const m = analisaFoto(px, w, h, 2)
-    expect(m).toEqual({ largura: 4, altura: 4, cols: 2, lins: 2, lum: [255, 255, 0, 0] })
+    expect(m).toEqual({ largura: 4, altura: 4, cols: 2, lins: 2, lum: [255, 255, 0, 0], bordas: [63.75, 63.75, 0, 0] })
     expect(lumEm(m, 2, 0)).toBe(255)
     expect(lumEm(m, 2, 4)).toBe(0)
     expect(lumEm(m, 2, 2)).toBeCloseTo(127.5)

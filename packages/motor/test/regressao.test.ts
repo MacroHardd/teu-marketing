@@ -16,13 +16,13 @@ import { casos, entrada, foto, fontes, referencia, renderiza, RAIZ, temSaida } f
 const LIMITE_PCT = 1
 const DIFF = join(RAIZ, 'test', '__diff__')
 
-for (const conjunto of ['manchete', 'ogilvy']) {
+for (const conjunto of ['manchete', 'ogilvy', 'numero', 'heroi', 'vazio', 'selo', 'citacao', 'duotom']) {
   describe.skipIf(!temSaida(conjunto))(`regressão ${conjunto}`, () => {
     for (const c of casos(conjunto)) {
       it(c.id, () => {
         const ref = referencia(conjunto, c.id)!
         const r = motor(entrada(c), fontes())
-        expect(r.estilo).toBe(ref.json.tipo)
+        expect(r.estilo).toBe(ref.json.tipo === 'bluenote' ? 'duotom' : ref.json.tipo)
         expect(r.campos).toEqual(ref.json.campos)
         expect(r.cena.travas.avisos).toEqual(ref.json.travas.avisos)
         if (ref.json.travas.acento_area_pct !== undefined) {
@@ -35,13 +35,16 @@ for (const conjunto of ['manchete', 'ogilvy']) {
         }
         if (ref.json.travas.corpo_px !== undefined) expect(r.cena.travas.corpoPx).toBe(ref.json.travas.corpo_px)
         if (ref.json.travas.titulo_px !== undefined) expect(r.cena.travas.tituloPx).toBe(ref.json.travas.titulo_px)
+        if (ref.json.travas.numero_px !== undefined) expect(r.cena.travas.numeroPx).toBe(ref.json.travas.numero_px)
+        if (ref.json.travas.objeto_area_pct !== undefined) expect(r.cena.travas.objetoAreaPct).toBe(ref.json.travas.objeto_area_pct)
+        if (ref.json.travas.citacao_em !== undefined) expect(r.cena.travas.citacaoEm).toBe(ref.json.travas.citacao_em)
         const a = PNG.sync.read(ref.png)
         const cv = renderiza(r.cena, c.foto ? foto(c.foto).provedor : undefined)
         const b = PNG.sync.read(cv.toBuffer('image/png'))
         const diff = new PNG({ width: a.width, height: a.height })
         const n = pixelmatch(a.data, b.data, diff.data, a.width, a.height, { threshold: 0.2 })
         const pct = n / (a.width * a.height) * 100
-        if (pct >= LIMITE_PCT) {
+        if (pct >= LIMITE_PCT || process.env.DIFF) {
           mkdirSync(DIFF, { recursive: true })
           writeFileSync(join(DIFF, `${conjunto}-${c.id}-ts.png`), cv.toBuffer('image/png'))
           writeFileSync(join(DIFF, `${conjunto}-${c.id}-diff.png`), PNG.sync.write(diff))

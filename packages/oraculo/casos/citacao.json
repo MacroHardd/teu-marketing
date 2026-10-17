@@ -1,0 +1,9 @@
+[
+  {"id": "aspas", "texto": "\"Mudou minha relação com o dinheiro\" — Ana, cliente", "foto": "mista.png"},
+  {"id": "curvas", "texto": "“Nunca imaginei vender tanto em tão pouco tempo” – Carlos", "foto": "clara.png"},
+  {"id": "escura", "texto": "\"O atendimento me fez sentir em casa\" — Marta", "foto": "escura.png", "marca": {"cor": "#ffcf40"}},
+  {"id": "sem-quem", "tipo": "citacao", "texto": "\"Melhor decisão do ano para a minha empresa\"", "foto": "clara.png", "marca": {"nome": "Mentoria Alta"}},
+  {"id": "longa", "tipo": "citacao", "texto": "\"Cheguei sem saber nada de marketing e hoje tenho agenda cheia todo mês, com clientes que chegam pelo Instagram e indicam os amigos sem eu pedir\" — Paula, nutricionista", "foto": "mista.png"},
+  {"id": "sem-foto", "tipo": "citacao", "texto": "\"Mudou minha relação com o dinheiro\" — Ana", "marca": {"cor": "#2443d6"}},
+  {"id": "story", "texto": "\"Mudou minha relação com o dinheiro\" — Ana, cliente", "foto": "clara.png", "formato": "story"}
+]

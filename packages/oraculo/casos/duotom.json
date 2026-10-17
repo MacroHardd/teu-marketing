@@ -1,0 +1,12 @@
+[
+  {"id": "faixa", "texto": "Workshop de marketing no sábado 20/11 às 19h", "foto": "clara.png", "marca": {"perfil": "@escola", "cor": "#2f6b4f"}},
+  {"id": "janela", "variacao": "janela", "texto": "Workshop de marketing no sábado 20/11 às 19h", "foto": "clara.png", "marca": {"perfil": "@escola", "cor": "#2f6b4f"}},
+  {"id": "linhas", "texto": "Inauguração\nSábado, 14h\nRua das Flores, 120", "foto": "escura.png", "marca": {"nome": "Café Flor", "cor": "#d43a2a"}},
+  {"id": "linhas-janela", "variacao": "janela", "texto": "Inauguração\nSábado, 14h\nRua das Flores, 120", "foto": "mista.png", "marca": {"nome": "Café Flor", "cor": "#d43a2a"}},
+  {"id": "destaque", "texto": "Noite das *noivas* sábado 22/11 às 19h", "foto": "mista.png", "marca": {"perfil": "@studio", "cor": "#2443d6"}},
+  {"id": "sem-cor", "texto": "Aula aberta dia 5 de março", "foto": "clara.png"},
+  {"id": "longo", "tipo": "duotom", "texto": "Encontro de empreendedoras do bairro com palestra, café e muita troca de experiência entre quem está começando agora no sábado 20/11", "foto": "clara.png"},
+  {"id": "sem-foto", "texto": "Live quinta-feira com convidada especial", "marca": {"perfil": "@live"}},
+  {"id": "story", "texto": "Workshop de marketing no sábado 20/11 às 19h", "foto": "clara.png", "formato": "story", "marca": {"perfil": "@escola", "cor": "#2f6b4f"}},
+  {"id": "story-janela", "variacao": "janela", "texto": "Workshop de marketing no sábado 20/11 às 19h", "foto": "escura.png", "formato": "story", "marca": {"perfil": "@escola"}}
+]

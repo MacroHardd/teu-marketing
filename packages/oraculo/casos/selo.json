@@ -1,0 +1,9 @@
+[
+  {"id": "curta", "texto": "Gente que cuida", "foto": "clara.png", "marca": {"nome": "Clínica Bem"}},
+  {"id": "uma", "texto": "Coragem", "foto": "escura.png", "marca": {"nome": "Studio Lua", "cor": "#1f8a70"}},
+  {"id": "mista", "texto": "Feito à mão", "foto": "mista.png", "marca": {"nome": "Ateliê Sol", "perfil": "@ateliesol"}},
+  {"id": "longo", "tipo": "selo", "texto": "Cada detalhe aqui foi pensado para você se sentir em casa desde o primeiro minuto", "foto": "clara.png", "marca": {"nome": "Casa Bela"}},
+  {"id": "sem-foto", "tipo": "selo", "texto": "Gente que cuida", "marca": {"nome": "Clínica Bem", "cor": "#c2185b"}},
+  {"id": "nome-longo", "texto": "Desde 1998", "foto": "clara.png", "marca": {"nome": "Padaria e Confeitaria Pão Quente do Bairro"}},
+  {"id": "story", "texto": "Gente que cuida", "foto": "mista.png", "formato": "story", "marca": {"nome": "Clínica Bem"}}
+]

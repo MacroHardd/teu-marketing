@@ -2,12 +2,12 @@
 // O texto do caso usa a marcação do Cliente: *palavra* = palavra escolhida (acento, ou fora da coluna na Síncope).
 import React, { useEffect, useState } from "react";
 import { continueRender, delayRender } from "remotion";
-import { EAcento, EFina, ESincope, EZona } from "./estaticos";
+import { EAcento, EFina, ERiscada, ESincope, EZona } from "./estaticos";
 import { PAL, fontesProntas } from "./presets";
 
 export type Caso = {
   id: string;
-  estilo: "acento" | "zona" | "sincope" | "fina";
+  estilo: "acento" | "zona" | "sincope" | "fina" | "riscada";
   variacao?: string;
   texto: string;
   paleta?: keyof typeof PAL;
@@ -51,6 +51,8 @@ const Peca: React.FC<{ c: Caso }> = ({ c }) => {
       const duotom = c.variacao === "duotom";
       return <EFina linhas={linhasFina(t)} imagem={{ src: `fotos/${c.foto}` }} ink={duotom ? "#ffe14d" : c.ink ?? "#f4f4f0"} tint={duotom ? "#2a3cff" : undefined} />;
     }
+    case "riscada": // chave = palavras marcadas (à mão e riscadas); Variação "acento" = a chave também na cor
+      return <ERiscada texto={t} chave={marcadas(c.texto)} acento={c.variacao === "acento" ? marcadas(c.texto) : []} paleta={pal("se7en")} />;
   }
 };
 

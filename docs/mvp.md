@@ -47,11 +47,11 @@
 - [ ] O envio respeita o limite do Resend: o excedente fica na fila para o dia seguinte, e o status mostra "agendado".
 
 ### Motor e editor
-- [ ] Os Estilos do corte (abaixo) têm as suas Variações e passam na regressão visual contra o oráculo (skill tipografia-igor ou publi).
+- [x] Os Estilos do corte (abaixo) têm as suas Variações e passam na regressão visual contra o oráculo (skill tipografia-igor ou publi).
 - [ ] O PNG exportado é idêntico ao preview (teste automatizado).
 - [x] O texto do Cliente nunca é alterado pelo motor (teste automatizado).
 - [ ] O preview atualiza ao vivo (p95 < 50 ms) em todo Ajuste.
-- [x] Os Ajustes disponíveis são só: texto, P/M/G, zona (topo/centro/base), enquadramento e zoom da foto, cor da paleta, Elementos opcionais (logo, @ ou nome, selo, CTA) e CTA escrito pelo Cliente.
+- [x] Os Ajustes disponíveis são só: texto, P/M/G, zona (topo/centro/base, por botão ou arrastando o texto na prévia, que encaixa numa das 3), enquadramento e zoom da foto, cor da paleta, Elementos opcionais (logo, @ ou nome, selo, CTA) e CTA escrito pelo Cliente.
 - [ ] As Travas avisam quando o texto é cortado, quando falta contraste e quando há texto em cima de um rosto, e sugerem uma correção. Uma Trava bloqueante impede a Exportação até ser resolvida.
 - [ ] Foto: JPEG, PNG e HEIC de até 10 MB, redimensionada no browser.
 - [ ] O salvamento é automático: fechar a aba e voltar não perde nada.
@@ -70,7 +70,7 @@
 
 | Item | No MVP vendável | Depois (backlog) |
 |---|---|---|
-| Estilos | Acento, Manchete, Zona calma, Síncope, Número (sem foto), Letra fina, Foto e legenda (com foto). Variações = as aprovadas na skill tipografia-igor (Zona: raios/foto; Síncope: com/sem bloco; Fina: P&B/duotom) | Riscada e misturas de regras da skill; os outros Estilos do publi |
+| Estilos | Todos os mapeados: os 13 do publi (Acento, Manchete, Número, Letra fina, Foto que fala, Duas tintas, Vazio, Foto e legenda, Herói, Depoimento, Zona calma, Síncope, Riscada), com Acento, Zona calma, Síncope, Letra fina e Riscada pela skill tipografia-igor. Variações = as aprovadas na fonte (Zona: raios/foto; Síncope: com/sem bloco; Fina: P&B/duotom; Riscada: sem cor/com acento; Duas tintas: faixa/janela) | misturas de regras da skill; Duas tintas "parede" (em revisão no publi-lab) |
 | Planilha de Convites | colar emails + **CSV** | XLSX |
 | Painel do Parceiro | Assentos, Convites, lista de Clientes, destaque de Cliente parado, desativar | resumo mensal, exportação CSV, gráficos |
 | Admin | tela mínima ou script | painel completo |
@@ -78,7 +78,7 @@
 | Perfil de Marca | todos os campos | mesmo conjunto |
 | Meus Posts | grade, abrir, duplicar, excluir | busca e filtros |
 
-O corte de Estilos é o maior ganho de prazo. Os 5 escolhidos cobrem o caso com foto e o caso sem foto e não dependem dos efeitos de pixel mais trabalhosos (duotom, riscado, recortes).
+Estilos: decisão do usuário (2026-10-17) de ter todos os Estilos mapeados na skill tipografia-igor e no publi, em vez do corte de 7.
 
 ## Fora do MVP (confirmado)
 

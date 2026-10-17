@@ -8,6 +8,11 @@ export interface MetaFoto {
   cols: number
   lins: number
   lum: number[]
+  /**
+   * "Detalhe" por célula: média do FIND_EDGES do Pillow (Laplaciano 3×3 cortado em 0–255) na resolução do upload.
+   * Fotos antigas não têm (o Motor então usa a variação da grade de luz).
+   */
+  bordas?: number[]
 }
 
 /** Ajuste de enquadramento: centro do recorte (0–1, 0,5 = meio) e zoom (1 = cobre exato). */
@@ -33,7 +38,13 @@ export interface FiltroCinza {
   media: number
   contraste: number
   brilho: number
+  /** ImageOps.colorize do Pillow: o cinza vira uma rampa de `tinge[0]` (preto) a `tinge[1]` (branco). */
+  tinge?: readonly [readonly [number, number, number], readonly [number, number, number]]
 }
+
+/** Rampa do ImageOps.colorize (2 cores): divisão inteira por 255, e 255 = a cor clara exata. */
+const colorize = (v: number, [b, w]: NonNullable<FiltroCinza['tinge']>) =>
+  [0, 1, 2].map(i => (v >= 255 ? w[i]! : b[i]! + Math.floor(v * (w[i]! - b[i]!) / 255))) as [number, number, number]
 
 /**
  * Funções de `filter` do CSS, na ordem (como o navegador aplica nos estáticos da skill tipografia-igor),
@@ -50,23 +61,34 @@ export type Filtro = FiltroCinza | FiltroCss
 /** Luminância "L" do Pillow (ITU-R 601, inteiro). */
 export const lumL = (r: number, g: number, b: number) => (r * 19595 + g * 38470 + b * 7471 + 0x8000) >> 16
 
-/** Pixels RGBA → grade de luminância. Roda no browser, no upload. */
+/** Pixels RGBA → grade de luminância e de detalhe. Roda no browser, no upload. */
 export function analisaFoto(rgba: ArrayLike<number>, largura: number, altura: number, n = 32): MetaFoto {
   const cols = Math.min(n, largura)
   const lins = Math.min(n, altura)
+  const L = new Uint8Array(largura * altura)
+  for (let i = 0, j = 0; j < L.length; i += 4, j++) L[j] = lumL(rgba[i]!, rgba[i + 1]!, rgba[i + 2]!)
   const soma = new Float64Array(cols * lins)
+  const borda = new Float64Array(cols * lins)
   const cont = new Float64Array(cols * lins)
+  const cx = Int32Array.from({ length: largura }, (_, x) => Math.min(cols - 1, Math.floor(x * cols / largura)))
   for (let y = 0; y < altura; y++) {
-    const ly = Math.min(lins - 1, Math.floor(y * lins / altura))
+    const ly = Math.min(lins - 1, Math.floor(y * lins / altura)) * cols
+    const dentro = y > 0 && y < altura - 1
     for (let x = 0; x < largura; x++) {
-      const i = (y * largura + x) * 4
-      const c = ly * cols + Math.min(cols - 1, Math.floor(x * cols / largura))
-      soma[c]! += lumL(rgba[i]!, rgba[i + 1]!, rgba[i + 2]!)
+      const j = y * largura + x
+      const c = ly + cx[x]!
+      soma[c]! += L[j]!
       cont[c]! += 1
+      if (dentro && x > 0 && x < largura - 1) {
+        const v = 8 * L[j]! - L[j - largura - 1]! - L[j - largura]! - L[j - largura + 1]! - L[j - 1]!
+          - L[j + 1]! - L[j + largura - 1]! - L[j + largura]! - L[j + largura + 1]!
+        borda[c]! += v < 0 ? 0 : v > 255 ? 255 : v
+      }
     }
   }
   const lum = Array.from(soma, (s, i) => Math.round(s / cont[i]!))
-  return { largura, altura, cols, lins, lum }
+  const bordas = Array.from(borda, (s, i) => Math.round(s / cont[i]! * 100) / 100)
+  return { largura, altura, cols, lins, lum, bordas }
 }
 
 /** ImageOps.fit do Pillow (cover, centralizado em `enq`), com zoom. `dw/dh` só importam pela proporção. */
@@ -147,9 +169,14 @@ export function filtraLum(v: number, f: Filtro): number {
     const [r, g, b] = pixelCss(v, v, v, f.ops)
     return lumL(r, g, b)
   }
-  const c = Math.min(255, Math.max(0, f.media + f.contraste * (v - f.media)))
-  return Math.trunc(Math.trunc(c) * f.brilho)
+  const g = cinzaDe(v, f)
+  if (!f.tinge) return g
+  const [r, gg, b] = colorize(g, f.tinge)
+  return lumL(r, gg, b)
 }
+
+/** Cinza do filtro (antes do colorize). */
+const cinzaDe = (v: number, f: FiltroCinza) => Math.trunc(Math.trunc(Math.min(255, Math.max(0, f.media + f.contraste * (v - f.media)))) * f.brilho)
 
 /**
  * Aplica o filtro nos pixels RGBA (no lugar). Quem chama é o app/teste, uma vez por foto e filtro,
@@ -165,15 +192,17 @@ export function aplicaFiltro(rgba: Uint8ClampedArray | Uint8Array, f: Filtro): v
     }
     return
   }
-  const tab = new Uint8Array(256)
-  for (let v = 0; v < 256; v++) tab[v] = filtraLum(v, f)
+  const tab = Array.from({ length: 256 }, (_, v) => {
+    const g = cinzaDe(v, f)
+    return f.tinge ? colorize(g, f.tinge) : [g, g, g]
+  })
   for (let i = 0; i < rgba.length; i += 4) {
-    const g = tab[lumL(rgba[i]!, rgba[i + 1]!, rgba[i + 2]!)]!
-    rgba[i] = g
-    rgba[i + 1] = g
-    rgba[i + 2] = g
+    const c = tab[lumL(rgba[i]!, rgba[i + 1]!, rgba[i + 2]!)]!
+    rgba[i] = c[0]!
+    rgba[i + 1] = c[1]!
+    rgba[i + 2] = c[2]!
   }
 }
 
 export const chaveFiltro = (f?: Filtro) =>
-  !f ? 'original' : f.tipo === 'css' ? `css:${JSON.stringify(f.ops)}` : `${f.tipo}:${Math.round(f.media)}:${f.contraste}:${f.brilho}`
+  !f ? 'original' : f.tipo === 'css' ? `css:${JSON.stringify(f.ops)}` : `${f.tipo}:${Math.round(f.media)}:${f.contraste}:${f.brilho}${f.tinge ? ':' + f.tinge.flat().join(',') : ''}`

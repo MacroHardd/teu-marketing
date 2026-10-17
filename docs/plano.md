@@ -42,7 +42,7 @@
 
 ### M4. Catálogo
 
-- Estilos e Variações vêm da skill `tipografia-igor` (ADR 0003; Riscada e misturas de regras quando o usuário pedir) e do publi (Manchete, Foto e legenda, Número). Variações = as aprovadas na fonte, sem número fixo por Estilo.
+- Estilos e Variações vêm da skill `tipografia-igor` (ADR 0003: Acento, Zona calma, Síncope, Letra fina, Riscada; misturas de regras quando o usuário pedir) e do publi (os outros 8). Variações = as aprovadas na fonte, sem número fixo por Estilo.
 - Sugestão de Estilo por código + grade de Estilos compatíveis com miniaturas ao vivo.
 
 **Pronto quando:** todo Estilo do catálogo está verde na regressão contra o seu oráculo no CI.
@@ -77,7 +77,7 @@ Seguir [medição operacional](medicao/operacional.md).
 
 O alvo é o [MVP vendável](mvp.md), e não o PRD inteiro. Na prática:
 
-- **M4 entra reduzido:** os Estilos já portados (Acento, Manchete, Zona calma, Síncope, Letra fina, Foto e legenda) + Número.
+- **M4:** os 13 Estilos mapeados já estão portados (2026-10-17).
 - **M5 entra completo.**
 - **M6 entra sem resumo mensal e sem exportação CSV.**
 - **M7 entra reduzido:** termos, backup, Sentry e os 7 eventos.

@@ -124,7 +124,7 @@ if (await c.$eval('canvas[aria-label="Prévia do Post"]', cv => cv.toDataURL()) 
 log('Variação: Síncope sem bloco')
 
 // Ajustes: P/M/G, posição, cor, CTA
-await c.getByRole('button', { name: 'Acento' }).click()
+await c.getByRole('button', { name: /^Acento(\s*sugerido)?$/ }).click()
 const antes = await c.$eval('canvas[aria-label="Prévia do Post"]', cv => cv.toDataURL())
 await c.getByRole('button', { name: 'Letra P' }).click()
 await c.getByRole('button', { name: 'Texto em cima' }).click()
@@ -134,8 +134,33 @@ const depois = await c.$eval('canvas[aria-label="Prévia do Post"]', cv => cv.to
 if (antes === depois) throw new Error('Ajustes não mudaram o preview')
 log('Ajustes (P, em cima, Noite, CTA) mudam o preview')
 
+// Arrastar o texto na prévia: solta embaixo → encaixa na posição "Embaixo"
+const cv = await c.locator('canvas[aria-label="Prévia do Post"]').boundingBox()
+const k = cv.width / 1080
+const emCima = await c.$eval('canvas[aria-label="Prévia do Post"]', el => el.toDataURL())
+await c.mouse.move(cv.x + 200 * k, cv.y + 320 * k)
+await c.mouse.down()
+await c.mouse.move(cv.x + 200 * k, cv.y + 700 * k, { steps: 5 })
+await c.getByText('No meio', { exact: true }).waitFor()
+await c.mouse.move(cv.x + 200 * k, cv.y + 1250 * k, { steps: 5 })
+await c.mouse.up()
+if (await c.$eval('canvas[aria-label="Prévia do Post"]', el => el.toDataURL()) === emCima) throw new Error('Arrastar o texto não mudou a posição')
+if (await c.getByRole('button', { name: 'Texto embaixo' }).getAttribute('class').then(cl => !/(^|\s)bg-primary(\s|$)/.test(cl))) throw new Error('Arrastar devia escolher "Embaixo"')
+log('arrastar o texto: encaixou embaixo')
+
+// Riscada (textura feita à mão no Desenhista) desenha no browser
+await c.getByRole('textbox').first().fill('eu perdi o *medo* de vender')
+await c.getByRole('button', { name: 'Riscada' }).click()
+await c.waitForFunction(() => {
+  const d = document.querySelector('canvas[aria-label="Prévia do Post"]').getContext('2d').getImageData(0, 0, 1080, 1350).data
+  let claros = 0
+  for (let i = 0; i < d.length; i += 4 * 97) if (d[i] > 150) claros++
+  return claros > 50 // letra clara sobre o fundo quase preto
+}, null, { timeout: 5000 })
+log('Riscada desenhada no browser')
+
 await c.getByRole('textbox').first().fill('Seu cliente não quer barato, quer *confiança*')
-await c.getByRole('button', { name: 'Acento' }).click()
+await c.getByRole('button', { name: /^Acento(\s*sugerido)?$/ }).click()
 await c.getByText('Salvo', { exact: true }).waitFor({ timeout: 10000 })
 await c.reload()
 await abre(c)
@@ -162,6 +187,14 @@ await c.getByRole('button', { name: /Letra fina\s*sugerido/ }).waitFor()
 const [r, g, b] = await pixel(540, 1300)
 if (!(r === g && g === b)) throw new Error(`Letra fina devia mostrar a foto em cinza, veio ${r},${g},${b}`)
 log('foto enviada → Letra fina sugerida, foto em preto e branco no preview')
+// os 13 Estilos desenham com foto (cada um muda o preview)
+let anterior = ''
+for (const nome of ['Acento', 'Manchete', 'Número', 'Zona calma', 'Síncope', 'Riscada', 'Herói', 'Letra fina', 'Foto que fala', 'Duas tintas', 'Vazio', 'Foto e legenda', 'Depoimento']) {
+  await c.getByRole('button', { name: new RegExp(`^${nome}(\\s*sugerido)?$`) }).click()
+  await c.waitForFunction(a => document.querySelector('canvas[aria-label="Prévia do Post"]').toDataURL() !== a, anterior, { timeout: 5000 })
+  anterior = await c.$eval('canvas[aria-label="Prévia do Post"]', el => el.toDataURL())
+}
+log('13 Estilos desenham com foto')
 await c.getByRole('button', { name: 'Foto e legenda' }).click()
 await c.getByText('Salvo', { exact: true }).waitFor({ timeout: 10000 })
 await c.reload()

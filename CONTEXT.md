@@ -48,18 +48,18 @@ _Evitar_: publicação, criativo, arte, peça
 
 **Elemento opcional**:
 Item de marca que o Cliente liga ou desliga em um Post (logo, @ ou nome, selo, CTA), sem mexer na posição.
+_Evitar_: camada, componente
 
 **Selo**:
 Elemento opcional: círculo com as iniciais da marca, no canto de cima.
 _Evitar_: carimbo, badge
-_Evitar_: camada, componente
 
 **CTA**:
 Chamada para ação do Post. Quem escreve é sempre o Cliente: a Plataforma nunca gera nem preenche um CTA sozinha.
 _Evitar_: chamada, botão
 
 **Ajuste**:
-Mudança que o Cliente faz num Post já gerado, sempre dentro de um conjunto pequeno de controles essenciais (regra 80/20). A Plataforma não é um editor de design livre.
+Mudança que o Cliente faz num Post já gerado, sempre dentro de um conjunto pequeno de controles essenciais (regra 80/20). A Plataforma não é um editor de design livre: o texto pode ser arrastado na prévia, mas sempre encaixa numa das posições prontas do Estilo (em cima, no meio, embaixo).
 _Evitar_: edição, customização
 
 **Rascunho**:

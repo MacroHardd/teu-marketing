@@ -2,7 +2,7 @@ import { BRANCO, contraste, type Cor, type Tema } from '../cor'
 import type { Item, Travas } from '../cena'
 import type { Fontes } from '../fontes'
 import type { Elemento, Zona } from '../ajustes'
-import { recorteCover, type Enquadramento, type Filtro, type MetaFoto } from '../foto'
+import { lumEm, recorteCover, type Enquadramento, type Filtro, type MetaFoto } from '../foto'
 import { Bloco, fonte, largura, limpaTexto, px, ret, texto } from '../texto'
 
 export type Formato = 'post' | 'story'
@@ -83,7 +83,7 @@ export function assinatura(fontes: Fontes, t: Tema, marca: Marca, x: number, y: 
 export function areaDaCor(itens: Item[], cor: Cor, fontes: Fontes, W: number, H: number): number {
   let soma = 0
   for (const it of itens) {
-    if (it.tipo === 'foto' || it.tipo === 'degrade' || it.tipo === 'imagem') continue
+    if (it.tipo === 'foto' || it.tipo === 'degrade' || it.tipo === 'imagem' || it.tipo === 'radial' || it.tipo === 'sombra') continue
     if (it.cor.some((v, i) => v !== cor[i])) continue
     if (it.tipo === 'texto') soma += fontes[it.fonte].tinta(it.texto, it.tam)
     else if (it.tipo === 'circulo') soma += Math.PI * it.r * it.r
@@ -98,6 +98,28 @@ export function fotoCover(p: Pedido, x0: number, y0: number, x1: number, y1: num
   const w = px(x1 - x0)
   const h = px(y1 - y0)
   return { tipo: 'foto', x: px(x0) / 2, y: px(y0) / 2, w: w / 2, h: h / 2, recorte: recorteCover(p.foto, w, h, p.enquadramento), filtro }
+}
+
+/**
+ * Luz média (0–255) da foto numa caixa da peça, pelo metadado (ninguém lê pixel). `foto` = o item da foto na Cena;
+ * `veu(y)` = opacidade de um véu preto por cima, em y; `cor` = cor do véu (padrão preto).
+ */
+export function luzAtras(p: Pedido, foto: Item & { tipo: 'foto' }, x0: number, y0: number, x1: number, y1: number,
+  veu: (y: number) => number = () => 0, cor = 0, passo = 6): number {
+  const m = p.foto
+  if (!m) return 0
+  const r = foto.recorte
+  let soma = 0
+  let n = 0
+  for (let y = Math.max(y0, foto.y) + passo / 2; y < Math.min(y1, foto.y + foto.h); y += passo) {
+    const a = veu(y)
+    for (let x = Math.max(x0, foto.x) + passo / 2; x < Math.min(x1, foto.x + foto.w); x += passo) {
+      const v = lumEm(m, r.sx + (x - foto.x) / foto.w * r.sw, r.sy + (y - foto.y) / foto.h * r.sh)
+      soma += v * (1 - a) + cor * a
+      n++
+    }
+  }
+  return n ? soma / n : 0
 }
 
 /** Contraste mínimo (WCAG para letra grande). Abaixo disso, a Trava de contraste dispara. */

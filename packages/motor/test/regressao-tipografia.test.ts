@@ -33,6 +33,7 @@ for (const estilo of [...new Set(casos.map(c => c.estilo))]) {
           writeFileSync(join(DIFF, `t-${estilo}-${c.id}-ts.png`), cv.toBuffer('image/png'))
           writeFileSync(join(DIFF, `t-${estilo}-${c.id}-diff.png`), PNG.sync.write(diff))
         }
+        if (process.env.PCT) console.log(`PCT ${c.id} ${pct.toFixed(3)}`)
         expect(pct, `${pct.toFixed(3)}% diferente`).toBeLessThan(LIMITE_PCT)
       })
     }

@@ -1,0 +1,12 @@
+[
+  {"id": "clientes", "texto": "1.200 clientes atendidos em 2025"},
+  {"id": "pct", "texto": "98% de satisfação dos pacientes"},
+  {"id": "anos", "texto": "15 anos cuidando do seu sorriso", "marca": {"perfil": "@sorrisobom"}},
+  {"id": "so-numero", "tipo": "numero", "texto": "3x"},
+  {"id": "data-junto", "tipo": "numero", "texto": "Aula 8:30 com 1.200 alunos inscritos"},
+  {"id": "longo", "tipo": "numero", "texto": "120 famílias atendidas no último mês com acompanhamento completo, do primeiro contato até a entrega final do projeto"},
+  {"id": "cor-marca", "texto": "250 alunos formados", "marca": {"nome": "Escola Viva", "cor": "#1f8a70"}},
+  {"id": "escuro", "texto": "40 kg eliminados em equipe", "modo": "escuro", "marca": {"perfil": "@treinoforte"}},
+  {"id": "tema", "texto": "7 dias para mudar a rotina", "tema": "rosa"},
+  {"id": "story", "texto": "98% de satisfação dos pacientes", "formato": "story", "marca": {"perfil": "@clinicabem"}}
+]

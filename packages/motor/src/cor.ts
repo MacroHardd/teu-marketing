@@ -103,3 +103,39 @@ export function acentoSobre(t: Tema, fundo: Cor): Cor {
   if (contraste(t.acento, fundo) >= 3) return t.acento
   return contraste(t.acentoTxt, fundo) >= 3 ? t.acentoTxt : (lum(fundo) > 0.4 ? PRETO : BRANCO)
 }
+
+/** colorsys.rgb_to_hsv do Python (0–1). */
+function hsv(c: Cor): [number, number, number] {
+  const [r, g, b] = c.map(x => x / 255) as [number, number, number]
+  const mx = Math.max(r, g, b)
+  const mn = Math.min(r, g, b)
+  if (mx === mn) return [0, 0, mx]
+  const s = (mx - mn) / mx
+  const rc = (mx - r) / (mx - mn)
+  const gc = (mx - g) / (mx - mn)
+  const bc = (mx - b) / (mx - mn)
+  const h = r === mx ? bc - gc : g === mx ? 2 + rc - bc : 4 + gc - rc
+  return [(((h / 6) % 1) + 1) % 1, s, mx]
+}
+
+/** colorsys.hsv_to_rgb do Python, de volta a 0–255 com o round do Python. */
+function rgb(h: number, s: number, v: number): Cor {
+  let c: [number, number, number]
+  if (s === 0) {
+    c = [v, v, v]
+  } else {
+    const i = Math.trunc(h * 6)
+    const f = h * 6 - i
+    const p = v * (1 - s)
+    const q = v * (1 - s * f)
+    const t = v * (1 - s * (1 - f))
+    c = ([[v, t, p], [q, v, p], [p, v, t], [p, q, v], [t, p, v], [v, p, q]] as const)[i % 6]!.slice() as [number, number, number]
+  }
+  return c.map(x => round(x * 255)) as unknown as Cor
+}
+
+/** Versão saturada e clara da cor (para fundos "cheios"): `vivo` do publi. */
+export function vivo(c: Cor): Cor {
+  const [h, s, v] = hsv(c)
+  return rgb(h, Math.max(s, 0.75), Math.max(v, 0.82))
+}

@@ -21,14 +21,21 @@ const { data: post } = await useAsyncData(`post-${id}`, async () => {
 })
 if (!post.value) throw createError({ statusCode: 404, statusMessage: 'Post não encontrado' })
 
-/** Estilos já portados do publi, na ordem em que aparecem. */
+/** Os Estilos, na ordem em que aparecem: primeiro os só de texto, depois os que usam foto. */
 const ESTILOS: { tipo: TipoEstilo, nome: string, foto: boolean }[] = [
   { tipo: 'acento', nome: 'Acento', foto: false },
   { tipo: 'manchete', nome: 'Manchete', foto: false },
+  { tipo: 'numero', nome: 'Número', foto: false },
   { tipo: 'zona', nome: 'Zona calma', foto: false },
   { tipo: 'sincope', nome: 'Síncope', foto: false },
+  { tipo: 'riscada', nome: 'Riscada', foto: false },
+  { tipo: 'heroi', nome: 'Herói', foto: true },
   { tipo: 'fina', nome: 'Letra fina', foto: true },
-  { tipo: 'ogilvy', nome: 'Foto e legenda', foto: true }
+  { tipo: 'selo', nome: 'Foto que fala', foto: true },
+  { tipo: 'duotom', nome: 'Duas tintas', foto: true },
+  { tipo: 'vazio', nome: 'Vazio', foto: true },
+  { tipo: 'ogilvy', nome: 'Foto e legenda', foto: true },
+  { tipo: 'citacao', nome: 'Depoimento', foto: true }
 ]
 const ehEstilo = (t: unknown): t is TipoEstilo => ESTILOS.some(e => e.tipo === t)
 
@@ -64,12 +71,7 @@ let nAjustes = 0
 let msRender = 0
 
 const temFoto = computed(() => !!fotoMeta.value)
-const sugerido = computed<TipoEstilo>(() => {
-  const t = escolhe(texto.value.trim(), temFoto.value)
-  if (ehEstilo(t)) return t
-  if (!temFoto.value) return 'acento'
-  return texto.value.trim().split(/\s+/).length <= 10 ? 'fina' : 'ogilvy'
-})
+const sugerido = computed<TipoEstilo>(() => escolhe(texto.value.trim(), temFoto.value))
 const estilo = computed(() => estiloEscolhido.value ?? sugerido.value)
 const estiloComFoto = computed(() => ESTILOS.find(e => e.tipo === estilo.value)!.foto)
 const suporte = computed(() => SUPORTE[estilo.value]!)
@@ -153,7 +155,11 @@ const DICAS: [RegExp, string][] = [
   [/pede foto/, 'Este Estilo fica melhor com foto. Envie uma foto ou escolha outro Estilo.'],
   [/emoji/, 'Tiramos os emojis: a fonte deste Estilo não desenha emoji.'],
   [/destaque grande/, 'A palavra em destaque ficou grande demais. Destaque só 1 palavra curta.'],
-  [/manchete longa/, 'Manchete funciona melhor com até 12 palavras.']
+  [/manchete longa/, 'Manchete funciona melhor com até 12 palavras.'],
+  [/pede o retrato/, 'Este Estilo pede o retrato de quem fala. Envie uma foto ou escolha outro Estilo.'],
+  [/falta o número/, 'Este Estilo precisa de um número no texto (ex.: 1.200, 98%, 15 anos).'],
+  [/falta o objeto/, 'Envie a foto do produto ou escreva um preço ou valor (ex.: R$ 49,90).'],
+  [/vazio é a mensagem|foto é a mensagem|legenda longa|citação longa|letra riscada/, 'Este Estilo fica melhor com menos palavras.']
 ]
 const avisosMotor = computed(() => resultado.value?.cena.travas.avisos ?? [])
 const travas = computed(() => TRAVAS.filter(t => avisosMotor.value.some(a => t.re.test(a))).map(t => t.trava))
@@ -183,7 +189,7 @@ function mensagemTrava(t: NomeTrava): { titulo: string, acoes: Acao[] } {
   const acoes: Acao[] = []
   if (suporte.value.tamanho.includes('P') && tamanho.value !== 'P') acoes.push({ label: 'Diminuir a letra', faz: () => ajusta('tamanho', { tamanho: 'P' }) })
   if (estilo.value === 'fina') acoes.push({ label: 'Usar Foto e legenda', faz: () => trocaEstilo('ogilvy') })
-  else if (['acento', 'zona', 'sincope'].includes(estilo.value)) acoes.push({ label: 'Usar Manchete', faz: () => trocaEstilo('manchete') })
+  else if (['acento', 'zona', 'sincope', 'riscada', 'numero'].includes(estilo.value)) acoes.push({ label: 'Usar Manchete', faz: () => trocaEstilo('manchete') })
   return { titulo: 'O texto não cabe inteiro: uma parte foi cortada. Encurte, divida em 2 Posts ou use uma das opções.', acoes }
 }
 
@@ -222,7 +228,7 @@ function render() {
     return evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'layout', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
   }
   try {
-    desenha(canvas.value.getContext('2d') as unknown as Ctx2D, resultado.value.cena, fontes.value, 1, provedor.value, logo.value)
+    desenha(canvas.value.getContext('2d') as unknown as Ctx2D, resultado.value.cena, fontes.value, 1, provedor.value, logo.value, novaTela)
     msRender = performance.now() - t0
   } catch (e) {
     evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'desenho', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
@@ -318,17 +324,61 @@ async function carregaFoto() {
   render()
 }
 
-// enquadrar: arrastar a foto no preview
+// arrastar na prévia: o texto (encaixa em cima / no meio / embaixo) ou a foto (enquadrar)
 let arrasto: { x: number, y: number } | null = null
 const itemFoto = computed(() => resultado.value?.cena.itens.find(i => i.tipo === 'foto'))
+/** Caixa do texto principal na peça (as letras maiores), para saber se o dedo/mouse pegou o texto. */
+const caixaTexto = computed(() => {
+  const f = fontes.value
+  const its = (resultado.value?.cena.itens ?? []).filter(i => i.tipo === 'texto')
+  if (!f || !its.length) return null
+  const maior = Math.max(...its.map(i => i.tam))
+  let c = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity }
+  for (const i of its.filter(i => i.tam >= maior * 0.6)) {
+    c = { x0: Math.min(c.x0, i.x), y0: Math.min(c.y0, i.y - i.tam * 0.8), x1: Math.max(c.x1, i.x + f[i.fonte].largura(i.texto, i.tam)), y1: Math.max(c.y1, i.y + i.tam * 0.25) }
+  }
+  return c
+})
+const arrastandoTexto = ref(false)
+const sobreTexto = ref(false)
+/** Ponto do ponteiro em px da peça (1080 de largura). */
+function naPeca(e: PointerEvent) {
+  const r = canvas.value!.getBoundingClientRect()
+  const k = 1080 / r.width
+  return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * k }
+}
+function pegouTexto(e: PointerEvent) {
+  const c = caixaTexto.value
+  if (!suporte.value.zona || !c || !canvas.value) return false
+  const p = naPeca(e)
+  return p.x >= c.x0 - 24 && p.x <= c.x1 + 24 && p.y >= c.y0 - 24 && p.y <= c.y1 + 24
+}
+/** Zona em que o texto encaixa ao soltar: o terço da peça em que está o ponteiro. */
+function zonaEm(e: PointerEvent): Zona {
+  const y = naPeca(e).y / (resultado.value?.cena.altura ?? 1350)
+  return y < 1 / 3 ? 'topo' : y < 2 / 3 ? 'centro' : 'base'
+}
 function arrastaInicio(e: PointerEvent) {
-  if (!itemFoto.value) return
+  if (pegouTexto(e)) {
+    arrastandoTexto.value = true
+  } else if (!itemFoto.value) {
+    return
+  }
   arrasto = { x: e.clientX, y: e.clientY }
   ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
 }
 function arrasta(e: PointerEvent) {
+  if (!arrasto) {
+    sobreTexto.value = pegouTexto(e)
+    return
+  }
+  if (arrastandoTexto.value) {
+    const z = zonaEm(e)
+    if (z !== zona.value) ajustes.value = { ...ajustes.value, zona: z }
+    return
+  }
   const it = itemFoto.value
-  if (!arrasto || !it || it.tipo !== 'foto' || !fotoMeta.value || !canvas.value) return
+  if (!it || it.tipo !== 'foto' || !fotoMeta.value || !canvas.value) return
   const k = 1080 / canvas.value.clientWidth // px da tela → px da peça
   const dx = (e.clientX - arrasto.x) * k * it.recorte.sw / it.w
   const dy = (e.clientY - arrasto.y) * k * it.recorte.sh / it.h
@@ -343,8 +393,14 @@ function arrasta(e: PointerEvent) {
   }
 }
 function arrastaFim() {
-  if (arrasto) aplicou('foto_enquadre')
+  if (arrasto && arrastandoTexto.value) {
+    ultimaAcao = 'ajuste'
+    aplicou('zona')
+  } else if (arrasto) {
+    aplicou('foto_enquadre')
+  }
   arrasto = null
+  arrastandoTexto.value = false
 }
 
 // ------------------------------------------------------------------ Exportação
@@ -500,18 +556,35 @@ onMounted(async () => {
         </div>
 
         <div class="flex flex-col gap-3 w-full max-w-md">
-          <canvas
-            ref="canvas"
-            width="1080"
-            height="1350"
-            class="w-full rounded-md shadow ring ring-default touch-none"
-            :class="itemFoto ? 'cursor-grab active:cursor-grabbing' : ''"
-            aria-label="Prévia do Post"
-            @pointerdown="arrastaInicio"
-            @pointermove="arrasta"
-            @pointerup="arrastaFim"
-            @pointercancel="arrastaFim"
-          />
+          <div class="relative">
+            <canvas
+              ref="canvas"
+              width="1080"
+              height="1350"
+              class="w-full rounded-md shadow ring ring-default touch-none"
+              :class="arrastandoTexto ? 'cursor-grabbing' : sobreTexto ? 'cursor-move' : itemFoto ? 'cursor-grab active:cursor-grabbing' : ''"
+              aria-label="Prévia do Post"
+              data-testid="previa"
+              @pointerdown="arrastaInicio"
+              @pointermove="arrasta"
+              @pointerup="arrastaFim"
+              @pointercancel="arrastaFim"
+            />
+            <!-- ao arrastar o texto: as 3 posições em que ele encaixa -->
+            <div v-if="arrastandoTexto" class="absolute inset-0 flex flex-col pointer-events-none rounded-md overflow-hidden">
+              <div
+                v-for="z in ZONAS"
+                :key="z.z"
+                class="flex-1 flex items-center justify-center border-2 border-dashed text-sm font-medium"
+                :class="z.z === zona ? 'border-primary bg-primary/15 text-white' : 'border-white/40 text-white/70'"
+              >
+                <span class="px-2 py-0.5 rounded bg-black/50">{{ z.nome }}</span>
+              </div>
+            </div>
+          </div>
+          <p v-if="suporte.zona" class="text-xs text-muted -mt-1">
+            Arraste o texto na prévia para mudar a posição.
+          </p>
           <UAlert
             v-for="t in travas"
             :key="t"

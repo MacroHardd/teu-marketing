@@ -4,7 +4,7 @@
 
 ## Agora
 
-- **Fase:** construção. M1 aprovado; M2 pronto local; **M3 em andamento**. Branch atual: `m3-ajustes` (empilhada sobre `m3-foto`, que está sobre `m0-m1-motor-acento`; nenhum PR mergeado ainda). M0 só falta staging.
+- **Fase:** construção. M1 aprovado; M2 pronto local; **M3 em andamento**. Branch atual: `m3-estilos` (empilhada sobre `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`; nenhum PR mergeado ainda). M0 só falta staging.
 - **Handoff da última sessão:** [handoff.md](handoff.md).
 - **Git / produção:**
   - `origin/main` ainda está no 1º commit (`c5ea7ad`), **sem o fix do build**: o deploy da `main` quebra até o merge do PR `m0-m1-motor-acento → main`. Na branch o build passa (`pnpm build` e `NITRO_PRESET=vercel`).
@@ -22,14 +22,15 @@
   - legenda por Post + copiar
   - telemetria: `ajuste_aplicado`, `trava_disparada`, `trava_resolvida`, `perfil_atualizado`, `legenda_copiada`
   - email de login local em PT-BR
-- **Fase B (feita, aguardando validação do usuário):** Estilos da skill `tipografia-igor` (ADR 0003). Acento e Letra fina passaram a seguir a skill; Zona calma e Síncope são novos. Variações = as aprovadas na skill. A cor da marca e a palavra marcada pelo Cliente mandam. Roteiro de teste em [handoff.md](handoff.md).
+- **Fase B (feita, aguardando validação do usuário):** Estilos da skill `tipografia-igor` (ADR 0003). Acento e Letra fina passaram a seguir a skill; Zona calma e Síncope são novos. Variações = as aprovadas na skill. A cor da marca e a palavra marcada pelo Cliente mandam.
+- **Fase C (feita, aguardando validação do usuário):** **todos os 13 Estilos mapeados** (Riscada da skill + Número, Herói, Vazio, Foto que fala, Depoimento e Duas tintas do publi) e **arrastar o texto na prévia** com encaixe em cima / no meio / embaixo. Roteiro de teste em [handoff.md](handoff.md).
 - **Falta no M3:**
-  - Riscada e misturas de regras (decisão do usuário: depois)
+  - misturas de regras da skill (decisão do usuário: depois)
+  - Duas tintas "parede": espera o usuário aprovar no publi-lab
   - Trava de rosto: vai junto com as features de tratamento de imagem (decisão do usuário, 2026-10-16)
-  - Número: depende do fix do `_numero` no publi
 - **Teste manual local:** `pnpm teste:usuarios` + `pnpm dev:local` (ver [plano.md](plano.md#como-validamos-cada-feature)). Usuários: `parceiro@teste.dev` (Escritório Teste, 3 Assentos: `cliente@`, `cliente2@`, Convite pendente `pendente@`) e `parceiro-b@teste.dev` (Agência Outra: `cliente-b@`), todos `@teste.dev`.
 - **Bloqueios:** staging e merge/default branch dependem do usuário.
-- **Pendência no publi:** `_numero` corta data/hora ("20/11" → "11"). Corrigir no publi antes de portar Número e Herói (ver `packages/oraculo/README.md`).
+- **Pendência no publi-lab (do usuário):** levar o fix do `_numero` (feito só na cópia daqui, `packages/oraculo/publi/publi.py`) e, quando aprovar, a "parede" do Blue Note.
 - **Valores assumidos sem confirmação explícita do usuário:**
   - o Convite expira em 7 dias
   - um Cliente é considerado parado depois de 14 dias
@@ -44,8 +45,33 @@
     - a posição "zona" não existe em Foto e legenda (o layout é fixo: foto em cima)
   - Trava de contraste: contraste WCAG < 3 entre a letra e a luz média atrás dela (pelo metadado). A correção "Escurecer atrás do texto" é o véu a 85% em vez de 62%
   - o Perfil de Marca é invisível para o Parceiro (como os Posts)
+  - Fase C:
+    - Foto que fala sem nome no Perfil: sem o retângulo da marca (o publi escrevia "Sua marca")
+    - Riscada: a vírgula colada na palavra fica (o estático da skill tira; o Motor nunca altera o texto)
+    - Riscada com cor de marca já sai na Variação "Com acento"
+    - Duas tintas faixa com CTA: o CTA fica no branco, logo acima da foto
+    - Trava de contraste também em Foto que fala e Depoimento (correção = véu mais forte; no Depoimento o véu vira escuro e a letra clara)
+    - arrastar o texto só na vertical (3 posições) e só nos Estilos que já tinham posição (Acento, Manchete, Número, Letra fina); os botões de posição continuam
 
 ## Histórico
+
+### 2026-10-17. M3 Fase C: todos os Estilos mapeados + arrastar o texto
+- Pedido do usuário: todos os Estilos da skill `tipografia-igor` e do publi, e controle simples por arrastar. Decisões (pergunta desta sessão): arrastar = texto com encaixe; Duas tintas = Blue Note faixa + janela; `_numero` corrigido na cópia daqui.
+- Inventário: skill tem 5 estáticos (E1 Acento, E3 Zona, E6 Síncope, E9 Fina, E10 Riscada; regras 5 e 14 não têm estático). publi tem 13. Faltavam Riscada, Número, Herói, Vazio, Foto que fala, Depoimento, Duas tintas: todos portados.
+- Oráculo:
+  - `_numero` corrigido na cópia do publi (número que encosta em data/hora é pulado) e no TS
+  - `publi/bluenote_src.py` (cópia do publi-lab) carregado pelo `gerar.py` para o tipo `duotom`
+  - `gerar.py` passava `_campos` sem a foto (Herói com foto saía com campo `objeto`)
+  - casos novos: `numero`, `heroi`, `vazio`, `selo`, `citacao`, `duotom` (51) e 7 da Riscada em `tipografia.json`
+- Motor:
+  - 7 Estilos novos; itens de Cena `radial` (luz do Herói) e `sombra`; texto com `traco` e `risco`
+  - filtro P&B com `colorize` do Pillow (Duas tintas)
+  - `MetaFoto.bordas`: grade de detalhe (FIND_EDGES do Pillow) calculada no upload; o Depoimento escolhe cima/baixo por ela, sem ler pixel
+  - Riscada: `feTurbulence` da especificação em TS (`turbulencia.ts`), deslocamento e furos feitos à mão no Desenhista; achado: o Chrome encaixa a origem do filtro no pixel e amostra em (x+1, y+1). Ruído em campo guardado por semente
+  - `desenha` ganhou a fábrica de tela (`FabricaTela`): o app usa `OffscreenCanvas`
+- Regressão: 73 casos do publi e 32 da skill passam (< 1%; Riscada 0,02–0,09%). 231 testes do motor passam; RLS 43.
+- App: 13 Estilos no editor; sugestão vem direto do `escolhe`; dicas novas; **arrastar o texto na prévia** (as 3 posições aparecem ao arrastar e ele encaixa ao soltar). E2E cobre arrastar, Riscada no browser e os 13 Estilos com foto.
+- **Não verificado:** desempenho. A máquina estava com load 8–9 em 8 núcleos (jogo aberto): o teste p95 < 50 ms falhou (91 ms; antes da mudança já falhava assim). Pela proporção com a Manchete, a Riscada deve ficar em ~20 ms com a máquina livre. Conferir.
 
 ### 2026-10-17. M3 Fase B: Estilos da skill tipografia-igor
 - Decisões do usuário:

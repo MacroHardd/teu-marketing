@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado atual
 
-Monorepo, spike do motor (M1, Estilo Acento) e fatia vertical local (M2: Admin → Parceiro → Convite → Cliente → PNG) prontos; M3 em andamento (foto + Estilos Letra fina e Foto e legenda feitos). Falta staging. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
+Monorepo, spike do motor (M1, Estilo Acento) e fatia vertical local (M2: Admin → Parceiro → Convite → Cliente → PNG) prontos; M3 em andamento (foto, Ajustes, Travas e todos os 13 Estilos mapeados feitos). Falta staging. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
 
 Produto: **Teu Marketing**, uma plataforma B2B2C. O Parceiro (escritório, mentor ou agência) distribui o acesso aos seus Clientes, e o Cliente cria sozinho posts estáticos de Instagram. O objetivo é **vender o mais rápido possível**: o MVP precisa funcionar, não precisa estar perfeito. O alvo de construção é [`docs/mvp.md`](docs/mvp.md) (jornadas + checklist de aceite + corte), e não o PRD inteiro.
 
@@ -27,8 +27,8 @@ O trabalho fica restrito a este diretório. Configurações de outras ferramenta
 
 - **Motor de render (ADR 0001):** `packages/motor` é TypeScript puro, sem dependência do Nuxt. É uma função pura: recebe conteúdo, Estilo, Variação, Ajustes, Perfil de Marca e os metadados da foto, e devolve uma Cena com o resultado das Travas. Um único Desenhista Canvas transforma a Cena em imagem. O preview ao vivo **e** a Exportação PNG 1080×1350 rodam no browser com o mesmo código, de modo que o PNG sai idêntico ao preview. O Motor nunca lê pixels: a foto é analisada uma vez no upload (luminância por região, cor dominante, rosto) e o resultado vira metadado. Não use `ctx.filter`, que tem suporte irregular no Safari: efeitos de pixel são feitos à mão ou em WebGL.
 - **Oráculos: nunca rodam em produção (ADR 0001 e 0003).** A porta para TS é validada por regressão visual (< 1% de pixels) contra PNGs gerados no CI (`packages/oraculo`).
-  - **Skill `tipografia-igor`** (`~/.claude/skills/tipografia-igor`, kit Remotion) é o oráculo de **Acento, Zona calma, Síncope e Letra fina**. Os estáticos estão copiados sem mudança em `packages/oraculo/tipografia`. Variações = as variantes aprovadas na skill. Riscada e misturas de regras ficam para depois.
-  - **publi** (Python/Pillow, `~/projetos/publi-lab/entregavel/publi.zip`, extraído em `packages/oraculo/publi/`) é o oráculo de **Manchete e Foto e legenda**. Também é a fonte da escolha de Estilo por regex (`_escolhe`) e da separação de campos sem alterar o texto (`_campos`).
+  - **Skill `tipografia-igor`** (`~/.claude/skills/tipografia-igor`, kit Remotion) é o oráculo de **Acento, Zona calma, Síncope, Letra fina e Riscada**. Os estáticos estão copiados sem mudança em `packages/oraculo/tipografia`. Variações = as variantes aprovadas na skill. Misturas de regras ficam para depois.
+  - **publi** (Python/Pillow, `~/projetos/publi-lab/entregavel/publi.zip`, extraído em `packages/oraculo/publi/`) é o oráculo de **Manchete, Número, Foto que fala, Vazio, Foto e legenda, Herói e Depoimento**. **Duas tintas** = o Blue Note em revisão no publi-lab (`publi/bluenote_src.py`, só faixa e janela). A cópia daqui tem o fix do `_numero` (ver `packages/oraculo/README.md`). Também é a fonte da escolha de Estilo por regex (`_escolhe`) e da separação de campos sem alterar o texto (`_campos`).
   - A palavra marcada pelo Cliente (`*assim*`) e a cor da marca dele valem mais que a regra do Estilo (decisão do usuário).
 - **Regras invioláveis do produto:**
   - o motor **nunca altera o texto do Cliente**, só distribui entre os campos (com teste)

@@ -10,6 +10,7 @@ export const PAL = {
   gil: { dark: h('#0e0503'), a: h('#59891c'), b: h('#fef701'), wave: h('#dc1812'), white: h('#fcf5fc'), acc: h('#fef701') },
   neon: { dark: h('#120024'), a: h('#7b2cff'), b: h('#ff8a00'), wave: h('#ff2e88'), white: h('#f6f1ff'), acc: h('#ff8a00') },
   azul: { paper: h('#2b3cff'), ink: h('#f4f1ea') },
+  se7en: { paper: h('#070707'), ink: h('#e9e6dc') },
 }
 
 export type Neutros = { paper: Cor, ink: Cor, acc: Cor }
@@ -17,7 +18,7 @@ export type PaletaZona = (typeof PAL)['gil']
 
 /** Nome que aparece para o Cliente. */
 export const NOMES_PALETA: Record<string, string> = {
-  villela: 'Villela', noite: 'Noite', verde: 'Verde', gil: 'Gil', neon: 'Neon', azul: 'Azul',
+  villela: 'Villela', noite: 'Noite', verde: 'Verde', gil: 'Gil', neon: 'Neon', azul: 'Azul', se7en: 'Se7en',
 }
 
 /** Duas cores para a amostra da paleta na tela (fundo e acento). */

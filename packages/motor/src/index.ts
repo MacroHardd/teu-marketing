@@ -1,5 +1,5 @@
 export { motor, estilosPortados, type Entrada, type Resultado } from './motor'
-export { desenha, type Ctx2D, type ProvedorFoto } from './desenhista'
+export { desenha, type Ctx2D, type FabricaTela, type ProvedorFoto } from './desenhista'
 export { analisaFoto, aplicaFiltro, chaveFiltro, recorteCover, ENQUADRAMENTO_PADRAO, type MetaFoto, type Enquadramento, type Filtro, type Recorte } from './foto'
 export { carregaFontes, NOMES_FONTES, type Fontes, type NomeFonte } from './fontes'
 export { escolhe, separa, campos, confere, destaque, type TipoEstilo, type Campos } from './campos'

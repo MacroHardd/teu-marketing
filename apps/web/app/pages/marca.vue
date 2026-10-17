@@ -38,8 +38,6 @@ async function salva() {
     nome: form.nome.trim(),
     arroba: form.arroba.trim().replace(/^@+/, ''),
     cor: form.cor,
-    contato: form.contato.trim(),
-    hashtags: form.hashtags.trim(),
     logo_path: form.logo_path,
     logo_meta: form.logo_meta ? { ...form.logo_meta } : null
   }
@@ -217,23 +215,6 @@ onMounted(async () => {
                 @click="removeLogo"
               />
             </div>
-          </UFormField>
-          <UFormField label="Contato" help="Telefone, WhatsApp ou site. Aparece pequeno no rodapé.">
-            <UInput
-              v-model="form.contato"
-              maxlength="60"
-              placeholder="(11) 99999-0000"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField label="Hashtags" help="Entram prontas na legenda de cada Post novo.">
-            <UTextarea
-              v-model="form.hashtags"
-              :rows="2"
-              maxlength="500"
-              placeholder="#marketing #pequenosnegocios"
-              class="w-full"
-            />
           </UFormField>
         </div>
         <canvas

@@ -23,7 +23,7 @@ _Evitar_: usuário final, assinante, lead
 ## Conteúdo
 
 **Perfil de Marca**:
-Dados de marca do Cliente que aparecem nos Posts: nome exibido, @, cor da marca, logo, foto, contato e hashtags. Todos os campos são opcionais. Quando um dado existe, o Elemento opcional correspondente já vem ligado. A tipografia não faz parte: ela vem do Estilo.
+Dados de marca do Cliente que aparecem nos Posts: nome exibido, @, cor da marca, logo e foto. Contato e hashtags não fazem parte: as hashtags são de cada Post (na legenda), e o contato do Cliente serve só para a Plataforma falar com ele, nunca aparece em Post. Todos os campos são opcionais. Quando um dado existe, o Elemento opcional correspondente já vem ligado. A tipografia não faz parte: ela vem do Estilo.
 _Evitar_: briefing, perfil, branding
 
 **Pauta**:
@@ -47,7 +47,7 @@ Peça estática de Instagram com uma única imagem, feita de uma Pauta e um Esti
 _Evitar_: publicação, criativo, arte, peça
 
 **Elemento opcional**:
-Item de marca que o Cliente liga ou desliga em um Post (logo, @ ou nome, contato, selo, CTA), sem mexer na posição.
+Item de marca que o Cliente liga ou desliga em um Post (logo, @ ou nome, selo, CTA), sem mexer na posição.
 
 **Selo**:
 Elemento opcional: círculo com as iniciais da marca, no canto de cima.

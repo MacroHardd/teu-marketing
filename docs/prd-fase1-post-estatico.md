@@ -31,7 +31,7 @@ Uma web app em que o Cliente escreve o que quer dizer, escolhe entre Estilos pro
 
 ### Perfil de Marca
 
-7. Como **Cliente**, quero informar nome exibido, @, cor da marca, logo, foto, contato e hashtags, todos opcionais.
+7. Como **Cliente**, quero informar nome exibido, @, cor da marca, logo e foto, todos opcionais.
 8. Como **Cliente**, quero que os dados preenchidos já apareçam ligados como Elementos opcionais nos meus Posts.
 9. Como **Cliente** sem cor definida, quero que a Plataforma escolha uma cor por mim.
 
@@ -51,14 +51,14 @@ Uma web app em que o Cliente escreve o que quer dizer, escolhe entre Estilos pro
 18. Arrastar o bloco de texto entre as zonas topo, centro e base, com encaixe.
 19. Arrastar a foto para enquadrar e dar zoom dentro do quadro.
 20. Escolher uma cor da paleta derivada da cor da marca.
-21. Ligar e desligar Elementos opcionais: logo, @, assinatura, contato, selo e CTA.
+21. Ligar e desligar Elementos opcionais: logo, @ ou nome, selo e CTA.
 22. Escrever o CTA. Ele nunca vem preenchido.
 23. Ver avisos das Travas ao vivo ("texto cortado", "pouco contraste", "texto em cima do rosto"), com uma ação de correção sugerida, como trocar de Variação.
 
 ### Legenda e Exportação
 
 24. Escrever a legenda do Post.
-25. Ter as hashtags do Perfil de Marca adicionadas à legenda, podendo remover cada uma.
+25. Escrever as hashtags de cada Post na própria legenda (não há hashtags no Perfil de Marca).
 26. Exportar o Post como PNG 1080×1350, idêntico ao preview.
 27. Copiar a legenda com um clique.
 28. Ver o Post passar de Rascunho para Exportado e poder editar e exportar de novo.

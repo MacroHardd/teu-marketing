@@ -30,6 +30,6 @@ export function manchete(c: Contexto): Saida {
     itens.push(texto('grot-bold', f.tam, px(x1) - largura(f, s), px(y1 - 6), s, sutil))
   }
   // o fundo já é a cor de acento: CTA e selo usam a cor da letra
-  itens.push(...elementos(c, x0, y0, x1, y1, { tinta, sutil, acc: tinta }, p.el.assinatura ? 'dir' : null))
+  itens.push(...elementos(c, x0, y0, x1, y1, { tinta, acc: tinta }))
   return { fundo, itens, travas: { corpoPx: b.tam, contraste: contraste(tinta, fundo) } }
 }

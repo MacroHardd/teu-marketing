@@ -49,7 +49,7 @@ async function novo() {
         color="primary"
         variant="subtle"
         title="Coloque a sua marca nos Posts"
-        description="Nome, @, cor, logo e contato. É opcional e leva 1 minuto."
+        description="Nome, @, cor e logo. É opcional e leva 1 minuto."
         :actions="[{ label: 'Preencher Perfil de Marca', to: '/marca?voltar=/posts' }]"
       />
       <UEmpty

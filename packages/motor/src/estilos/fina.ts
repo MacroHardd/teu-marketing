@@ -142,7 +142,7 @@ export function fina(c: Contexto): Saida {
     itens.push(texto(nome, f.tam, px(x0), px(bases[i]!), linhas[i]!, tinta))
   })
   if (p.el.assinatura) itens.push(...assinatura(fontes, t, p.marca, x0, y1 - 6, tinta))
-  itens.push(...elementos(c, x0, y0, x1, y1, { tinta, sutil: tinta, acc: tinta }, p.el.assinatura ? 'esq' : null))
+  itens.push(...elementos(c, x0, y0, x1, y1, { tinta, acc: tinta }))
   const g = Math.round(fundoL)
   const ctr = contraste(tinta, [g, g, g])
   if (ctr < CONTRASTE_MIN) av.push('pouco contraste entre a letra e a foto')

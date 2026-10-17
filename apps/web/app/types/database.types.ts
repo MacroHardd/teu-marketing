@@ -111,14 +111,14 @@ isOneToOne: false
                   ]
                 },"perfis_marca": {
                   Row: {
-                    "arroba": string,"atualizado_em": string,"cliente_id": string,"contato": string,"cor": string | null,"hashtags": string,"logo_meta": Json | null,"logo_path": string | null,"nome": string
+                    "arroba": string,"atualizado_em": string,"cliente_id": string,"cor": string | null,"logo_meta": Json | null,"logo_path": string | null,"nome": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "arroba"?: string,"atualizado_em"?: string,"cliente_id": string,"contato"?: string,"cor"?: string | null,"hashtags"?: string,"logo_meta"?: Json | null,"logo_path"?: string | null,"nome"?: string
+                    "arroba"?: string,"atualizado_em"?: string,"cliente_id": string,"cor"?: string | null,"logo_meta"?: Json | null,"logo_path"?: string | null,"nome"?: string
                   }
                   Update: {
-                    "arroba"?: string,"atualizado_em"?: string,"cliente_id"?: string,"contato"?: string,"cor"?: string | null,"hashtags"?: string,"logo_meta"?: Json | null,"logo_path"?: string | null,"nome"?: string
+                    "arroba"?: string,"atualizado_em"?: string,"cliente_id"?: string,"cor"?: string | null,"logo_meta"?: Json | null,"logo_path"?: string | null,"nome"?: string
                   }
                   Relationships: [
                     {

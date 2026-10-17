@@ -8,8 +8,8 @@ export function ogilvy(c: Contexto): Saida {
   const { p, W, H, t, av, fontes } = c
   const [fundo, tinta] = neutros(t)
   const [x0, y0, x1, y10] = area(H, p.formato)
-  // CTA e contato ficam na base: a legenda termina antes deles
-  const y1 = y10 - (p.el.cta ? 100 : 0) - (p.el.contato ? 46 : 0)
+  // o CTA fica na base: a legenda termina antes dele
+  const y1 = y10 - (p.el.cta ? 100 : 0)
   const story = p.formato === 'story'
   const fotoY1 = story ? y0 + (y1 - y0) * 0.66 : H * 0.62
   const itens: Item[] = []
@@ -37,7 +37,6 @@ export function ogilvy(c: Contexto): Saida {
     itens.push(...bl.desenha(x0, ly, mistura(tinta, fundo, 0.3)))
   }
   const acc = acentoSobre(t, fundo)
-  const sutil = mistura(tinta, fundo, 0.3)
-  itens.push(...elementos(c, x0, y0, x1, y10, { tinta, sutil, acc }, null))
+  itens.push(...elementos(c, x0, y0, x1, y10, { tinta, acc }))
   return { fundo, itens, travas: { tituloPx: bt.tam, contraste: contraste(tinta, fundo) } }
 }

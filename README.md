@@ -47,9 +47,9 @@ pnpm install
 
 - **Parceiro** (`parceiro@teste.dev`): o painel mostra "2 de 3 acessos em uso", os 2 Clientes e o Convite pendente. Convide um email novo: o Convite chega no Mailpit, e o link dele entra como Cliente com 1 clique. Teste também o reenvio.
 - **Cliente** (`cliente@teste.dev`):
-  1. **Perfil de Marca:** em Meus Posts, clique em "Preencher Perfil de Marca". Preencha nome, @, uma cor, contato, hashtags e envie um logo (PNG). A prévia ao lado já mostra a marca. Salvar.
-  2. **Novo Post** → escreva uma frase. A legenda já vem com as hashtags do Perfil, e a imagem já mostra @, logo e contato.
-  3. **Ajustes** (coluna da direita): letra P/M/G, posição (em cima, no meio, embaixo), cores (a da marca ou uma das prontas, claro/escuro), "Na imagem" (liga e desliga @, logo, contato, selo) e CTA. Cada clique muda a prévia na hora.
+  1. **Perfil de Marca:** em Meus Posts, clique em "Preencher Perfil de Marca". Preencha nome, @, uma cor e envie um logo (PNG). A prévia ao lado já mostra a marca. Salvar.
+  2. **Novo Post** → escreva uma frase. A imagem já mostra @ e logo. A legenda (com as hashtags daquele Post) fica na coluna da direita.
+  3. **Ajustes** (coluna da direita): letra P/M/G, posição (em cima, no meio, embaixo), cores (a da marca ou uma das prontas, claro/escuro), "Na imagem" (liga e desliga @, logo, selo) e CTA. Cada clique muda a prévia na hora.
   4. **Trava de texto cortado:** cole um texto bem longo (umas 60 palavras) no Acento. Aparece o aviso vermelho e "Baixar imagem" fica desligado. Clique em "Usar Manchete" ou "Diminuir a letra": o aviso some.
   5. **Foto:** Enviar foto → Letra fina sugerida. Mude a posição do texto; se a letra ficar difícil de ler, aparece a Trava de contraste com "Escurecer atrás do texto". Troque para Foto e legenda, arraste a foto e mexa no zoom.
   6. Baixar imagem, Copiar legenda. Recarregue a página e confira que tudo continua igual.

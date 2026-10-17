@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { motor, SUPORTE, type Ajustes, type Entrada, type Item, type TipoEstilo } from '../src'
 import { foto, fontes } from './util'
 
-const marca = { nome: 'Studio Lua', perfil: '@studiolua', contato: '(11) 99999-0000', logo: { largura: 400, altura: 200 } }
+const marca = { nome: 'Studio Lua', perfil: '@studiolua', logo: { largura: 400, altura: 200 } }
 const roda = (estilo: TipoEstilo, ajustes?: Ajustes, extra: Partial<Entrada> = {}) =>
   motor({ texto: 'Menos ruído, mais resultado para o seu negócio', estilo, marca, ajustes, ...extra }, fontes())
 const textos = (itens: Item[]) => itens.filter(i => i.tipo === 'texto') as Extract<Item, { tipo: 'texto' }>[]
@@ -31,7 +31,7 @@ describe('P/M/G', () => {
 
 describe('zona', () => {
   it.each(['acento', 'manchete', 'fina'] as TipoEstilo[])('%s: topo acima de centro acima de base', (e) => {
-    const y = (zona: 'topo' | 'centro' | 'base') => primeiraLinha(roda(e, { zona, elementos: { contato: false, assinatura: false, logo: false } }).cena.itens)
+    const y = (zona: 'topo' | 'centro' | 'base') => primeiraLinha(roda(e, { zona, elementos: { assinatura: false, logo: false } }).cena.itens)
     expect(y('topo')).toBeLessThan(y('centro'))
     expect(y('centro')).toBeLessThan(y('base'))
   })
@@ -41,19 +41,18 @@ describe('Elementos opcionais', () => {
   it('ligam sozinhos quando o dado existe; selo e CTA só quando pedidos/escritos', () => {
     const it0 = roda('acento').cena.itens
     expect(it0.some(i => i.tipo === 'imagem')).toBe(true)
-    expect(textos(it0).some(i => i.texto === '(11) 99999-0000')).toBe(true)
     expect(textos(it0).some(i => i.texto === 'SL')).toBe(false)
     const it1 = roda('acento', { elementos: { selo: true }, cta: 'Agende pelo link da bio' }).cena.itens
     expect(textos(it1).some(i => i.texto === 'SL')).toBe(true)
     expect(textos(it1).map(i => i.texto).join(' ')).toContain('Agende pelo link da bio')
   })
   it('desligar tira o Elemento', () => {
-    const itens = roda('manchete', { elementos: { logo: false, contato: false, assinatura: false } }).cena.itens
+    const itens = roda('manchete', { elementos: { logo: false, assinatura: false } }).cena.itens
     expect(itens.some(i => i.tipo === 'imagem')).toBe(false)
-    expect(textos(itens).some(i => i.texto.includes('99999') || i.texto.includes('@studiolua'))).toBe(false)
+    expect(textos(itens).some(i => i.texto.includes('@studiolua'))).toBe(false)
   })
   it('sem o dado, não liga nem se pedir', () => {
-    const r = motor({ texto: 'Oi', estilo: 'acento', ajustes: { elementos: { logo: true, contato: true, selo: true, cta: true } } }, fontes())
+    const r = motor({ texto: 'Oi', estilo: 'acento', ajustes: { elementos: { logo: true, selo: true, cta: true } } }, fontes())
     expect(r.cena.itens.some(i => i.tipo === 'imagem')).toBe(false)
     expect(textos(r.cena.itens).length).toBe(1)
   })
@@ -68,7 +67,7 @@ describe('Elementos opcionais', () => {
       const its = roda(e, { zona, cta, elementos: { selo: true } }, { texto: 'Quando você entende o que seu cliente sente de verdade a venda vira consequência' }).cena.itens
       const ctaY = Math.min(...textos(its).filter(i => cta.split(' ').includes(i.texto)).map(i => i.y - i.tam))
       const logo = its.find(i => i.tipo === 'imagem')!
-      const corpo = textos(its).filter(i => !cta.split(' ').includes(i.texto) && i.texto !== 'SL' && !i.texto.includes('99999') && i.tam > 40)
+      const corpo = textos(its).filter(i => !cta.split(' ').includes(i.texto) && i.texto !== 'SL' && i.tam > 40)
       for (const t of corpo) {
         expect(t.y + t.tam * 0.25, `${e}/${zona}: "${t.texto}" encosta no CTA`).toBeLessThan(ctaY - 20)
         expect(t.y - t.tam * 0.75, `${e}/${zona}: "${t.texto}" sobe no logo`).toBeGreaterThan(logo.y + logo.h)

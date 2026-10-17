@@ -57,7 +57,7 @@ export function motor(e: Entrada, fontes: Fontes): Resultado {
   const enquadramento = e.enquadramento ?? ENQUADRAMENTO_PADRAO
   const cta = (aj.cta ?? '').trim()
   const tem: Record<Elemento, boolean> = {
-    assinatura: !!(marca.perfil || marca.nome), contato: !!marca.contato, logo: !!marca.logo, selo: false, cta: !!cta,
+    assinatura: !!(marca.perfil || marca.nome), logo: !!marca.logo, selo: false, cta: !!cta,
   }
   // um Elemento só liga se o dado existe
   const el = Object.fromEntries(ELEMENTOS.map(k => [k, (aj.elementos?.[k] ?? tem[k]) && (k === 'selo' ? !!(marca.nome || marca.perfil) : tem[k])])) as Record<Elemento, boolean>

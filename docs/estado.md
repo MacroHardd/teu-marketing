@@ -16,10 +16,10 @@
   - foto: upload JPEG/PNG/HEIC até 10 MB, reduzida a 2160 px no browser, analisada, bucket privado
   - Estilos: Acento, **Manchete**, Letra fina e Foto e legenda, todos passando na regressão; troca de Estilo com 1 clique (com sugestão)
   - enquadramento (arrastar) e zoom
-  - **Perfil de Marca** (`/marca`): nome, @, cor, logo, contato e hashtags, todos opcionais, com "Pular"
-  - **Ajustes da lista fechada:** P/M/G, posição do texto, cores (a da marca, 6 temas prontos, claro/escuro), Elementos opcionais (@/nome, logo, contato, selo) e CTA
+  - **Perfil de Marca** (`/marca`): nome, @, cor e logo, todos opcionais, com "Pular"
+  - **Ajustes da lista fechada:** P/M/G, posição do texto, cores (a da marca, 6 temas prontos, claro/escuro), Elementos opcionais (@/nome, logo, selo) e CTA
   - **Travas:** texto cortado e contraste, ambas bloqueantes, com correção de 1 clique
-  - legenda com as hashtags do Perfil + copiar
+  - legenda por Post + copiar
   - telemetria: `ajuste_aplicado`, `trava_disparada`, `trava_resolvida`, `perfil_atualizado`, `legenda_copiada`
   - email de login local em PT-BR
 - **Em validação com o usuário (Fase A desta rodada):** roteiro em [handoff.md](handoff.md). Depois do ok, vem a **Fase B**: levar o conhecimento da skill `tipografia-igor` (Estilos puros e Variações) para a plataforma.
@@ -48,8 +48,11 @@
 
 ## Histórico
 
+### 2026-10-17. Correção do usuário: contato e hashtags fora do Perfil
+- Contato e hashtags tinham sido inventados no Perfil de Marca e nos Posts (estavam nos docs desde o planejamento, sem base do usuário). Hashtags são de cada Post (legenda); contato é para a Plataforma falar com o Cliente e nunca vai para Post. Removidos do Motor (Elemento `contato`), do banco (migration `perfil_sem_contato`), do app e dos docs (CONTEXT, escopo, PRD, MVP, plano).
+
 ### 2026-10-16. M3 Fase A: Perfil de Marca, Ajustes, Travas, Manchete
-- Motor: `ajustes.ts` (lista fechada + `SUPORTE` por Estilo). Sem Ajuste, a Cena é idêntica à do publi, e a regressão continua passando. Elementos opcionais ficam sempre no mesmo lugar: logo em cima à esquerda, selo em cima à direita, CTA acima da base, contato na base do lado oposto ao @. Novo item de Cena `imagem` (logo) e a Trava `contraste`.
+- Motor: `ajustes.ts` (lista fechada + `SUPORTE` por Estilo). Sem Ajuste, a Cena é idêntica à do publi, e a regressão continua passando. Elementos opcionais ficam sempre no mesmo lugar: logo em cima à esquerda, selo em cima à direita, CTA acima da base. Novo item de Cena `imagem` (logo) e a Trava `contraste`.
 - Estilo **Manchete** portado: 13 casos novos na regressão passaram de primeira.
 - Testes: 150 no motor (+22 de Ajustes); RLS 43 (+10: `perfis_marca` só pelo dono, Parceiro não lê, cor só `#rrggbb`).
 - Banco: migration `marca` (`perfis_marca` + bucket aceita PNG para o logo).

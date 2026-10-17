@@ -11,7 +11,6 @@ export interface Marca {
   nome?: string
   perfil?: string
   cor?: string
-  contato?: string
   /** Tamanho do logo (px). A imagem fica com o app, como a foto. */
   logo?: { largura: number, altura: number }
 }
@@ -114,11 +113,11 @@ export function yZona(zona: Zona, y0: number, y1: number, alto: number, centro: 
 const iniciais = (s: string) => s.replace(/^@/, '').split(/[\s._-]+/u).filter(Boolean).slice(0, 2).map(w => [...w][0]!.toUpperCase()).join('')
 
 /**
- * Logo (topo esq.), selo (topo dir.), CTA (acima da linha de base) e contato (na linha de base, do lado
- * oposto ao da assinatura). Mesmo lugar em todo Estilo: o Cliente liga e desliga, não move.
+ * Logo (topo esq.), selo (topo dir.) e CTA (acima da linha de base).
+ * Mesmo lugar em todo Estilo: o Cliente liga e desliga, não move.
  */
 export function elementos({ p, av, fontes }: Contexto, x0: number, y0: number, x1: number, y1: number,
-  cores: { tinta: Cor, sutil: Cor, acc: Cor }, ladoAssinatura: 'esq' | 'dir' | null): Item[] {
+  cores: { tinta: Cor, acc: Cor }): Item[] {
   const itens: Item[] = []
   const m = p.marca
   if (p.el.logo && m.logo) {
@@ -143,12 +142,6 @@ export function elementos({ p, av, fontes }: Contexto, x0: number, y0: number, x
     const y = y1 - 52 - b.alto
     itens.push(ret(px(x0), px(y - 14), px(x0 + 56), px(y - 8), cores.acc)) // barrinha acima, como chamada
     itens.push(...b.desenha(x0, y, cores.acc))
-  }
-  if (p.el.contato && m.contato) {
-    const f = fonte(fontes, 'grot-med', px(26))
-    const s = m.contato
-    const x = ladoAssinatura === 'esq' ? px(x1) - largura(f, s) : px(x0)
-    itens.push(texto('grot-med', f.tam, x, px(y1 - 6), s, cores.sutil))
   }
   return itens
 }

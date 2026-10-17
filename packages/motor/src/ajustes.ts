@@ -7,7 +7,7 @@ export type Tamanho = 'P' | 'M' | 'G'
 export type Zona = 'topo' | 'centro' | 'base'
 
 /** Elementos opcionais: itens de marca que ligam/desligam, sempre no mesmo lugar. */
-export const ELEMENTOS = ['assinatura', 'contato', 'logo', 'selo', 'cta'] as const
+export const ELEMENTOS = ['assinatura', 'logo', 'selo', 'cta'] as const
 export type Elemento = (typeof ELEMENTOS)[number]
 
 export interface Ajustes {

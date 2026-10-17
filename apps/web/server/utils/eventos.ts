@@ -24,7 +24,7 @@ export const PROPS = {
     rosto_detectado: z.boolean()
   }).strict(),
   perfil_atualizado: z.object({
-    campos_preenchidos: z.array(z.enum(['nome', 'arroba', 'cor', 'contato', 'hashtags', 'logo'])).max(6)
+    campos_preenchidos: z.array(z.enum(['nome', 'arroba', 'cor', 'logo'])).max(4)
   }).strict(),
   ajuste_aplicado: z.object({
     tipo: z.enum(['texto', 'tamanho', 'zona', 'foto_enquadre', 'cor', 'elemento', 'cta', 'reforco']),

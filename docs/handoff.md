@@ -9,7 +9,7 @@ O usuário dividiu esta rodada em duas fases:
   - Ajustes da lista fechada
   - Travas de texto cortado e de contraste, com correção
   - Estilo Manchete
-  - legenda com hashtags
+  - legenda por Post
   - telemetria
   - email de login em PT-BR
 - **Fase B (só depois do ok do usuário):** levar o conhecimento da skill **`tipografia-igor`** (`~/.claude/skills/tipografia-igor`) para a plataforma, como **Estilos puros e Variações**. O usuário passa o caminho da fonte original desse conhecimento se precisar. As Variações saem daí, e não mais "3 por Estilo do publi".
@@ -29,16 +29,15 @@ Preparar: `pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:loc
 
 **Cliente** (`cliente@teste.dev`):
 1. Meus Posts mostra o aviso "Coloque a sua marca nos Posts" → Preencher Perfil de Marca.
-   - Preencha nome, @, uma cor, contato e hashtags, e envie um logo PNG.
+   - Preencha nome, @ e uma cor, e envie um logo PNG.
    - A prévia à direita muda ao vivo. Salvar volta para Meus Posts.
 2. Novo Post → escreva uma frase.
-   - A legenda já vem com as hashtags.
-   - A imagem mostra o @, o logo e o contato.
+   - A imagem mostra o @ e o logo.
 3. Coluna da direita (Ajustes):
    - Tamanho P/M/G
    - Posição: em cima, no meio, embaixo
    - Cores: a da marca, 6 prontas, claro/escuro
-   - Na imagem: liga e desliga @/nome, Logo, Contato, Selo
+   - Na imagem: liga e desliga @/nome, Logo, Selo
    - CTA
 4. Trava de texto cortado:
    - cole umas 60 palavras no Acento → aviso vermelho, e "Baixar imagem" fica desligado

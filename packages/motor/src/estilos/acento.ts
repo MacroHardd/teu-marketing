@@ -25,7 +25,7 @@ export function acento(c: Contexto): Saida {
   })
   const sutil = mistura(tinta, fundo, 0.35)
   if (p.el.assinatura) itens.push(...assinatura(fontes, t, p.marca, x0, y1 - 6, sutil))
-  itens.push(...elementos(c, x0, y0, x1, y1, { tinta, sutil, acc }, p.el.assinatura ? 'esq' : null))
+  itens.push(...elementos(c, x0, y0, x1, y1, { tinta, acc }))
   const pct = areaDaCor(itens, acc, fontes, W, H)
   if (pct > 7) av.push('destaque grande demais: marcar só 1 palavra curta')
   return { fundo, itens, travas: { acentoAreaPct: Math.round(pct * 100) / 100, contraste: contraste(tinta, fundo) } }

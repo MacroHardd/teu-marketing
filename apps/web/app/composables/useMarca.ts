@@ -9,7 +9,7 @@ export interface LogoMeta { largura: number, altura: number }
 export type FormPerfil = Omit<PerfilMarca, 'cliente_id' | 'atualizado_em' | 'logo_meta'> & { logo_meta: LogoMeta | null }
 
 export const PERFIL_VAZIO: FormPerfil = {
-  nome: '', arroba: '', cor: null, contato: '', hashtags: '', logo_path: null, logo_meta: null
+  nome: '', arroba: '', cor: null, logo_path: null, logo_meta: null
 }
 
 /** O Perfil do Cliente logado (ou vazio, se ele pulou). */
@@ -29,14 +29,13 @@ export function marcaDoPerfil(p: FormPerfil | PerfilMarca | null | undefined): M
     nome: p.nome || undefined,
     perfil: p.arroba ? (p.arroba.startsWith('@') ? p.arroba : `@${p.arroba}`) : undefined,
     cor: p.cor ?? undefined,
-    contato: p.contato || undefined,
     logo: p.logo_path && logo ? { largura: logo.largura, altura: logo.altura } : undefined
   }
 }
 
 /** Campos preenchidos (só os nomes, nunca os valores: vai para a telemetria). */
 export function camposPreenchidos(p: Partial<FormPerfil>): string[] {
-  return (['nome', 'arroba', 'cor', 'contato', 'hashtags', 'logo_path'] as const)
+  return (['nome', 'arroba', 'cor', 'logo_path'] as const)
     .filter(k => !!p[k]).map(k => (k === 'logo_path' ? 'logo' : k))
 }
 

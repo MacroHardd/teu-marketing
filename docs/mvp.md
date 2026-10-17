@@ -21,7 +21,7 @@
 3. Escreve o texto e, se quiser, sobe uma foto.
 4. Vê o Estilo sugerido e troca de Estilo ou de Variação com um clique.
 5. Faz os Ajustes, com preview ao vivo e avisos de Trava.
-6. Escreve a legenda, que já traz as hashtags do Perfil.
+6. Escreve a legenda, com as hashtags do Post, se quiser.
 7. Exporta o PNG 1080×1350 e copia a legenda.
 
 ### J4. Cliente volta
@@ -51,7 +51,7 @@
 - [ ] O PNG exportado é idêntico ao preview (teste automatizado).
 - [x] O texto do Cliente nunca é alterado pelo motor (teste automatizado).
 - [ ] O preview atualiza ao vivo (p95 < 50 ms) em todo Ajuste.
-- [x] Os Ajustes disponíveis são só: texto, P/M/G, zona (topo/centro/base), enquadramento e zoom da foto, cor da paleta, Elementos opcionais (logo, @, assinatura, contato, selo, CTA) e CTA escrito pelo Cliente.
+- [x] Os Ajustes disponíveis são só: texto, P/M/G, zona (topo/centro/base), enquadramento e zoom da foto, cor da paleta, Elementos opcionais (logo, @ ou nome, selo, CTA) e CTA escrito pelo Cliente.
 - [ ] As Travas avisam quando o texto é cortado, quando falta contraste e quando há texto em cima de um rosto, e sugerem uma correção. Uma Trava bloqueante impede a Exportação até ser resolvida.
 - [ ] Foto: JPEG, PNG e HEIC de até 10 MB, redimensionada no browser.
 - [ ] O salvamento é automático: fechar a aba e voltar não perde nada.

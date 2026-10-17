@@ -51,7 +51,7 @@
 ### M5. Cliente completo
 
 - Perfil de Marca, com todos os campos opcionais e Elementos ligados automaticamente.
-- Legenda + hashtags do Perfil + copiar.
+- Legenda (com as hashtags do Post) + copiar.
 - Meus Posts: grade, duplicar, excluir.
 
 ### M6. Parceiro completo

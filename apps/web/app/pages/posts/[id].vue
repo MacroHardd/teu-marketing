@@ -40,7 +40,7 @@ const { enquadramento: enq0, ...aj0 } = (post.value.ajustes ?? {}) as AjustesPos
 const ajustes = ref<Ajustes>(aj0)
 
 const texto = ref(post.value.texto)
-const legenda = ref(post.value.legenda || (route.query.novo && perfil.value?.hashtags ? `\n\n${perfil.value.hashtags}` : ''))
+const legenda = ref(post.value.legenda)
 /** null = o Cliente não escolheu: vale a sugestão do Motor. */
 const estiloEscolhido = ref<TipoEstilo | null>(ehEstilo(post.value.estilo) ? post.value.estilo : null)
 const enquadramento = ref<Enquadramento>({ ...ENQUADRAMENTO_PADRAO, ...enq0 })
@@ -83,7 +83,6 @@ const NOMES_TEMA: Record<NomeTema, string> = { creme: 'Creme', noite: 'Noite', s
 const ELEMENTOS_UI: { k: Exclude<Elemento, 'cta'>, nome: string, dado: () => boolean }[] = [
   { k: 'assinatura', nome: '@ / nome', dado: () => !!(marca.value.perfil || marca.value.nome) },
   { k: 'logo', nome: 'Logo', dado: () => !!marca.value.logo },
-  { k: 'contato', nome: 'Contato', dado: () => !!marca.value.contato },
   { k: 'selo', nome: 'Selo', dado: () => !!(marca.value.perfil || marca.value.nome) }
 ]
 const tamanho = computed(() => ajustes.value.tamanho ?? 'M')
@@ -594,7 +593,7 @@ onMounted(async () => {
             />
           </UFormField>
 
-          <UFormField label="Legenda" :help="perfil?.hashtags ? 'As hashtags do seu Perfil já vêm no fim.' : undefined">
+          <UFormField label="Legenda" help="Com as hashtags deste Post, se quiser.">
             <UTextarea
               v-model="legenda"
               :rows="4"

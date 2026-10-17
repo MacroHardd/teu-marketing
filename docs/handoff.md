@@ -25,7 +25,7 @@ Verificado:
 - 241 testes do motor (tratamento e textura inclusos); 55 de RLS (Ativos: só o dono, Post só usa Ativo do mesmo Cliente)
 - `pnpm build` e o E2E completo contra o build (porta 3001): arrastar, Riscada no browser, 13 Estilos com foto, Ativos (enviar → duotom → recorte → salvar → Post → textura na letra → PNG)
 
-**Não verificado:** desempenho (p95 < 50 ms). A máquina estava com load 8–9 em 8 núcleos: o teste falhou com 91 ms (os Estilos antigos também falham assim nessa carga). Pela proporção com a Manchete, a Riscada fica em ~20 ms com a máquina livre.
+**Desempenho reprova com a máquina livre** (medido 2026-10-17, load 0,9): p95 geral **59,8 ms** (meta 50, Node). Por Estilo (p50/p95 ms): **Riscada 39/58**, **Manchete 3,9/72** (p50 baixo e p95 alto = poucos casos pesados ou GC), Foto e legenda 4,9/13, Letra fina 5,2/13, Acento/Zona/Síncope < 8. A estimativa antiga (Riscada ~20 ms) estava errada.
 
 **Leia nesta ordem:** `CLAUDE.md` → `docs/estado.md` → `docs/adr/0003-*` → `packages/oraculo/README.md`.
 
@@ -64,7 +64,10 @@ Preparar: `pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:loc
 ## Próximo passo (a próxima sessão faz, nesta ordem)
 1. **Abrir:** `git branch` (deve estar em `m3-estilos`) → `pnpm build`. Se quebrar, corrigir antes de tudo.
 2. **Retorno do usuário sobre as Fases A/B/C.** Se não testou, seguir.
-3. **Desempenho com a máquina livre** (`uptime` com load < 2): `pnpm --filter @teu/motor exec vitest run test/desempenho.test.ts`. Se falhar livre, otimizar (Riscada primeiro: `riscado` em `desenhista.ts`). Não mexer no limite.
+3. **Desempenho (reprovou livre, ver acima):** otimizar até `pnpm --filter @teu/motor exec vitest run test/desempenho.test.ts` passar com load < 2. Não mexer no limite.
+   - Riscada: perfilar `riscado` em `desenhista.ts` (ruído `fractal` por pixel, máscara dilatada). Ideias: amostrar o ruído em resolução menor, ou cachear o resultado do riscado por (texto, tamanho, semente), já que entre quadros do preview o texto quase nunca muda. Regressão da Riscada tem que seguir < 1%.
+   - Manchete: achar quais casos dão o p95 de 72 ms (medir por caso; suspeitos: Trava em loop, foto/filtro sem cache, GC).
+   - Conferir também no browser (página `/spike`): o Node é só a régua do CI.
 4. **M5 (J4):** Meus Posts com duplicar e excluir + eventos `post_duplicado`/`post_excluido`; miniatura na grade se for barato.
 5. **M6 (J5):** Convite por CSV, fila do Resend (100/dia, status "agendado"), expiração 7 dias por cron, desativar Cliente liberando Assento, destaque de Cliente parado (14 dias); Parceiro sem ver conteúdo (RLS + pgTAP).
 6. Fechar com lint, typecheck, test, `db:test`, build e E2E, mais o roteiro de teste.

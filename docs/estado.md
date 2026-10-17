@@ -90,7 +90,7 @@
   - `desenha` ganhou a fábrica de tela (`FabricaTela`): o app usa `OffscreenCanvas`
 - Regressão: 73 casos do publi e 32 da skill passam (< 1%; Riscada 0,02–0,09%). 231 testes do motor passam; RLS 43.
 - App: 13 Estilos no editor; sugestão vem direto do `escolhe`; dicas novas; **arrastar o texto na prévia** (as 3 posições aparecem ao arrastar e ele encaixa ao soltar). E2E cobre arrastar, Riscada no browser e os 13 Estilos com foto.
-- **Não verificado:** desempenho. A máquina estava com load 8–9 em 8 núcleos (jogo aberto): o teste p95 < 50 ms falhou (91 ms; antes da mudança já falhava assim). Pela proporção com a Manchete, a Riscada deve ficar em ~20 ms com a máquina livre. Conferir.
+- **Desempenho medido com a máquina livre (2026-10-17, load 0,9): reprova.** p95 geral 59,8 ms (meta 50, Node). Por Estilo (p50/p95 ms): Riscada 39/58, Manchete 3,9/72 (picos, caso ou GC a investigar), Foto e legenda 4,9/13, Letra fina 5,2/13, Acento 1,4/7,6, Zona calma 1,6/2,7, Síncope 2,1/4,9. Culpado principal: `riscado()` em `desenhista.ts`. Próxima sessão otimiza; não mexer no limite.
 
 ### 2026-10-17. M3 Fase B: Estilos da skill tipografia-igor
 - Decisões do usuário:

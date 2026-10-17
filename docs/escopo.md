@@ -63,9 +63,9 @@ A Plataforma permite que o **Cliente** cuide sozinho do próprio marketing no In
 | Fonte livre, cor livre (color picker), camadas, mover elementos livremente | princípio 1 |
 | Banco de imagens (Pexels/Unsplash) | só upload. Avaliar depois |
 | Calendário editorial | a Pauta é uma lista simples |
-| Cliente se cadastrando sozinho | entrada só por Convite |
+| Cadastro sem pagar (signup aberto, trial) | entrada por Convite ou por Assinatura paga ([ADR 0005](adr/0005-cliente-direto-pelo-parceiro-da-casa.md)) |
 | Login com Google ou senha | só link mágico |
-| Billing automático e gateway de pagamento | contrato e cobrança manuais, com Assentos definidos pelo Admin |
+| Billing automático para Parceiro | contrato e cobrança manuais, com Assentos definidos pelo Admin. Só o Cliente direto paga pelo Asaas (ADR 0005) |
 | App nativo e PWA | web para desktop |
 | Lixeira | excluir é definitivo, com confirmação |
 | Estilos criados por Parceiro ou Cliente | o catálogo é curado por nós |

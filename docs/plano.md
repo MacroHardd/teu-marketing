@@ -91,14 +91,17 @@ Prioridade do usuário: **todas as features do MVP bem feitas e funcionando**. D
 | It. | Conteúdo | Jornada / aceite |
 |---|---|---|
 | 1 | **M5:** Meus Posts com duplicar, excluir e miniatura; eventos `post_duplicado`/`post_excluido` | J4 |
+| 1b | **Cliente direto (ADR 0005), feito local:** assinar mensal/anual no Asaas sem trial, webhook, cancelar, cron de vencimento, migração Cliente direto ↔ Parceiro. Falta validar no sandbox do Asaas (com staging) e a página pública de venda | J6 |
 | 2 | **M6a, Convites:** CSV, fila do Resend (100/dia, "agendado"), expiração em 7 dias por cron, reenvio com link novo, mesmo email não ativo em dois Parceiros | J2 |
 | 3 | **M6b, painel:** Posts exportados no mês, último acesso, destaque de Cliente parado, desativar libera Assento; números do Uso batem com os eventos (teste) | J5 |
 | 4 | **Fechamento do editor:** teste automático PNG = prévia, salvamento ao fechar a aba (teste), HEIC conferido, 375 px sem quebrar, varredura de texto em inglês | J3, Motor e editor |
 | 5 | **M7 reduzido:** termo de uso e privacidade com aceite no 1º acesso (texto vem do usuário), `pg_dump` diário via Actions, Sentry, conferência dos 7 eventos | Operação mínima |
-| 6 | **Produção:** staging/produção (precisa do usuário: `supabase link`, Vercel, Resend com domínio), J1–J5 com emails de verdade, Chrome/Safari/Edge | Gerais |
+| 6 | **Produção:** staging/produção (precisa do usuário: `supabase link`, Vercel **Pro** (venda direta é uso comercial), Resend com domínio, conta do Asaas + webhook), J1–J6 com emails e pagamentos de verdade (sandbox do Asaas), Chrome/Safari/Edge | Gerais |
 | 7 | **Teste com 3 pessoas de fora** (< 10 min sem ajuda) e correções | Gerais |
 
 **Em paralelo, a qualquer momento:** [Fase E, estilização](estilizacao.md) (só visual, quebrada em tarefas para agentes).
+
+**Depois (pedido do usuário, 2026-10-17):** páginas públicas de venda + embelezamento da Assinatura (hoje `/assinar` é mínima).
 
 **Depois do MVP (backlog, pedido do usuário):** mais controles; mais opções de fonte e textura no Post; **Perfil de Marca 2** com algo parecido com um gerador de paleta. Isso é feature (mexe no Motor e na regressão), não estilização. Junto ficam: desempenho fino (Riscada e picos da Manchete, ver `docs/estado.md`), misturas de regras da skill, Duas tintas "parede", IA.
 

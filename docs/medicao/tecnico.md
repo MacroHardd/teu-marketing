@@ -53,7 +53,13 @@ RLS: Cliente e Parceiro **não leem** a tabela. Quem grava é o servidor (ou uma
 | `post_duplicado` | Post duplicado em Meus Posts | `{tem_foto}` |
 | `post_excluido` | Post excluído em Meus Posts | `{exportado}` (se já tinha sido exportado) |
 | `cliente_desativado` | ação do Parceiro | |
+| `assinatura_iniciada` | a pessoa vai para a fatura do Asaas (sem Cliente ainda) | `{plano: mensal\|anual}` |
+| `assinatura_ativada` | 1º pagamento confirmado | `{plano, migrou}` (`migrou` = era Cliente de Parceiro) |
+| `assinatura_cancelada` | o Cliente cancela, ou o Asaas avisa que a assinatura foi removida | `{plano, origem: cliente\|asaas}` |
+| `assinatura_encerrada` | o acesso do Cliente direto termina | `{plano, motivo: vencida\|reembolso\|parceiro}` |
 | `erro_motor` | exceção no layout ou no desenho | `{estilo, variacao, etapa, mensagem_curta}` |
+
+Eventos de Cliente direto têm `parceiro_id` = Parceiro da casa (`parceiros.direto`). Métrica de Parceiro filtra `not direto`.
 
 `tempo_ativo_ms` conta só o tempo com a aba visível e com alguma interação nos últimos 60 s. Isso evita inflar a métrica com aba esquecida aberta.
 

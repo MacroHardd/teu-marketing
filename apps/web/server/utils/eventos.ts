@@ -45,6 +45,10 @@ export const PROPS = {
   ativo_excluido: z.object({ em_uso: z.int().min(0) }).strict(),
   post_duplicado: z.object({ tem_foto: z.boolean() }).strict(),
   post_excluido: z.object({ exportado: z.boolean() }).strict(),
+  assinatura_iniciada: z.object({ plano: z.enum(['mensal', 'anual']) }).strict(),
+  assinatura_ativada: z.object({ plano: z.enum(['mensal', 'anual']), migrou: z.boolean() }).strict(),
+  assinatura_cancelada: z.object({ plano: z.enum(['mensal', 'anual']), origem: z.enum(['cliente', 'asaas']) }).strict(),
+  assinatura_encerrada: z.object({ plano: z.enum(['mensal', 'anual']), motivo: z.enum(['vencida', 'reembolso', 'parceiro']) }).strict(),
   erro_motor: z.object({
     estilo: z.string().max(20),
     variacao: z.string().max(20).nullable(),

@@ -17,8 +17,16 @@ Escritório, mentor ou agência que compra o acesso à Plataforma e o oferece ao
 _Evitar_: revenda, revendedor, tenant, cliente B2B
 
 **Cliente**:
-Cliente de um Parceiro: o usuário final que cria e publica o próprio conteúdo de marketing, sozinho. Pertence a exatamente um Parceiro. O produto usa a marca da Plataforma, e no máximo indica qual Parceiro ofereceu o acesso.
+Quem cria e publica o próprio conteúdo de marketing, sozinho. Pertence a exatamente um Parceiro: chega por Convite de um Parceiro ou assina sozinho (Cliente direto). Todo Cliente tem acesso às mesmas coisas. O produto usa a marca da Plataforma, e no máximo indica qual Parceiro ofereceu o acesso.
 _Evitar_: usuário final, assinante, lead
+
+**Cliente direto**:
+Cliente que assinou a Plataforma por conta própria, sem vir de um Parceiro. Pertence ao Parceiro da casa e paga a própria Assinatura. Se aceitar o Convite de um Parceiro, passa para esse Parceiro com tudo o que já fez, e a Assinatura é cancelada.
+_Evitar_: assinante, cliente avulso, B2C
+
+**Parceiro da casa**:
+Parceiro que é a própria Plataforma, dono dos Clientes diretos. Não tem painel nem Assentos: o que limita o acesso é a Assinatura.
+_Evitar_: parceiro padrão, parceiro interno
 
 ## Conteúdo
 
@@ -97,8 +105,12 @@ _Evitar_: publicação, envio, download
 ## Comercial
 
 **Assento**:
-Vaga paga que permite a um Parceiro manter um Cliente ativo. O Parceiro compra Assentos em pacotes. O Cliente nunca paga.
+Vaga paga que permite a um Parceiro manter um Cliente ativo. O Parceiro compra Assentos em pacotes. O Cliente de um Parceiro nunca paga.
 _Evitar_: licença, seat, slot
+
+**Assinatura**:
+Pagamento recorrente (mensal ou anual, sem período grátis) que mantém um Cliente direto ativo. Cancelar para a cobrança, e o acesso continua até o fim do período pago. Quando ela termina, o Cliente fica desativado e o histórico continua guardado.
+_Evitar_: plano, mensalidade, licença
 
 **Convite**:
 Chamado para um Cliente entrar na Plataforma. O Parceiro informa os emails (manualmente ou por planilha) e a Plataforma envia. O Assento só é ocupado quando o Convite é aceito.
@@ -109,7 +121,7 @@ O que o Parceiro consegue ver de cada Cliente: situação, atividade e volume de
 _Evitar_: relatório, analytics, acompanhamento
 
 **Cliente ativo**:
-Cliente que ocupa um Assento e consegue usar a Plataforma. Quando desativado, libera o Assento, mas o histórico continua guardado.
+Cliente que consegue usar a Plataforma: ocupa um Assento (Cliente de Parceiro) ou tem a Assinatura em dia (Cliente direto). Quando desativado, libera o Assento, mas o histórico continua guardado.
 _Evitar_: cliente habilitado, conta ativa
 
 ## Construção

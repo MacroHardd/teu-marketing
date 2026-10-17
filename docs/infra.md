@@ -20,7 +20,8 @@ Usar **Vercel Hobby + Supabase Free + Resend Free** até o primeiro cliente paga
         ▼
  Vercel (Nuxt/Nitro, functions na região gru1)
    ├─ SSR + rotas /api: Convites, Admin, Uso
-   ├─ Vercel Cron (1x por dia): expirar Convites, marcar Clientes parados
+   ├─ Vercel Cron (1x por dia, `/api/cron/diario`): encerrar Assinaturas vencidas; depois expirar Convites, marcar Clientes parados
+   ├─ /api/asaas/webhook: pagamentos da Assinatura (Asaas)
    └─ assets estáticos (fontes, recursos dos Estilos)
         │
         ▼
@@ -53,7 +54,7 @@ docs/
 
 | Serviço | Limite | Impacto / mitigação |
 |---|---|---|
-| Vercel Hobby | **uso comercial proibido** | risco aceito durante o dev e o piloto gratuito. Vira Pro no primeiro cliente pagante |
+| Vercel Hobby | **uso comercial proibido** | risco aceito durante o dev e o piloto gratuito. Vira Pro no primeiro cliente pagante, **e antes de abrir a Assinatura do Cliente direto** (venda direta é uso comercial) |
 | Vercel Hobby | cron no máximo 1x por dia, com variação de ±59 min | os nossos jobs são diários, então serve |
 | Vercel Hobby | logs de runtime guardados por 1 h | Sentry para erros |
 | Vercel Hobby | 1M de invocações, 4 h de CPU ativa e 100 GB de transferência por mês | sobra, porque o render roda no browser |
@@ -62,7 +63,7 @@ docs/
 | Supabase Free | 500 MB de banco, 1 GB de storage, 5 GB de egress | foto redimensionada (~300 KB) → ~3 mil fotos. Acompanhar no piloto |
 | Supabase Free | sem domínio próprio para o auth | o link mágico passa por `*.supabase.co`. É cosmético |
 | Supabase Free | logs guardados por 1 dia | Sentry |
-| Resend Free | **100 emails/dia**, 3 mil/mês | uma planilha grande estoura o dia. Fila com envio escalonado nos dias seguintes, ou assinar o Resend |
+| Resend Free | **100 emails/dia**, 3 mil/mês | uma planilha grande estoura o dia. Fila com envio escalonado nos dias seguintes, ou assinar o Resend. Cada login de Cliente direto e cada "acesso liberado" também gastam dessa cota |
 
 ## Ambientes
 
@@ -83,7 +84,13 @@ Variáveis do app: [`apps/web/.env.example`](../apps/web/.env.example), no forma
 - Migrations: `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push`.
 - Primeiro Parceiro: `pnpm parceiro:criar --nome ... --email ... --assentos N` com as variáveis de produção no ambiente.
 
-**Vercel:** Root Directory `apps/web`, região de functions `gru1`, variáveis do `.env.example` em Production.
+**Vercel:** Root Directory `apps/web`, região de functions `gru1`, variáveis do `.env.example` em Production. O cron sai do `nuxt.config.ts` (`nitro.vercel.config.crons`) e precisa da variável `CRON_SECRET`.
+
+**Asaas** (Assinatura do Cliente direto, ADR 0005):
+- Conta de sandbox para testar (https://sandbox.asaas.com) e depois a de produção. API key → `NUXT_ASAAS_API_KEY`; URL da API → `NUXT_ASAAS_URL`.
+- Integrações → Webhooks: URL `<site>/api/asaas/webhook`, token de autenticação = `NUXT_ASAAS_WEBHOOK_TOKEN`, eventos de cobrança e de assinatura ligados, fila sem penalização.
+- Preços: `NUXT_PUBLIC_PRECO_MENSAL` e `NUXT_PUBLIC_PRECO_ANUAL` (em reais).
+- `NUXT_ASAAS_SIMULADO` nunca em produção (só vale sem chave, mas não deixe ligado).
 
 ## Custo
 
@@ -91,6 +98,7 @@ Variáveis do app: [`apps/web/.env.example`](../apps/web/.env.example), no forma
 |---|---|
 | Dev e piloto | 0 |
 | 1º cliente pagante | ~45 (Vercel Pro 20 + Supabase Pro 25) + Resend se precisar + domínio |
+| Assinatura (Cliente direto) | taxa do Asaas por cobrança (Pix, boleto ou cartão; ver tabela do Asaas) |
 
 ## Pontos de atenção
 

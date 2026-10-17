@@ -1,62 +1,92 @@
-# Handoff: Teu Marketing (2026-10-17, fim do M5)
+# Handoff: Teu Marketing (2026-10-17, Cliente direto)
 
 ## Onde estamos
-Branch **`m5-meus-posts`** (só local, commitada), empilhada sobre `m3-estilos` → `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`. Nenhum PR mergeado.
+Branch **`m-b2c-assinatura`** (no GitHub; todas as branches da pilha enviadas em 2026-10-17, o usuário organiza os PRs), empilhada sobre `m5-meus-posts` → `m3-estilos` → `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`. Nenhum PR mergeado.
 
-- **M3 (Fases A–D)** feito, aguardando validação do usuário. Detalhe e roteiros antigos em `docs/estado.md` e no git (`git show m3-estilos:docs/handoff.md`).
-- **M5 / J4 (feito nesta sessão):** Meus Posts com Miniatura, duplicar e excluir; eventos `post_duplicado`/`post_excluido`.
-- **Bug corrigido:** eventos dos Ativos (`ativo_enviado`, `tratamento_aplicado`, `ativo_excluido`) eram recusados pela constraint `eventos_nome_check` e sumiam calados. Migration `eventos_ativos_e_posts` + pgTAP `eventos.test.sql`. **Evento novo = PROPS + constraint + esse teste.**
-- **Planejamento até vender:** `docs/plano.md` → "Restante até vender": ~6 iterações (M6a Convites, M6b painel, fechamento do editor, M7 reduzido, produção, teste com 3 pessoas). Este M5 foi a 1ª.
-- **Fase E, estilização:** `docs/estilizacao.md`. Só visual, tarefas E0–E13 para agentes (Sonnet), com contrato (o que pode e não pode mexer, textos travados do E2E, pronto = build + E2E + prints 1440/375).
+- **Feito nesta sessão:** Cliente direto (ADR 0005). A pessoa assina sozinha (mensal ou anual, Asaas, sem trial) e vira Cliente do **Parceiro da casa** (`parceiros.direto`). O fluxo do Parceiro não muda: mesma RLS, mesmo `parceiro_id`, mesmo Convite. A única mudança no Convite é a migração: Cliente direto que aceita um Convite passa para o Parceiro.
+- **Testado só com pagamento simulado** (`NUXT_ASAAS_SIMULADO=1`, posto pelo `scripts/local.mjs`). O caminho real do Asaas (`server/utils/asaas.ts`) foi escrito pela documentação da API v3 e **ainda não rodou contra o sandbox**.
+- Antes desta sessão: M5 (Meus Posts) feito; M3 aguardando validação. Ver `docs/estado.md`.
 
 Decisões do usuário nesta sessão (não presumir de novo):
-- desempenho fino **não** é preocupação agora: saiu do aceite; `desempenho.test.ts` virou guarda de p95 < 150 ms (meta de 50 ms segue no log e no backlog)
-- depois do MVP: mais controles, mais fontes e texturas no Post, Perfil de Marca com algo parecido com gerador de paleta (é feature, não estilização)
-- estilização = fase só visual, a qualquer tempo, quebrada para agentes
+- assinatura mensal ou anual; todo Cliente tem o mesmo acesso (de Parceiro ou direto)
+- sem trial
+- Asaas
+- Cliente direto convidado por Parceiro **migra**
+- páginas públicas de venda e embelezamento ficam para depois: `/assinar` é mínima, só para funcionar e testar
+- termos "Cliente direto" e "Assinatura" (em `CONTEXT.md`)
 
-Verificado: lint, typecheck, 242 testes do motor, 74 de banco (`db:test`), `pnpm build` e E2E J1→J4 contra o build na 3001 (inclui eventos conferidos no banco).
+Assumido sem confirmação (está em `docs/estado.md`):
+- 3 dias de carência depois de `pago_ate`
+- reembolso desliga na hora
+- Pix/boleto/cartão na fatura
+- migração cancela sem reembolso proporcional
+- CPF no formulário
 
-**Leia nesta ordem:** `CLAUDE.md` → `docs/estado.md` → `docs/plano.md` (Restante até vender) → `docs/mvp.md`.
+Verificado:
+- lint, typecheck, 242 testes do motor, 109 de banco
+- `pnpm build` e `NITRO_PRESET=vercel pnpm build`
+- E2E J1→J4 + J6 contra o build na 3001
 
-## Roteiro de teste para o usuário (M5: Meus Posts)
-Preparar: `pnpm exec supabase start` → `pnpm exec supabase migration up` (migration nova) → `pnpm teste:usuarios` → reiniciar `pnpm dev:local` → entrar como `cliente@teste.dev`.
+**Leia nesta ordem:** `CLAUDE.md` → `docs/estado.md` → `docs/adr/0005-*.md` → `docs/plano.md` → `docs/mvp.md`.
 
-1. Abra um Post, mude algo, volte para **Meus Posts**: o cartão mostra a Miniatura (aparece ~4 s depois da última mudança, ou na hora ao exportar/sair pelo menu).
-2. Clique num Post **Exportado**, corrija o texto, **Baixar imagem** de novo.
-3. Em Meus Posts, botão de **copiar** (Duplicar) num Post com foto: abre um Rascunho igual (texto, Estilo, foto tratada). Mude e baixe: o original não muda.
-4. Botão de **lixeira** (Excluir) → janela "Excluir este Post?" → **Excluir Post**. Some da grade; a imagem continua em Ativos.
+## Roteiro de teste para o usuário (J6: Cliente direto)
+Preparar: `pnpm exec supabase migration up < /dev/null` (migration `assinatura`) → **reiniciar `pnpm dev:local`** (precisa das variáveis novas do `local.mjs`).
 
-**Parceiro:** nada mudou (o Parceiro não vê Posts nem Miniaturas: mesma pasta do Cliente no bucket, RLS por pasta).
+1. Janela anônima → `/entrar` → embaixo, "Assine o Teu Marketing".
+2. Escolha **Anual**. Use um email novo (ex.: `direto@teste.dev`), qualquer nome e o CPF `529.982.247-25`. Clique em **Ir para o pagamento**. Cai na tela "Pagamento simulado" (no lugar da fatura do Asaas) → **Confirmar pagamento**.
+3. No Mailpit (http://127.0.0.1:54324): "Seu acesso ao Teu Marketing está liberado" → **Entrar**. Você cai em Meus Posts e usa tudo igual a um Cliente de Parceiro.
+4. Menu **Assinatura**: "Plano anual · Ativa" → **Cancelar Assinatura** → confirma → "Não renova mais. Seu acesso continua até …".
+5. Bloqueio: em `/assinar`, tente com `cliente@teste.dev` → "Este email já tem acesso pelo seu parceiro".
+6. **Migração:** assine com outro email novo, entre e crie um Post. Como `parceiro@teste.dev`, convide esse email. Abra o Convite: o Post continua lá, o menu Assinatura some e o painel do Parceiro conta um Assento a mais.
 
-## Pendências do usuário (não bloqueiam)
-- **Pergunta aberta: Trava de rosto** está no aceite do MVP mas foi adiada com as features de imagem. Fica no MVP (detecção de rosto no browser, sem IA generativa) ou vai para o backlog?
-- E0 da estilização: escolher a direção visual quando um agente propuser.
-- Push das branches e PRs na ordem: `m0-m1-motor-acento → main`, `m3-foto`, `m3-ajustes`, `m3-estilos`, `m5-meus-posts`. Trocar a branch padrão do GitHub para `main`.
-- publi-lab: levar o fix do `_numero`; aprovar (ou não) a "parede" do Blue Note.
-- Staging: `supabase link` + `db push` (6 migrations), Vercel, Resend (domínio), template do Magic Link.
-- Mandar os arquivos de textura (JPEG ~1080×1350, claros).
-- Texto do termo de uso e da política de privacidade (iteração M7).
+**Parceiro:** nada muda no painel, nos Convites ou no Uso (o Parceiro não vê Clientes diretos nem Assinaturas, pgTAP).
 
-## Próximo passo (a próxima sessão faz, nesta ordem)
-1. **Abrir:** `git branch` (deve estar em `m5-meus-posts`) → `pnpm build`. Se quebrar, corrigir antes de tudo.
-2. Retorno do usuário (M3, M5, Trava de rosto). Se não respondeu, seguir.
-3. **M6a, Convites (J2):** subir CSV (além de colar), fila do Resend (100/dia; excedente fica "agendado" para o dia seguinte), expiração em 7 dias por cron diário (Vercel Hobby: 1x/dia), reenvio gera link novo, mesmo email não ativo em dois Parceiros. Testes pgTAP + E2E. Já existe: colar emails com prévia, reenviar, status `agendado` no enum e na tela (`pages/clientes.vue`, `server/api/convites/*`, `server/utils/convites.ts`).
-4. Depois: M6b (painel), fechamento do editor, M7 reduzido (ver `docs/plano.md`).
-5. Fechar com lint, typecheck, test, `db:test`, build e E2E, mais o roteiro de teste. Telas novas: acrescentar os textos usados no E2E em "Textos travados" de `docs/estilizacao.md`.
+## Pendências do usuário
+- **Preços** mensal e anual (hoje aparece "preço a definir": `NUXT_PUBLIC_PRECO_MENSAL/ANUAL`).
+- **Teste no staging com o sandbox do Asaas** (webhook já criado pelo usuário: v3, envio sequencial, todos os eventos de cobrança e assinatura). Faltam no staging: migrations (`db push`) + variáveis `NUXT_ASAAS_*`, `NUXT_PUBLIC_PRECO_*`, `CRON_SECRET`.
+- Confirmar os valores assumidos acima (carência de 3 dias, reembolso na migração).
+- **Vercel Pro antes de vender direto:** o Hobby proíbe uso comercial.
+- CNPJ/NF e textos legais de venda ao consumidor (CDC: arrependimento em 7 dias). O termo do M7 precisa cobrir o Cliente direto.
+- Seguem as pendências antigas:
+  - Trava de rosto: fica no MVP ou vai para o backlog?
+  - E0 da estilização
+  - PRs na ordem da pilha: `m0-m1-motor-acento → main`, `m3-foto`, `m3-ajustes`, `m3-estilos`, `m5-meus-posts`, `m-b2c-assinatura`
+  - publi-lab
+  - staging
+  - arquivos de textura
+  - textos de termo/privacidade
 
-Fora até o usuário pedir: desempenho fino, misturas de regras, Duas tintas "parede", features de imagem com IA, staging.
+## Próximo passo
+1. **Abrir:** `git branch` (deve estar em `m-b2c-assinatura`) → `pnpm build`. Se quebrar, corrigir antes de tudo.
+2. Retorno do usuário (preços, sandbox, valores assumidos). Com a chave do sandbox:
+   - rodar `/assinar` sem `NUXT_ASAAS_SIMULADO`
+   - expor o webhook (staging, ou túnel para teste)
+   - conferir os payloads reais de `PAYMENT_CONFIRMED`, `PAYMENT_RECEIVED`, `PAYMENT_OVERDUE`, `PAYMENT_REFUNDED` e `SUBSCRIPTION_DELETED` contra `server/utils/assinatura.ts` (`processaWebhook`)
+3. Seguir o plano: **M6a, Convites** (ver o handoff anterior: `git show m5-meus-posts:docs/handoff.md`). O cron diário já existe (`/api/cron/diario`): a expiração dos Convites entra nele.
+
+Fora até o usuário pedir: página pública de venda, embelezamento, trocar cartão/plano pelo app, desempenho fino, misturas de regras, IA.
 
 ## Contexto que não está nos docs
-- **O usuário deixa o `dev:local` rodando na 3000.** Não mate. Teste: `pnpm build`, `PORT=3001 node apps/web/scripts/local.mjs node apps/web/.output/server/index.mjs` (background) e `PORT=3001 BASE=http://localhost:3001 node apps/web/scripts/local.mjs pnpm --filter @teu/web e2e`. Parar pelo PID da porta (`ss -ltnp | grep :3001`).
-- Migration nova no local: `pnpm exec supabase migration up < /dev/null` (não `db reset`: apaga os usuários de teste do usuário).
-- Sem `psql` na máquina: `docker exec supabase_db_teu-marketing psql -U postgres -c '...'`.
-- Miniatura: só no browser (`usePosts.ts`); a grade lista `<cliente>/miniaturas` e pede URLs assinadas em lote. Ir para outra página com `page.goto` (E2E) não dispara `onBeforeRouteLeave`: a Miniatura vem do debounce de 4 s ou da Exportação.
-- Oráculos: `packages/oraculo/.venv/bin/python packages/oraculo/gerar.py` (~3 min) e `node packages/oraculo/tipografia/gerar.mjs [estilo]` (~3 min). Saídas fora do git.
+- **O usuário deixa o `dev:local` rodando na 3000.** Não mate. Teste:
+  - `pnpm build`
+  - `PORT=3001 node apps/web/scripts/local.mjs node apps/web/.output/server/index.mjs` (em background)
+  - `PORT=3001 BASE=http://localhost:3001 node apps/web/scripts/local.mjs pnpm --filter @teu/web e2e`
+  - parar pelo PID da porta (`ss -ltnp | grep :3001`)
+- O J6 do E2E **precisa** das chaves do Supabase no ambiente (usa o cliente admin para vencer a Assinatura) e do cron com `Bearer local`. O `local.mjs` já põe as duas coisas.
+- Migration nova no local: `pnpm exec supabase migration up < /dev/null` (não `db reset`).
+- Sem `psql`: `docker exec supabase_db_teu-marketing psql -U postgres -c '...'`.
+- Asaas:
+  - o webhook autentica pelo header `asaas-access-token`
+  - devolve 200 para o que não é nosso, porque erros repetidos pausam a fila no Asaas
+  - idempotência por `pagamento_eventos.id`
+  - renovação não gera link mágico novo, porque invalidaria um link que a pessoa acabou de pedir
+- O Checkout do Asaas (`/v3/checkouts`) foi descartado: o webhook dele não traz o id da assinatura.
+- O `vercel.json` não serve com o preset do Nitro (o cron não ia para o `config.json`). O cron fica em `nuxt.config.ts` → `nitro.vercel.config.crons`.
 - Nome interno × nome na tela: `selo` = Foto que fala, `duotom` = Duas tintas, `citacao` = Depoimento, `ogilvy` = Foto e legenda, `heroi` = Herói.
 - **Não inventar produto:** campo ou comportamento que o usuário não disse vira pergunta.
-- **Como o usuário trabalha:** rápido, curto (caveman, PT-BR); interface leiga, nunca virar Canva; pronto = build + E2E; roteiro de teste como Parceiro e Cliente; commit só em branch, sem push, PR é dele.
+- **Como o usuário trabalha:** rápido e curto (caveman, PT-BR); interface leiga, nunca virar Canva; pronto = build + E2E; roteiro de teste como Parceiro e Cliente; commit só em branch, sem push, o PR é dele.
 
 ## Skills sugeridas
-- `tdd`: M6a/M6b
-- `supabase`: fila, cron, RLS
-- `frontend-design` / `high-end-visual-design`: tarefa E0 da estilização (agente separado)
+- `supabase`: RLS/cron
+- `tdd`: M6a
+- `landing-page-machine` / `copywriting`: quando chegar a página pública de venda

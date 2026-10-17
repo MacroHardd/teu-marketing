@@ -50,7 +50,8 @@ RLS: Cliente e Parceiro **não leem** a tabela. Quem grava é o servidor (ou uma
 | `ativo_enviado` | imagem enviada aos Ativos (aba Ativos ou editor) | `{formato_origem, bytes, ms_processamento}` |
 | `tratamento_aplicado` | receita do Ativo salva | `{tipo: corte\|duotom\|pixel\|velho\|textura\|original, ms}` |
 | `ativo_excluido` | Ativo apagado | `{em_uso}` (nº de Posts que usavam) |
-| `post_duplicado` / `post_excluido` | | |
+| `post_duplicado` | Post duplicado em Meus Posts | `{tem_foto}` |
+| `post_excluido` | Post excluído em Meus Posts | `{exportado}` (se já tinha sido exportado) |
 | `cliente_desativado` | ação do Parceiro | |
 | `erro_motor` | exceção no layout ou no desenho | `{estilo, variacao, etapa, mensagem_curta}` |
 

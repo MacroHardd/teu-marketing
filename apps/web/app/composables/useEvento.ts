@@ -2,7 +2,7 @@ const sessao = import.meta.client ? crypto.randomUUID() : null
 
 type Nome = 'editor_aberto' | 'post_criado' | 'estilo_trocado' | 'foto_enviada' | 'post_exportado' | 'erro_motor'
   | 'perfil_atualizado' | 'ajuste_aplicado' | 'trava_disparada' | 'trava_resolvida' | 'legenda_copiada' | 'variacao_trocada'
-  | 'ativo_enviado' | 'tratamento_aplicado' | 'ativo_excluido'
+  | 'ativo_enviado' | 'tratamento_aplicado' | 'ativo_excluido' | 'post_duplicado' | 'post_excluido'
 
 /** Manda um evento de telemetria. Nunca bloqueia nem quebra a tela. Props: só metadados. */
 export function useEvento() {

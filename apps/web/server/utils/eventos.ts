@@ -3,6 +3,7 @@ import { z } from 'zod'
 
 // Telemetria (docs/medicao/tecnico.md): props só com metadados, NUNCA conteúdo do Cliente.
 // .strict() recusa qualquer campo a mais (ex.: texto da legenda colado por engano).
+// Evento novo: incluir também na constraint `eventos_nome_check` (migration) e em supabase/tests/database/eventos.test.sql.
 export const PROPS = {
   convite_enviado: z.object({ lote_id: z.uuid(), origem: z.enum(['manual', 'planilha']) }).strict(),
   editor_aberto: z.object({ novo: z.boolean() }).strict(),
@@ -42,6 +43,8 @@ export const PROPS = {
   ativo_enviado: z.object({ formato_origem: z.enum(['jpeg', 'png', 'heic']), bytes: z.int().min(0), ms_processamento: z.number().min(0) }).strict(),
   tratamento_aplicado: z.object({ tipo: z.enum(['corte', 'duotom', 'pixel', 'velho', 'textura', 'original']), ms: z.number().min(0) }).strict(),
   ativo_excluido: z.object({ em_uso: z.int().min(0) }).strict(),
+  post_duplicado: z.object({ tem_foto: z.boolean() }).strict(),
+  post_excluido: z.object({ exportado: z.boolean() }).strict(),
   erro_motor: z.object({
     estilo: z.string().max(20),
     variacao: z.string().max(20).nullable(),
@@ -56,7 +59,7 @@ export type NomeEvento = keyof typeof PROPS
 export const DO_CLIENTE = [
   'editor_aberto', 'post_criado', 'estilo_trocado', 'foto_enviada', 'post_exportado', 'erro_motor',
   'perfil_atualizado', 'ajuste_aplicado', 'trava_disparada', 'trava_resolvida', 'legenda_copiada', 'variacao_trocada',
-  'ativo_enviado', 'tratamento_aplicado', 'ativo_excluido'
+  'ativo_enviado', 'tratamento_aplicado', 'ativo_excluido', 'post_duplicado', 'post_excluido'
 ] as const satisfies NomeEvento[]
 
 export async function registraEvento(event: H3Event, e: {

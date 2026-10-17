@@ -109,6 +109,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"perfis_marca": {
+                  Row: {
+                    "arroba": string,"atualizado_em": string,"cliente_id": string,"contato": string,"cor": string | null,"hashtags": string,"logo_meta": Json | null,"logo_path": string | null,"nome": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "arroba"?: string,"atualizado_em"?: string,"cliente_id": string,"contato"?: string,"cor"?: string | null,"hashtags"?: string,"logo_meta"?: Json | null,"logo_path"?: string | null,"nome"?: string
+                  }
+                  Update: {
+                    "arroba"?: string,"atualizado_em"?: string,"cliente_id"?: string,"contato"?: string,"cor"?: string | null,"hashtags"?: string,"logo_meta"?: Json | null,"logo_path"?: string | null,"nome"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "perfis_marca_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: true
+      referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"posts": {
                   Row: {
                     "ajustes": NonNullable<Json>,"atualizado_em": string,"cliente_id": string,"criado_em": string,"estilo": string | null,"exportado_em": string | null,"foto_meta": Json | null,"foto_path": string | null,"id": string,"legenda": string,"status": Database["public"]['Enums']["post_status"],"texto": string,"variacao": string | null

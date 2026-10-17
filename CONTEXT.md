@@ -35,7 +35,7 @@ Direção visual pronta que o Cliente escolhe antes de gerar um Post. Define lay
 _Evitar_: template, tema, layout, modelo
 
 **Trava**:
-Regra de qualidade de um Estilo, que reprova um Post quebrado: texto cortado, falta de contraste, texto em cima de rosto. Um Post que falha numa Trava não chega ao Cliente.
+Regra de qualidade de um Estilo, que reprova um Post quebrado: texto cortado, falta de contraste, texto em cima de rosto. Quando uma Trava acende, o Cliente vê o aviso com uma correção de 1 clique, e a Exportação fica bloqueada até resolver.
 _Evitar_: validação, checagem, regra
 
 **Variação**:
@@ -47,7 +47,11 @@ Peça estática de Instagram com uma única imagem, feita de uma Pauta e um Esti
 _Evitar_: publicação, criativo, arte, peça
 
 **Elemento opcional**:
-Item de marca que o Cliente liga ou desliga em um Post (logo, @, entre outros), sem mexer na posição.
+Item de marca que o Cliente liga ou desliga em um Post (logo, @ ou nome, contato, selo, CTA), sem mexer na posição.
+
+**Selo**:
+Elemento opcional: círculo com as iniciais da marca, no canto de cima.
+_Evitar_: carimbo, badge
 _Evitar_: camada, componente
 
 **CTA**:

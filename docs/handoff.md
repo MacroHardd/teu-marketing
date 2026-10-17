@@ -1,63 +1,99 @@
-# Handoff: Teu Marketing (2026-10-16, fim da sessão M3 parte 1 + teste local)
+# Handoff: Teu Marketing (2026-10-16, fim do M3 Fase A)
 
 ## Onde estamos
-M1 aprovado, M2 pronto local, **M3 em andamento** na branch `m3-foto` (já no GitHub, empilhada sobre `m0-m1-motor-acento`). Feito no M3:
-- foto: upload, redução, análise e bucket privado com RLS
-- Estilos **Letra fina** e **Foto e legenda** portados, passando na regressão
-- troca de Estilo com sugestão
-- enquadramento arrastando + zoom
-- usuários de teste locais e `dev:local`
-- passo a passo de teste local no `README.md`
+M3 em andamento na branch **`m3-ajustes`** (no GitHub), empilhada sobre `m3-foto` → `m0-m1-motor-acento`. Nenhum PR mergeado.
 
-Build de produção, lint, typecheck, testes (115 motor + 33 RLS) e E2E passam. Status completo em `docs/estado.md`.
+O usuário dividiu esta rodada em duas fases:
+- **Fase A (feita, aguardando validação do usuário):**
+  - Perfil de Marca
+  - Ajustes da lista fechada
+  - Travas de texto cortado e de contraste, com correção
+  - Estilo Manchete
+  - legenda com hashtags
+  - telemetria
+  - email de login em PT-BR
+- **Fase B (só depois do ok do usuário):** levar o conhecimento da skill **`tipografia-igor`** (`~/.claude/skills/tipografia-igor`) para a plataforma, como **Estilos puros e Variações**. O usuário passa o caminho da fonte original desse conhecimento se precisar. As Variações saem daí, e não mais "3 por Estilo do publi".
 
-**Leia nesta ordem:**
-1. `CLAUDE.md`: regra "pronto = build + E2E", comandos, pegadinhas, paridade com o publi
-2. `docs/estado.md`: status, git/produção, o que falta no M3, valores assumidos
-3. `README.md` → "Rodar e testar localmente": o fluxo que o usuário usa para validar
-4. `docs/mvp.md` e `docs/plano.md` (inclui "Como validamos cada feature")
+Decisão do usuário: **tratamento de imagem não é prioridade agora**. Haverá features dedicadas a isso. Por isso a Trava de rosto ficou para essas features.
 
-## Antes de tudo (toda sessão)
-1. `git branch`: trabalhe na branch mais nova (`m3-foto` ou a que vier depois do merge). O checkout já apareceu na `main` velha uma vez.
-2. Rode o build de produção (`pnpm build`) antes de mexer. Se quebrar, corrija primeiro.
-3. Toda entrega termina com: lint + typecheck + test + `pnpm db:test` + build + E2E. Depois, **roteiro de teste manual Parceiro/Cliente** para o usuário (no fim do handoff e na descrição do PR).
+Verificado nesta sessão:
+- lint, typecheck e 150 testes do motor
+- 43 testes de RLS
+- `pnpm build` e o E2E completo contra o build de produção (porta 3001)
+- email de login chegando em PT-BR no Mailpit
 
-## Pendências do usuário (lembrar, não bloqueiam o código)
-- Trocar a branch padrão do GitHub para `main`: Settings → General → Default branch. Daqui não dá (sem `gh`/token).
-- PRs pelo painel, nesta ordem: `m0-m1-motor-acento → main` (tem o fix do build; sem ele o deploy da `main` quebra) e depois `m3-foto → main`.
-- Staging: `supabase link` + `db push` no hospedado (2 migrations), projeto na Vercel, conta no Resend. Ver `docs/infra.md`.
+**Leia nesta ordem:** `CLAUDE.md` → `docs/estado.md` → `README.md` ("Rodar e testar localmente") → `docs/mvp.md`.
 
-## Próxima tarefa (resto do M3)
-- **Variações:** nascem no publi e depois são portadas. **Perguntar ao usuário quais 3 por Estilo** antes de fazer.
-- **Ajustes da lista fechada:** P/M/G, zona (topo/centro/base), cor da paleta, Elementos opcionais, CTA. Hoje só existem enquadramento e zoom (`posts.ajustes.enquadramento`).
-- **Travas:**
-  - rosto: detecção no upload, guardada na `MetaFoto`
-  - contraste: com ação de correção
-  - os avisos do Motor viram mensagem pelo array `AVISOS` em `apps/web/app/pages/posts/[id].vue`
-- **Manchete** (sem foto, fácil) e **Número** (depende do fix do `_numero` no publi).
-- Telemetria: `ajuste_aplicado`, `trava_disparada` e `trava_resolvida` (schemas em `apps/web/server/utils/eventos.ts`).
-- Detalhe de UI: o email de login local sai em inglês ("Your sign-in link"). Para o critério "tudo em PT-BR": template do magic link em `supabase/config.toml` (local) e no painel (hospedado).
+## Roteiro de teste para o usuário (Fase A)
+Preparar: `pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:local` → entrar pelo link impresso, numa janela anônima.
 
-## Roteiro de teste manual (o que existe hoje)
-Passo a passo completo no `README.md`. Resumo: `pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:local` → entrar pelo link impresso (janela anônima) ou pela tela Entrar + Mailpit (http://127.0.0.1:54324).
-- **Parceiro** (`parceiro@teste.dev`): 2 de 3 em uso, 2 Clientes, Convite pendente; convidar, reenviar.
-- **Cliente** (`cliente@teste.dev`): Novo Post → texto → foto → Letra fina sugerida → Foto e legenda → arrastar/zoom → baixar → recarregar.
-- **Isolamento** (`parceiro-b@teste.dev`): só vê `cliente-b@teste.dev`.
+**Cliente** (`cliente@teste.dev`):
+1. Meus Posts mostra o aviso "Coloque a sua marca nos Posts" → Preencher Perfil de Marca.
+   - Preencha nome, @, uma cor, contato e hashtags, e envie um logo PNG.
+   - A prévia à direita muda ao vivo. Salvar volta para Meus Posts.
+2. Novo Post → escreva uma frase.
+   - A legenda já vem com as hashtags.
+   - A imagem mostra o @, o logo e o contato.
+3. Coluna da direita (Ajustes):
+   - Tamanho P/M/G
+   - Posição: em cima, no meio, embaixo
+   - Cores: a da marca, 6 prontas, claro/escuro
+   - Na imagem: liga e desliga @/nome, Logo, Contato, Selo
+   - CTA
+4. Trava de texto cortado:
+   - cole umas 60 palavras no Acento → aviso vermelho, e "Baixar imagem" fica desligado
+   - clique em "Usar Manchete" ou "Diminuir a letra" → o aviso some
+5. Envie uma foto → Letra fina:
+   - mude a posição do texto e o tamanho (só P/M nesse Estilo)
+   - se a letra ficar difícil de ler: Trava de contraste → "Escurecer atrás do texto" ou "Mover o texto para…"
+6. Baixar imagem, Copiar legenda, recarregar a página: tudo continua igual.
+7. Tela Entrar → Mailpit: o email chega como "Seu link para entrar no Teu Marketing".
+
+**Parceiro** (`parceiro@teste.dev`):
+- Igual ao M2: painel de Uso, Convites, reenviar.
+- Ele não tem acesso ao Perfil de Marca nem aos Posts dos Clientes. Isso é garantido pelo RLS e testado no pgTAP.
+
+**Isolamento** (`parceiro-b@teste.dev`): só vê `cliente-b@teste.dev`.
+
+## Pendências do usuário (não bloqueiam)
+- Trocar a branch padrão do GitHub para `main`.
+- PRs pelo painel, nesta ordem:
+  1. `m0-m1-motor-acento → main`
+  2. `m3-foto`
+  3. `m3-ajustes`
+- Staging: `supabase link` + `db push` no hospedado (agora são **3 migrations**: `inicio`, `foto`, `marca`), projeto na Vercel e conta no Resend. No painel do hospedado, **Auth → Email Templates → Magic Link**: copiar `supabase/templates/magic_link.html` e o assunto "Seu link para entrar no Teu Marketing".
+
+## Próximo passo
+1. Receber o retorno do usuário sobre a Fase A e corrigir o que ele apontar.
+2. **Fase B:**
+   - ler a skill `tipografia-igor` (`SKILL.md`, `REGRAS.md`, `presets.ts`)
+   - perguntar a origem do conhecimento, se precisar
+   - propor ao usuário o mapa skill → Estilos/Variações **antes de codar**
+   - lembrar: o MVP é post estático 4:5. A skill também cobre lyric video, que está fora do escopo.
+3. Depois disso: `variacao_trocada`, Número (precisa do fix do `_numero` no publi) e staging.
 
 ## Contexto que não está nos docs
-- **Último tropeço do usuário:** ficou parado em "Verifique seu email" sem saber do Mailpit. Corrigido: README e um aviso "Ambiente local / Abrir o Mailpit" que aparece só no `nuxt dev`. O fluxo tela Entrar → Mailpit → clique foi reproduzido em headless e entra.
-- **Git:** remoto `MacroHardd/teu-marketing`, push por SSH funciona e o usuário autorizou subir as branches. Nunca commitar na `main`. PR quem abre e aceita é o usuário, pelo painel.
-- **O usuário deixa o `dev:local` dele rodando na porta 3000.** Não mate. Para o seu build/teste: `PORT=3001 node apps/web/scripts/local.mjs node apps/web/.output/server/index.mjs` (e `PORT=3001` também no `teste:usuarios` para os links). O E2E tem `BASE` fixo em 3000 e o redirect do Auth local aponta para 3000, então só roda com a porta livre. Para parar um servidor, use o PID da porta (`ss -ltnp | grep :3001`), nunca `pkill -f` (mata o próprio shell).
-- O E2E **não rodou** depois da última rodada de mudanças (porta ocupada). As mudanças foram pequenas: nome do Parceiro do E2E, aviso dev na tela Entrar e scripts. Rode o E2E quando a 3000 estiver livre.
-- `supabase migration new` lê o stdin: crie o arquivo vazio e escreva depois (ver `CLAUDE.md`).
-- **Fotos de teste** são sintéticas (`packages/oraculo/fotos/gerar_fotos.py`), suaves de propósito: Pillow e Canvas reamostram diferente.
-- **HEIC não foi testado** (falta arquivo). Ponto de entrada: `preparaFoto` em `apps/web/app/composables/useFoto.ts`.
-- **Como o usuário trabalha:** rapidez, respostas curtas (caveman, PT-BR), interface leiga, **nunca virar Canva**. Só considera pronto com o build passando, e quer testar cada feature como Parceiro e como Cliente.
-- **Fontes do publi:** usar como estão. **IA:** fora do MVP.
+- **O usuário deixa o `dev:local` rodando na 3000.** Não mate.
+  - Para o seu teste: `pnpm build`, depois `PORT=3001 node apps/web/scripts/local.mjs node apps/web/.output/server/index.mjs` (em background) e `PORT=3001 BASE=http://localhost:3001 node apps/web/scripts/local.mjs pnpm --filter @teu/web e2e`.
+  - O `local.mjs` é obrigatório também no E2E: sem ele, o `criar-parceiro` lê o `.env` do hospedado ("Could not find the table").
+  - Para parar um servidor, use o PID da porta (`ss -ltnp | grep :3001`), nunca `pkill -f`.
+- Mudar `supabase/config.toml` exige `supabase stop && supabase start`. Os dados ficam (backup automático). Foi feito nesta sessão (template e redirect da 3001).
+- As fixtures do pgTAP usam `@pgtap.dev`: nunca `@teste.dev`, que colide com os usuários de teste.
+- Ajustes no Motor:
+  - sem Ajuste, a Cena = publi; a regressão garante isso
+  - Ajuste novo precisa manter `motor(e) == motor({...e, ajustes: {}})`, que tem teste em `test/ajustes.test.ts`
+  - o que cada Estilo oferece fica em `SUPORTE` (`packages/motor/src/ajustes.ts`); a UI só mostra o que está lá
+- Na tela, as Travas vêm dos `avisos` do Motor mapeados por regex (`TRAVAS` e `DICAS` em `apps/web/app/pages/posts/[id].vue`). Aviso novo no Motor precisa de uma linha ali.
+- **Como o usuário trabalha:**
+  - rapidez e respostas curtas (caveman, PT-BR)
+  - interface leiga, **nunca virar Canva**
+  - pronto = build + E2E passando
+  - quer o roteiro de teste como Parceiro e como Cliente
+  - commit só em branch, PR quem abre é ele
 
 ## Skills sugeridas
-- `supabase`: migrations, Storage, templates de email, advisors
-- `nuxt-ui`: controles de Ajuste e grade de Estilos/Variações
-- `tdd`: porte de Estilo/Variação e regras de Trava
-- `grill-with-docs`: decidir Variações e Ajustes com o usuário
-- `diagnose`: regressão visual reprovando ou preview ≠ PNG
+- `tipografia-igor` (ler, sem executar): é a fonte da Fase B
+- `grill-with-docs`: fechar com o usuário o mapa Estilos/Variações
+- `tdd`: porte de Estilo/Variação
+- `nuxt-ui`: grade de Variações no editor
+- `diagnose`: regressão visual reprovando

@@ -23,6 +23,21 @@ export const PROPS = {
     ms_processamento: z.number().min(0),
     rosto_detectado: z.boolean()
   }).strict(),
+  perfil_atualizado: z.object({
+    campos_preenchidos: z.array(z.enum(['nome', 'arroba', 'cor', 'contato', 'hashtags', 'logo'])).max(6)
+  }).strict(),
+  ajuste_aplicado: z.object({
+    tipo: z.enum(['texto', 'tamanho', 'zona', 'foto_enquadre', 'cor', 'elemento', 'cta', 'reforco']),
+    ms_render: z.number().min(0).optional()
+  }).strict(),
+  trava_disparada: z.object({
+    estilo: z.string().max(20),
+    variacao: z.string().max(20).nullable(),
+    trava: z.enum(['texto_cortado', 'contraste']),
+    bloqueante: z.boolean()
+  }).strict(),
+  trava_resolvida: z.object({ trava: z.enum(['texto_cortado', 'contraste']), acao: z.enum(['variacao', 'estilo', 'ajuste']) }).strict(),
+  legenda_copiada: z.object({ n_hashtags: z.int().min(0) }).strict(),
   erro_motor: z.object({
     estilo: z.string().max(20),
     variacao: z.string().max(20).nullable(),
@@ -34,7 +49,10 @@ export const PROPS = {
 export type NomeEvento = keyof typeof PROPS
 
 /** Eventos que o browser do Cliente pode mandar por /api/eventos. */
-export const DO_CLIENTE = ['editor_aberto', 'post_criado', 'estilo_trocado', 'foto_enviada', 'post_exportado', 'erro_motor'] as const satisfies NomeEvento[]
+export const DO_CLIENTE = [
+  'editor_aberto', 'post_criado', 'estilo_trocado', 'foto_enviada', 'post_exportado', 'erro_motor',
+  'perfil_atualizado', 'ajuste_aplicado', 'trava_disparada', 'trava_resolvida', 'legenda_copiada'
+] as const satisfies NomeEvento[]
 
 export async function registraEvento(event: H3Event, e: {
   nome: NomeEvento

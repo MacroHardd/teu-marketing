@@ -6,3 +6,4 @@ export { escolhe, separa, campos, confere, destaque, type TipoEstilo, type Campo
 export { TEMAS, type NomeTema, type Cor } from './cor'
 export type { Cena, CorA, Item, Travas } from './cena'
 export { ELEMENTOS, SUPORTE, ZONA_PADRAO, type Ajustes, type Elemento, type Tamanho, type Zona } from './ajustes'
+export type { Marca, Formato } from './estilos/comum'

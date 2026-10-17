@@ -5,32 +5,32 @@ select plan(24);
 
 -- ------------------------------------------------------------------ cenário: Parceiros A e B, um Cliente em cada
 insert into auth.users (id, email, aud, role) values
-  ('00000000-0000-0000-0000-00000000000a', 'parceiro-a@teste.dev', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-00000000000b', 'parceiro-b@teste.dev', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-0000000000ca', 'cliente-a@teste.dev', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-0000000000cb', 'cliente-b@teste.dev', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-0000000000c2', 'novo@teste.dev', 'authenticated', 'authenticated');
+  ('00000000-0000-0000-0000-00000000000a', 'parceiro-a@pgtap.dev', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-00000000000b', 'parceiro-b@pgtap.dev', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-0000000000ca', 'cliente-a@pgtap.dev', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-0000000000cb', 'cliente-b@pgtap.dev', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-0000000000c2', 'novo@pgtap.dev', 'authenticated', 'authenticated');
 
 insert into public.parceiros (id, nome, email_responsavel, usuario_id, assentos) values
-  ('10000000-0000-0000-0000-00000000000a', 'Parceiro A', 'parceiro-a@teste.dev', '00000000-0000-0000-0000-00000000000a', 1),
-  ('10000000-0000-0000-0000-00000000000b', 'Parceiro B', 'parceiro-b@teste.dev', '00000000-0000-0000-0000-00000000000b', 5);
+  ('10000000-0000-0000-0000-00000000000a', 'Parceiro A', 'parceiro-a@pgtap.dev', '00000000-0000-0000-0000-00000000000a', 1),
+  ('10000000-0000-0000-0000-00000000000b', 'Parceiro B', 'parceiro-b@pgtap.dev', '00000000-0000-0000-0000-00000000000b', 5);
 
 insert into public.clientes (id, parceiro_id, usuario_id, email) values
-  ('20000000-0000-0000-0000-0000000000ca', '10000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000ca', 'cliente-a@teste.dev'),
-  ('20000000-0000-0000-0000-0000000000cb', '10000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000cb', 'cliente-b@teste.dev');
+  ('20000000-0000-0000-0000-0000000000ca', '10000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000ca', 'cliente-a@pgtap.dev'),
+  ('20000000-0000-0000-0000-0000000000cb', '10000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-0000000000cb', 'cliente-b@pgtap.dev');
 
 insert into public.posts (id, cliente_id, texto) values
   ('30000000-0000-0000-0000-0000000000ca', '20000000-0000-0000-0000-0000000000ca', 'segredo do cliente A'),
   ('30000000-0000-0000-0000-0000000000cb', '20000000-0000-0000-0000-0000000000cb', 'segredo do cliente B');
 
 insert into public.convites (parceiro_id, email, token_hash, status) values
-  ('10000000-0000-0000-0000-00000000000a', 'x@teste.dev', 'tok-a', 'enviado'),
-  ('10000000-0000-0000-0000-00000000000b', 'y@teste.dev', 'tok-b', 'enviado'),
-  ('10000000-0000-0000-0000-00000000000b', 'novo@teste.dev', 'tok-novo', 'enviado'),
-  ('10000000-0000-0000-0000-00000000000b', 'cliente-a@teste.dev', 'tok-outro', 'enviado'),
-  ('10000000-0000-0000-0000-00000000000a', 'novo@teste.dev', 'tok-sem-assento', 'enviado');
+  ('10000000-0000-0000-0000-00000000000a', 'x@pgtap.dev', 'tok-a', 'enviado'),
+  ('10000000-0000-0000-0000-00000000000b', 'y@pgtap.dev', 'tok-b', 'enviado'),
+  ('10000000-0000-0000-0000-00000000000b', 'novo@pgtap.dev', 'tok-novo', 'enviado'),
+  ('10000000-0000-0000-0000-00000000000b', 'cliente-a@pgtap.dev', 'tok-outro', 'enviado'),
+  ('10000000-0000-0000-0000-00000000000a', 'novo@pgtap.dev', 'tok-sem-assento', 'enviado');
 insert into public.convites (parceiro_id, email, token_hash, status, expira_em) values
-  ('10000000-0000-0000-0000-00000000000b', 'velho@teste.dev', 'tok-velho', 'enviado', now() - interval '1 day');
+  ('10000000-0000-0000-0000-00000000000b', 'velho@pgtap.dev', 'tok-velho', 'enviado', now() - interval '1 day');
 
 insert into public.eventos (parceiro_id, nome) values ('10000000-0000-0000-0000-00000000000a', 'convite_enviado');
 
@@ -43,7 +43,7 @@ select is((select count(*) from public.clientes), 1::bigint, 'Parceiro lê só o
 select is((select count(*) from public.convites), 2::bigint, 'Parceiro lê só os próprios Convites');
 select is((select nome from public.parceiros), 'Parceiro A', 'Parceiro lê só o próprio cadastro');
 select throws_ok('select * from public.eventos', '42501', null, 'Parceiro não lê eventos');
-select throws_ok($$insert into public.convites (parceiro_id, email, token_hash) values ('10000000-0000-0000-0000-00000000000a', 'z@teste.dev', 'h')$$,
+select throws_ok($$insert into public.convites (parceiro_id, email, token_hash) values ('10000000-0000-0000-0000-00000000000a', 'z@pgtap.dev', 'h')$$,
   '42501', null, 'Parceiro não cria Convite direto no banco');
 select throws_ok($$update public.parceiros set assentos = 999$$, '42501', null, 'Parceiro não muda os próprios Assentos');
 select is_empty($$update public.posts set texto = 'invadido' returning id$$, 'Parceiro não altera Posts');

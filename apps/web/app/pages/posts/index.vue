@@ -11,6 +11,8 @@ const { data: posts } = await useAsyncData('meus-posts', async () => {
   return data ?? []
 })
 
+const { data: perfil } = await useMarca()
+
 const criando = ref(false)
 async function novo() {
   criando.value = true
@@ -40,6 +42,16 @@ async function novo() {
     </template>
 
     <template #body>
+      <UAlert
+        v-if="!perfil"
+        class="mb-6"
+        icon="i-lucide-badge-check"
+        color="primary"
+        variant="subtle"
+        title="Coloque a sua marca nos Posts"
+        description="Nome, @, cor, logo e contato. É opcional e leva 1 minuto."
+        :actions="[{ label: 'Preencher Perfil de Marca', to: '/marca?voltar=/posts' }]"
+      />
       <UEmpty
         v-if="!posts?.length"
         icon="i-lucide-image-plus"

@@ -41,16 +41,18 @@ pnpm install
 
 4. **Entre.** Use sempre `http://localhost:3000` (não `127.0.0.1:3000`: o login fica guardado por endereço). Há dois jeitos:
    - **Pelo link do passo 2 (mais rápido):** cole o link no navegador e você entra direto. Para ficar logado como Parceiro e como Cliente ao mesmo tempo, abra cada link numa **janela anônima** diferente (ou num navegador diferente).
-   - **Pela tela Entrar (como o usuário de verdade):** digite o email e clique em "Enviar link de entrada". Vai aparecer **"Verifique seu email"**. A tela fica nesse ponto mesmo, esperando o clique no email. Abra o **Mailpit** (http://127.0.0.1:54324, ou pelo botão "Abrir o Mailpit" na própria tela), abra a mensagem "Your sign-in link" (o email local sai em inglês) e clique em "Sign in" **no mesmo navegador** em que você pediu o link.
+   - **Pela tela Entrar (como o usuário de verdade):** digite o email e clique em "Enviar link de entrada". Vai aparecer **"Verifique seu email"**. A tela fica nesse ponto mesmo, esperando o clique no email. Abra o **Mailpit** (http://127.0.0.1:54324, ou pelo botão "Abrir o Mailpit" na própria tela), abra a mensagem "Seu link para entrar no Teu Marketing" e clique em "Entrar no Teu Marketing" **no mesmo navegador** em que você pediu o link.
 
 ### O que testar em cada papel
 
 - **Parceiro** (`parceiro@teste.dev`): o painel mostra "2 de 3 acessos em uso", os 2 Clientes e o Convite pendente. Convide um email novo: o Convite chega no Mailpit, e o link dele entra como Cliente com 1 clique. Teste também o reenvio.
 - **Cliente** (`cliente@teste.dev`):
-  1. Novo Post → escreva uma frase → Enviar foto. Letra fina aparece como sugerida.
-  2. Troque para Foto e legenda, arraste a foto na prévia e mexa no zoom.
-  3. Baixar imagem.
-  4. Recarregue a página e confira que o Post continua igual.
+  1. **Perfil de Marca:** em Meus Posts, clique em "Preencher Perfil de Marca". Preencha nome, @, uma cor, contato, hashtags e envie um logo (PNG). A prévia ao lado já mostra a marca. Salvar.
+  2. **Novo Post** → escreva uma frase. A legenda já vem com as hashtags do Perfil, e a imagem já mostra @, logo e contato.
+  3. **Ajustes** (coluna da direita): letra P/M/G, posição (em cima, no meio, embaixo), cores (a da marca ou uma das prontas, claro/escuro), "Na imagem" (liga e desliga @, logo, contato, selo) e CTA. Cada clique muda a prévia na hora.
+  4. **Trava de texto cortado:** cole um texto bem longo (umas 60 palavras) no Acento. Aparece o aviso vermelho e "Baixar imagem" fica desligado. Clique em "Usar Manchete" ou "Diminuir a letra": o aviso some.
+  5. **Foto:** Enviar foto → Letra fina sugerida. Mude a posição do texto; se a letra ficar difícil de ler, aparece a Trava de contraste com "Escurecer atrás do texto". Troque para Foto e legenda, arraste a foto e mexa no zoom.
+  6. Baixar imagem, Copiar legenda. Recarregue a página e confira que tudo continua igual.
 - **Isolamento** (`parceiro-b@teste.dev`): só vê `cliente-b@teste.dev`. Nada do Escritório Teste aparece.
 
 ### Deu problema?

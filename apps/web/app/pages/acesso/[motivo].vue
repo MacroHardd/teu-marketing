@@ -7,8 +7,11 @@ const MOTIVOS: Record<string, { titulo: string, texto: string }> = {
   'sem-assento': { titulo: 'Sem vaga no momento', texto: 'Seu parceiro não tem acessos livres agora. Fale com ele para liberar uma vaga.' },
   'outro-parceiro': { titulo: 'Email já em uso', texto: 'Este email já tem acesso por outro parceiro. Fale com quem te convidou.' },
   'sem-acesso': { titulo: 'Sem acesso', texto: 'Este email ainda não tem acesso. Peça acesso ao seu parceiro.' },
-  'desativado': { titulo: 'Acesso desativado', texto: 'Seu acesso foi desativado pelo seu parceiro. Fale com ele para voltar.' }
+  'desativado': { titulo: 'Acesso desativado', texto: 'Seu acesso foi desativado pelo seu parceiro. Fale com ele para voltar.' },
+  'assinatura-encerrada': { titulo: 'Assinatura encerrada', texto: 'Sua Assinatura terminou. Assine de novo para voltar: seus Posts continuam guardados.' }
 }
+// quem não tem Parceiro pode assinar sozinho (ADR 0005)
+const assinar = computed(() => ['sem-acesso', 'assinatura-encerrada'].includes(String(route.params.motivo)))
 const route = useRoute()
 const m = computed(() => MOTIVOS[String(route.params.motivo)] ?? MOTIVOS['sem-acesso']!)
 useSeoMeta({ title: () => m.value.titulo })
@@ -30,6 +33,12 @@ async function sair() {
     <p class="text-sm text-muted">
       {{ m.texto }}
     </p>
+    <UButton
+      v-if="assinar"
+      label="Assinar o Teu Marketing"
+      to="/assinar"
+      block
+    />
     <UButton variant="link" label="Entrar com outro email" @click="sair" />
   </div>
 </template>

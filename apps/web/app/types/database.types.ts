@@ -23,7 +23,27 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "ativos": {
+            "assinaturas": {
+                  Row: {
+                    "asaas_assinatura_id": string | null,"asaas_cliente_id": string | null,"atualizado_em": string,"cancelada_em": string | null,"cliente_id": string | null,"criado_em": string,"email": string,"encerrada_em": string | null,"id": string,"pago_ate": string | null,"plano": Database["public"]['Enums']["assinatura_plano"],"status": Database["public"]['Enums']["assinatura_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "asaas_assinatura_id"?: string | null,"asaas_cliente_id"?: string | null,"atualizado_em"?: string,"cancelada_em"?: string | null,"cliente_id"?: string | null,"criado_em"?: string,"email": string,"encerrada_em"?: string | null,"id"?: string,"pago_ate"?: string | null,"plano": Database["public"]['Enums']["assinatura_plano"],"status"?: Database["public"]['Enums']["assinatura_status"]
+                  }
+                  Update: {
+                    "asaas_assinatura_id"?: string | null,"asaas_cliente_id"?: string | null,"atualizado_em"?: string,"cancelada_em"?: string | null,"cliente_id"?: string | null,"criado_em"?: string,"email"?: string,"encerrada_em"?: string | null,"id"?: string,"pago_ate"?: string | null,"plano"?: Database["public"]['Enums']["assinatura_plano"],"status"?: Database["public"]['Enums']["assinatura_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "assinaturas_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"ativos": {
                   Row: {
                     "atualizado_em": string,"cliente_id": string,"criado_em": string,"id": string,"meta": NonNullable<Json>,"path": string,"receita": NonNullable<Json>
                   }
@@ -115,16 +135,30 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"parceiros": {
+                },"pagamento_eventos": {
                   Row: {
-                    "assentos": number,"criado_em": string,"email_responsavel": string,"id": string,"nome": string,"usuario_id": string | null
+                    "id": string,"recebido_em": string,"tipo": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "assentos": number,"criado_em"?: string,"email_responsavel": string,"id"?: string,"nome": string,"usuario_id"?: string | null
+                    "id": string,"recebido_em"?: string,"tipo": string
                   }
                   Update: {
-                    "assentos"?: number,"criado_em"?: string,"email_responsavel"?: string,"id"?: string,"nome"?: string,"usuario_id"?: string | null
+                    "id"?: string,"recebido_em"?: string,"tipo"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"parceiros": {
+                  Row: {
+                    "assentos": number,"criado_em": string,"direto": boolean,"email_responsavel": string,"id": string,"nome": string,"usuario_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assentos": number,"criado_em"?: string,"direto"?: boolean,"email_responsavel": string,"id"?: string,"nome": string,"usuario_id"?: string | null
+                  }
+                  Update: {
+                    "assentos"?: number,"criado_em"?: string,"direto"?: boolean,"email_responsavel"?: string,"id"?: string,"nome"?: string,"usuario_id"?: string | null
                   }
                   Relationships: [
                     
@@ -184,12 +218,21 @@ isOneToOne: false
             "aceitar_convite":
 { Args: { "p_token_hash": string,"p_usuario_id": string }; Returns: Json
                            },
+"encerrar_assinatura":
+{ Args: { "p_assinatura": string,"p_motivo": string }; Returns: undefined
+                           },
+"encerrar_assinaturas_vencidas":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "meu_acesso":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"pagamento_confirmado":
+{ Args: { "p_assinatura": string,"p_pago_ate": string,"p_usuario_id": string }; Returns: Json
                            }
           }
           Enums: {
-            "convite_status": "agendado"|"enviado"|"aceito"|"expirado"|"cancelado","post_status": "rascunho"|"exportado"
+            "assinatura_plano": "mensal"|"anual","assinatura_status": "pendente"|"ativa"|"atrasada"|"cancelada"|"encerrada","convite_status": "agendado"|"enviado"|"aceito"|"expirado"|"cancelado","post_status": "rascunho"|"exportado"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -309,7 +352,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "convite_status": ["agendado", "enviado", "aceito", "expirado", "cancelado"],"post_status": ["rascunho", "exportado"]
+            "assinatura_plano": ["mensal", "anual"],"assinatura_status": ["pendente", "ativa", "atrasada", "cancelada", "encerrada"],"convite_status": ["agendado", "enviado", "aceito", "expirado", "cancelado"],"post_status": ["rascunho", "exportado"]
           }
         }
 } as const

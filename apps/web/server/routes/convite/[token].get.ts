@@ -24,12 +24,14 @@ export default defineEventHandler(async (event) => {
 
   const { data: r, error } = await db.rpc('aceitar_convite', { p_token_hash: hash, p_usuario_id: link.data.user.id })
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })
-  const resultado = (r as { resultado: string }).resultado
+  const { resultado, cancelar_asaas: cancelar = [] } = r as { resultado: string, cancelar_asaas?: string[] }
   if (resultado !== 'ok') {
     if (criado.data.user) await db.auth.admin.deleteUser(criado.data.user.id)
     const motivo = { sem_assento: 'sem-assento', outro_parceiro: 'outro-parceiro', expirado: 'convite-expirado' }[resultado] ?? 'convite-invalido'
     return sendRedirect(event, `/acesso/${motivo}`)
   }
+  // Cliente direto que migrou para o Parceiro: para de cobrar (se falhar, cancelar à mão no painel do Asaas)
+  for (const id of cancelar) await cancelaNoAsaas(id).catch(e => console.error('cancelar Assinatura migrada', id, e))
   const q = new URLSearchParams({ token_hash: link.data.properties.hashed_token, type: 'magiclink' })
   return sendRedirect(event, `/confirmar?${q}`)
 })

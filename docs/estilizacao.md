@@ -39,7 +39,7 @@
 | E0 | **Direção visual.** Propor 3 direções (paleta da interface, fonte da interface, raio, densidade), cada uma com print da tela Meus Posts e do editor. O usuário escolhe. Skill: `frontend-design` ou `high-end-visual-design`. Não implementa nada | protótipo fora do app (`/prototipo` não versionado ou imagens) | nada |
 | E1 | **Tokens.** Aplicar a direção escolhida: `primary`/`neutral` em `app.config.ts`, escala de cor e `--font-sans` em `main.css`, raio e `ui` globais (botão, cartão, badge). Fonte da interface em `public/ui/` ou Google Fonts via `@nuxt/fonts` | `app.config.ts`, `main.css` | E0 |
 | E2 | **Moldura.** Barra lateral, cabeçalho, logo "Teu Marketing" (SVG simples), favicon, menu do usuário | `layouts/default.vue`, `components/UserMenu.vue`, `public/` | E1 |
-| E3 | **Entrada.** Entrar, Confirmar, Acesso negado, Convite inválido | `layouts/auth.vue`, `pages/entrar.vue`, `pages/confirmar.vue`, `pages/acesso/[motivo].vue` | E1 |
+| E3 | **Entrada.** Entrar, Confirmar, Acesso negado, Convite inválido, Assinar, Assinatura | `layouts/auth.vue`, `pages/entrar.vue`, `pages/confirmar.vue`, `pages/acesso/[motivo].vue`, `pages/assinar/*`, `pages/assinatura.vue` | E1 |
 | E4 | **Meus Posts.** Grade, cartão do Post (miniatura, status), estados vazios, aviso do Perfil de Marca | `pages/posts/index.vue` | E1, M5 mergeado |
 | E5 | **Editor, coluna da esquerda.** Texto, foto, grade de Estilos e Variações | `pages/posts/[id].vue` (só template) | E1 |
 | E6 | **Editor, prévia.** Moldura da prévia, avisos de Trava, botão Baixar | `pages/posts/[id].vue` (só template) | E5 (mesmo arquivo: não em paralelo) |
@@ -59,6 +59,7 @@ O E2E (`apps/web/e2e/jornada.mjs`) acha os elementos por estes textos e nomes. N
 
 - Textos: "0 de 2 acessos em uso", "1 de 2 acessos em uso", "1 Convite(s)…", "1 repetido(s)…", "1 válido(s)…", "Inválido(s)…", "Exportado", "Imagem baixada", "Imagem salva", "No meio", "Peça acesso ao seu parceiro", "Salvo", "Verifique seu email"
 - Botões e links: "Aplicar recorte", "Baixar imagem", "Com bloco", "Sem bloco", "Cores Noite", "Criar meu primeiro Post", "Duotom", "Foto e legenda", "Letra P", "Na letra", "@ / nome", "Novo Post", "Preencher Perfil de Marca", "Quadrado", "Recortar", "Riscada", "Síncope", "Acento" (com "sugerido"), "Salvar", "Texto em cima", "Texto embaixo", "Tratar imagem", "Trocar foto", "Trocar logo", "Usar Manchete", "Usar num Post novo", e os nomes dos 13 Estilos
+- Assinatura (J6): textos "Este email já tem acesso pelo seu parceiro", "Falta só o pagamento ser confirmado", "Plano anual", "Ativa", "Não renova mais", "Anual", "Mensal"; campos "Email", "Nome completo", "CPF"; botões e links "Ir para o pagamento", "Confirmar pagamento", "Cancelar Assinatura", "Assinatura", "Assinar o Teu Marketing"; assunto do email "Seu acesso ao Teu Marketing está liberado"
 - Telas novas das features (M5, M6) entram nesta lista quando forem feitas.
 
 Para conferir a lista atual: `grep -n "getByText\|name:" apps/web/e2e/jornada.mjs`.

@@ -62,6 +62,9 @@ async function entrar(e: FormSubmitEvent<z.output<typeof schema>>) {
     :submit="{ label: 'Enviar link de entrada', loading: carregando }"
     @submit="entrar"
   >
+    <template #footer>
+      Não tem acesso por um parceiro? <ULink to="/assinar" class="text-primary font-medium">Assine o Teu Marketing</ULink>
+    </template>
     <template #validation>
       <UAlert
         v-if="erro"

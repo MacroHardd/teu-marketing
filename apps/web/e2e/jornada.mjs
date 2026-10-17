@@ -1,4 +1,4 @@
-// Jornada J1 → J4 do MVP de ponta a ponta, num Chrome de verdade.
+// Jornada J1 → J4 do MVP + J6 (Cliente direto: assina sozinho) de ponta a ponta, num Chrome de verdade.
 // Pré-requisitos: `pnpm exec supabase start` + `pnpm dev` (porta 3000, sem Resend: emails no Mailpit).
 // Outra porta (ex.: com o dev rodando na 3000): BASE=http://localhost:3001 (3001 já liberada no Auth local).
 //   pnpm --filter @teu/web e2e            (CHROME=/caminho/do/chrome para outro navegador)
@@ -10,6 +10,8 @@ const MAIL = 'http://127.0.0.1:54324'
 const run = Date.now().toString(36)
 const PARCEIRO = `parceiro-${run}@teste.dev`
 const CLIENTE = `cliente-${run}@teste.dev`
+const DIRETO = `direto-${run}@teste.dev`
+const DIRETO2 = `direto2-${run}@teste.dev`
 
 const log = (...a) => console.log('•', ...a)
 
@@ -307,6 +309,83 @@ await p.reload()
 await abre(p)
 await p.getByText('1 de 2 acessos em uso').waitFor()
 log('Parceiro vê 1 de 2 em uso')
+
+// ------------------------------------------------------------------ J6: Cliente direto (ADR 0005, pagamento simulado)
+// precisa do app com NUXT_ASAAS_SIMULADO=1 e NUXT_CRON_SECRET=local (scripts/local.mjs já põe)
+const { createClient } = await import('@supabase/supabase-js')
+const adm = createClient(process.env.NUXT_PUBLIC_SUPABASE_URL, process.env.NUXT_SUPABASE_SECRET_KEY)
+
+async function assina(pg, email, plano) {
+  await abre(pg, `${BASE}/assinar`)
+  await pg.getByText(plano === 'anual' ? 'Anual' : 'Mensal', { exact: true }).click()
+  await pg.getByLabel('Email').fill(email)
+  await pg.getByLabel('Nome completo').fill('Pessoa Direta')
+  await pg.getByLabel('CPF').fill('529.982.247-25')
+  await pg.getByRole('button', { name: 'Ir para o pagamento' }).click()
+  await pg.waitForURL('**/assinar/simulado**')
+  await abre(pg)
+  const desde = new Date(Date.now() - 1000)
+  await pg.getByRole('button', { name: 'Confirmar pagamento' }).click()
+  await pg.getByText('Falta só o pagamento ser confirmado').waitFor()
+  return ultimoEmail(email, desde)
+}
+
+// Cliente de Parceiro não assina por fora
+const d0 = await novaAba()
+await abre(d0, `${BASE}/assinar`)
+await d0.getByLabel('Email').fill(CLIENTE)
+await d0.getByLabel('Nome completo').fill('Cliente do Parceiro')
+await d0.getByLabel('CPF').fill('529.982.247-25')
+await d0.getByRole('button', { name: 'Ir para o pagamento' }).click()
+await d0.getByText('Este email já tem acesso pelo seu parceiro').waitFor()
+log('Cliente de Parceiro não assina por fora')
+
+// assina → email → entra → vê a Assinatura → cancela → vence → sem acesso
+const d = await novaAba()
+const liberado = await assina(d, DIRETO, 'anual')
+if (!/acesso .* liberado/.test(liberado.Subject)) throw new Error(`email errado: ${liberado.Subject}`)
+await d.goto(linkDe(liberado, /confirmar/))
+await d.waitForURL('**/posts', { timeout: 20000 })
+await abre(d)
+await d.getByRole('link', { name: 'Assinatura' }).click()
+await d.getByText('Plano anual').waitFor()
+await d.getByText('Ativa', { exact: true }).waitFor()
+log('Cliente direto assinou (anual), entrou e vê a Assinatura')
+await d.getByRole('button', { name: 'Cancelar Assinatura' }).click()
+await d.getByRole('dialog').getByRole('button', { name: 'Cancelar Assinatura' }).click()
+await d.getByText('Não renova mais').waitFor()
+log('cancelou: acesso segue até o fim do período')
+
+await adm.from('assinaturas').update({ pago_ate: new Date(Date.now() - 4 * 864e5).toISOString() }).eq('email', DIRETO).eq('status', 'cancelada')
+const cron = await fetch(`${BASE}/api/cron/diario`, { headers: { authorization: 'Bearer local' } })
+if (!cron.ok) throw new Error(`cron: ${cron.status}`)
+await abre(d, `${BASE}/`)
+await d.waitForURL('**/acesso/assinatura-encerrada')
+await d.getByRole('link', { name: 'Assinar o Teu Marketing' }).waitFor()
+log('venceu + 3 dias → cron encerra → sem acesso, com "Assinar"')
+
+// Cliente direto convidado por um Parceiro migra (mantém o Cliente) e a Assinatura fecha
+const d2 = await novaAba()
+await d2.goto(linkDe(await assina(d2, DIRETO2, 'mensal'), /confirmar/))
+await d2.waitForURL('**/posts', { timeout: 20000 })
+const { data: antes2 } = await adm.from('clientes').select('id').eq('email', DIRETO2).eq('ativo', true).single()
+await abre(p, `${BASE}/clientes`)
+desde = new Date(Date.now() - 1000)
+await p.fill('textarea', DIRETO2)
+await p.getByRole('button', { name: /Enviar 1 Convite/ }).click()
+await p.getByText('1 Convite(s) enviado(s)', { exact: true }).waitFor()
+const d3 = await novaAba()
+await d3.goto(linkDe(await ultimoEmail(DIRETO2, desde), /\/convite\//))
+await d3.waitForURL('**/posts', { timeout: 20000 })
+const { data: depois2 } = await adm.from('clientes').select('id, parceiros(direto)').eq('email', DIRETO2).eq('ativo', true).single()
+const { data: ass2 } = await adm.from('assinaturas').select('status').eq('email', DIRETO2).neq('status', 'pendente').single()
+if (depois2.id !== antes2.id || depois2.parceiros.direto || ass2.status !== 'encerrada') {
+  throw new Error(`migração errada: ${JSON.stringify({ antes2, depois2, ass2 })}`)
+}
+await p.reload()
+await abre(p)
+await p.getByText('2 de 2 acessos em uso').waitFor()
+log('Cliente direto aceitou Convite: migrou para o Parceiro (mesmo Cliente), Assinatura encerrada')
 
 await browser.close()
 if (erros.length) {

@@ -4,7 +4,8 @@
 
 ## Agora
 
-- **Fase:** construção. M1 aprovado; M2 pronto local; M3 feito (aguardando validação); **M5 (J4) feito** nesta sessão. Branch atual: `m5-meus-posts` (empilhada sobre `m3-estilos` → `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`; nenhum PR mergeado ainda). M0 só falta staging.
+- **Fase:** construção. M1 aprovado; M2 pronto local; M3 feito (aguardando validação); **M5 (J4) feito** nesta sessão. Branch atual: `m-b2c-assinatura` (sobre `m5-meus-posts` → `m3-estilos` → `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`; nenhum PR mergeado ainda). M0 só falta staging.
+- **Cliente direto (ADR 0005), feito local nesta sessão** na branch `m-b2c-assinatura` (empilhada sobre `m5-meus-posts`): pessoa assina sozinha (mensal/anual, Asaas, sem trial) e vira Cliente do Parceiro da casa. Testado com pagamento simulado; falta o sandbox do Asaas.
 - **Restante até vender:** ~6 iterações (plano em [plano.md](plano.md#restante-até-vender-2026-10-17)). Próxima: M6a (Convites).
 - **Fase E (estilização):** só visual, em paralelo, quebrada em tarefas para agentes: [estilizacao.md](estilizacao.md). Começa pelo E0 (direção visual, o usuário escolhe).
 - **Desempenho fino:** fora do aceite do MVP (decisão do usuário, 2026-10-17). O teste de desempenho agora só barra piora grosseira (p95 < 150 ms); a meta de 50 ms segue no log e no backlog.
@@ -65,8 +66,24 @@
     - Duas tintas faixa com CTA: o CTA fica no branco, logo acima da foto
     - Trava de contraste também em Foto que fala e Depoimento (correção = véu mais forte; no Depoimento o véu vira escuro e a letra clara)
     - arrastar o texto só na vertical (3 posições) e só nos Estilos que já tinham posição (Acento, Manchete, Número, Letra fina); os botões de posição continuam
+  - Assinatura (ADR 0005):
+    - acesso vale até `pago_ate` + 3 dias de carência (cobre atraso e cancelamento); o cron diário desliga depois disso
+    - `pago_ate` = vencimento da cobrança + 1 mês (ou 1 ano)
+    - reembolso ou chargeback desliga na hora
+    - na fatura a pessoa escolhe Pix, boleto ou cartão (`billingType: UNDEFINED`)
+    - na migração para Parceiro a Assinatura é cancelada no Asaas sem reembolso automático do período em curso
+    - CPF pedido no formulário (o Asaas exige); não fica no nosso banco
+    - preços em variável de ambiente (`NUXT_PUBLIC_PRECO_*`): **o usuário ainda não definiu os valores**
 
 ## Histórico
+
+### 2026-10-17. Cliente direto: assinar sem Parceiro (ADR 0005)
+- Pedido do usuário: abrir o app para quem não vem de Parceiro, sem quebrar nada do fluxo do Parceiro. Decisões: assinatura mensal ou anual; todo Cliente tem o mesmo acesso; sem trial; Asaas; Cliente direto convidado por Parceiro **migra**; páginas públicas e embelezamento depois; termos "Cliente direto" e "Assinatura".
+- Desenho: **Parceiro da casa** (`parceiros.direto`), então nenhuma política RLS, `parceiro_id` ou fluxo de Convite muda. A Assinatura só liga e desliga `clientes.ativo`.
+- Asaas pela API (cliente + assinatura com `externalReference` + fatura hospedada), não pelo Checkout: o webhook do Checkout não traz o id da assinatura.
+- Banco: migration `assinatura` (`assinaturas`, `pagamento_eventos`, `pagamento_confirmado`, `encerrar_assinatura`, `encerrar_assinaturas_vencidas`, `aceitar_convite` com migração, `meu_acesso.cliente.direto`, 4 eventos novos). pgTAP: 31 testes novos (109 no total).
+- App: `/assinar` (mínima), `/assinar/obrigado`, `/assinar/simulado` (só local), `/assinatura` (situação + cancelar), webhook `/api/asaas/webhook`, cron `/api/cron/diario` (no `nuxt.config`, sai no `config.json` da Vercel), email "acesso liberado", "Assinar" na tela Entrar e nas telas de sem acesso.
+- Verificado: lint, typecheck, 242 testes do motor, 109 de banco, `pnpm build`, `NITRO_PRESET=vercel pnpm build` (cron no config.json) e E2E J1→J4 + J6 contra o build na 3001 (bloqueio de Cliente de Parceiro, assinar → email → entrar → cancelar → vencer → sem acesso; Cliente direto aceita Convite e migra).
 
 ### 2026-10-17. M5: Meus Posts (J4) + planejamento até vender
 - Decisões do usuário: desempenho fino não é preocupação agora (saiu do aceite; teste vira guarda de p95 < 150 ms); depois do MVP vêm mais controles, mais fontes e texturas e um Perfil de Marca com algo parecido com um gerador de paleta; a estilização da Plataforma é uma fase só visual, a qualquer tempo, quebrada para agentes (`docs/estilizacao.md`).

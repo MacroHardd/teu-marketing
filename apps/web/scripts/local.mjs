@@ -18,7 +18,11 @@ const env = {
   NUXT_PUBLIC_SUPABASE_KEY: st.PUBLISHABLE_KEY,
   NUXT_SUPABASE_SECRET_KEY: st.SECRET_KEY,
   NUXT_MAILPIT_URL: st.MAILPIT_URL,
-  NUXT_RESEND_API_KEY: ''
+  NUXT_RESEND_API_KEY: '',
+  // Assinatura (ADR 0005): pagamento simulado no local, sem Asaas; cron chamado com `Bearer local`
+  NUXT_ASAAS_API_KEY: '',
+  NUXT_ASAAS_SIMULADO: '1',
+  NUXT_CRON_SECRET: 'local'
 }
 const [cmd, ...args] = process.argv.slice(2)
 spawn(cmd, args, { env, stdio: 'inherit', shell: process.platform === 'win32' }).on('exit', c => process.exit(c ?? 1))

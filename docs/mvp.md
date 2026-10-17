@@ -32,19 +32,32 @@
 1. Vê os Assentos usados e o total, a lista de Clientes (status, Posts exportados no mês, último acesso) e um destaque nos Clientes parados.
 2. Desativa um Cliente para liberar o Assento.
 
+### J6. Pessoa assina sozinha (Cliente direto)
+1. Em `/assinar`, escolhe mensal ou anual e informa email, nome e CPF (o CPF vai só para o Asaas).
+2. Paga na fatura do Asaas (Pix, boleto ou cartão). Quando o pagamento é confirmado, recebe o email com o link de entrada.
+3. Usa tudo o que o Cliente de Parceiro usa. Em "Assinatura" vê a situação e pode cancelar (o acesso segue até o fim do período pago).
+4. Se aceitar o Convite de um Parceiro, passa para ele com Posts e Ativos, e a Assinatura é cancelada.
+
 ## Critérios de aceite
 
 ### Gerais
-- [ ] As jornadas J1 a J5 rodam em produção, com emails de verdade, sem intervenção manual nossa (exceto no J1).
+- [ ] As jornadas J1 a J6 rodam em produção, com emails de verdade, sem intervenção manual nossa (exceto no J1).
 - [ ] Um Cliente novo vai do email do Convite até o PNG exportado **sem ajuda, em menos de 10 min** (testado com 3 pessoas de fora).
 - [ ] Interface em PT-BR, sem textos de template ("Lorem", "Acme", inglês).
 - [ ] Funciona nas versões atuais de Chrome, Safari e Edge no desktop, e não quebra em 375 px de largura.
 
 ### Entrada e Convites
-- [x] Ninguém se cadastra sozinho. Um email que não foi convidado vê a mensagem "peça acesso ao seu parceiro".
+- [x] Ninguém se cadastra sem Convite ou sem Assinatura paga. Um email sem acesso vê a mensagem "peça acesso ao seu parceiro" e o caminho para assinar.
 - [x] O Convite aceito ocupa um Assento. Sem Assento livre, o Convite não pode ser aceito e aparece uma mensagem clara.
 - [ ] O Convite expira em 7 dias, o reenvio gera um link novo e o mesmo email não pode estar ativo em dois Parceiros.
 - [ ] O envio respeita o limite do Resend: o excedente fica na fila para o dia seguinte, e o status mostra "agendado".
+
+### Assinatura (Cliente direto)
+- [x] Assinar (mensal/anual, sem trial) → pagar → email com link → entra, tudo no modo simulado local (E2E J6). Cliente de Parceiro ativo não consegue assinar.
+- [x] Cancelar para a cobrança e mantém o acesso até o fim do período pago; vencido há mais de 3 dias, o cron diário desliga o acesso e o histórico fica (E2E + pgTAP).
+- [x] Cliente direto que aceita Convite migra para o Parceiro (mesmo Cliente, Posts e Ativos) e a Assinatura é encerrada; ex-Cliente de Parceiro que assina leva o histórico (pgTAP + E2E).
+- [x] O Parceiro não lê Assinaturas nem vê Clientes diretos (pgTAP).
+- [ ] Pagamento de verdade no sandbox do Asaas: fatura, webhook de confirmação, renovação, atraso, reembolso e cancelamento (precisa da conta e da URL pública do staging).
 
 ### Motor e editor
 - [x] Os Estilos do corte (abaixo) têm as suas Variações e passam na regressão visual contra o oráculo (skill tipografia-igor ou publi).
@@ -84,4 +97,4 @@ Estilos: decisão do usuário (2026-10-17) de ter todos os Estilos mapeados na s
 
 ## Fora do MVP (confirmado)
 
-IA (será tratada separadamente) · carrossel · stories · publicar ou agendar no Instagram · white-label · Parceiro vendo Posts · aprovação · login com Google ou senha · billing automático · app nativo. Ver [escopo](escopo.md).
+IA (será tratada separadamente) · carrossel · stories · publicar ou agendar no Instagram · white-label · Parceiro vendo Posts · aprovação · login com Google ou senha · billing automático para Parceiro · trial ou plano grátis · app nativo. Ver [escopo](escopo.md).

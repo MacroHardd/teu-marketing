@@ -41,4 +41,15 @@ export function emailConvite(nomeParceiro: string, link: string) {
   return { assunto, texto, html }
 }
 
+export function emailAcessoLiberado(link: string, entrar: string) {
+  const assunto = 'Seu acesso ao Teu Marketing está liberado'
+  const texto = `Pagamento confirmado. Seu acesso ao Teu Marketing está liberado: posts de Instagram prontos em minutos.\n\nEntrar: ${link}\n\nO link vale 1 hora. Depois disso, entre por ${entrar} com este email.`
+  const html = `<div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto;padding:24px;color:#171512">
+<p style="font-size:18px">Pagamento confirmado. <strong>Seu acesso ao Teu Marketing está liberado.</strong></p>
+<p>Crie posts de Instagram prontos em minutos, sem precisar saber design.</p>
+<p style="margin:32px 0"><a href="${link}" style="background:#00a155;color:#fff;padding:12px 20px;border-radius:6px;text-decoration:none">Entrar no Teu Marketing</a></p>
+<p style="color:#7a736a;font-size:13px">O link vale 1 hora. Depois disso, entre por <a href="${entrar}">${entrar}</a> com este email.</p></div>`
+  return { assunto, texto, html }
+}
+
 const escapa = (s: string) => s.replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`)

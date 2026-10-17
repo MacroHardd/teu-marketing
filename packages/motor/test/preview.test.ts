@@ -20,7 +20,7 @@ describe('preview = PNG', () => {
   })
 
   it('preview em escala menor é a mesma peça (só reduzida)', () => {
-    for (const c of casos('acento')) {
+    for (const c of casos('manchete')) {
       const { cena } = motor(entrada(c), fontes())
       const k = 0.5
       const w = cena.largura * k, h = cena.altura * k

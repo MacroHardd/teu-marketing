@@ -5,5 +5,6 @@ export { carregaFontes, NOMES_FONTES, type Fontes, type NomeFonte } from './font
 export { escolhe, separa, campos, confere, destaque, type TipoEstilo, type Campos } from './campos'
 export { TEMAS, type NomeTema, type Cor } from './cor'
 export type { Cena, CorA, Item, Travas } from './cena'
-export { ELEMENTOS, SUPORTE, ZONA_PADRAO, type Ajustes, type Elemento, type Tamanho, type Zona } from './ajustes'
+export { ELEMENTOS, PALETAS_ESTILO, SUPORTE, VARIACOES, ZONA_PADRAO, variacaoPadrao, type Ajustes, type Elemento, type Tamanho, type Variacao, type Zona } from './ajustes'
+export { amostraPaleta, NOMES_PALETA } from './paletas'
 export type { Marca, Formato } from './estilos/comum'

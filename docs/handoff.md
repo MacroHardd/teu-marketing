@@ -1,98 +1,100 @@
-# Handoff: Teu Marketing (2026-10-16, fim do M3 Fase A)
+# Handoff: Teu Marketing (2026-10-17, fim do M3 Fase B)
 
 ## Onde estamos
 M3 em andamento na branch **`m3-ajustes`** (no GitHub), empilhada sobre `m3-foto` → `m0-m1-motor-acento`. Nenhum PR mergeado.
 
-O usuário dividiu esta rodada em duas fases:
-- **Fase A (feita, aguardando validação do usuário):**
-  - Perfil de Marca
+- **Fase A (feita):**
+  - Perfil de Marca: nome, @, cor e logo
   - Ajustes da lista fechada
   - Travas de texto cortado e de contraste, com correção
   - Estilo Manchete
   - legenda por Post
   - telemetria
   - email de login em PT-BR
-- **Fase B (só depois do ok do usuário):** levar o conhecimento da skill **`tipografia-igor`** (`~/.claude/skills/tipografia-igor`) para a plataforma, como **Estilos puros e Variações**. O usuário passa o caminho da fonte original desse conhecimento se precisar. As Variações saem daí, e não mais "3 por Estilo do publi".
+  - Correção do usuário: **contato e hashtags não fazem parte do Perfil**. Hashtags são de cada Post; contato é para a Plataforma falar com o Cliente e nunca aparece em Post. Já foram removidos.
+- **Fase B (feita, aguardando validação do usuário):** Estilos da skill `tipografia-igor` (ADR 0003).
+  - Acento e Letra fina seguem a skill; Zona calma e Síncope são novos.
+  - Variações = as aprovadas na skill: Zona (raios / com a foto), Síncope (com / sem bloco), Fina (P&B / duotom). Acento não tem Variação de layout; as paletas dele ficam em Cores.
+  - O oráculo desses quatro é o kit Remotion da skill (`packages/oraculo/tipografia`); o publi continua sendo o oráculo de Manchete e Foto e legenda.
 
-Decisão do usuário: **tratamento de imagem não é prioridade agora**. Haverá features dedicadas a isso. Por isso a Trava de rosto ficou para essas features.
+Decisões do usuário nesta fase (não presumir de novo):
+- a palavra marcada pelo Cliente manda, mesmo quebrando a regra
+- a paleta do Cliente (cor da marca) manda e a regra é aplicada sobre ela; sem cor de marca, valem as paletas aprovadas da skill
+- texto longo encolhe até caber
+- Riscada e misturas de regras ficam para depois
+- tratamento de imagem (Trava de rosto etc.) terá features próprias
 
-Verificado nesta sessão:
-- lint, typecheck e 150 testes do motor
+Verificado:
+- lint e typecheck
+- 165 testes funcionais do motor, incluindo os 25 casos da skill e os da Manchete e Foto e legenda com < 1% de diferença
 - 43 testes de RLS
-- `pnpm build` e o E2E completo contra o build de produção (porta 3001)
-- email de login chegando em PT-BR no Mailpit
+- `pnpm build` e o E2E completo contra o build (porta 3001)
 
-**Leia nesta ordem:** `CLAUDE.md` → `docs/estado.md` → `README.md` ("Rodar e testar localmente") → `docs/mvp.md`.
+**Não verificado:** o teste de desempenho (p95 < 50 ms, Node) falhou aqui com p95 de 54–60 ms. A máquina tinha um jogo usando ~285% de CPU e estava em swap. Medido à parte: os Estilos novos têm p95 de 17 ms e os do publi, sem mudança, 32 ms nessa carga. Conferir no CI ou com a máquina livre.
 
-## Roteiro de teste para o usuário (Fase A)
-Preparar: `pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:local` → entrar pelo link impresso, numa janela anônima.
+**Leia nesta ordem:** `CLAUDE.md` → `docs/estado.md` → `docs/adr/0003-*` → `README.md` ("Rodar e testar localmente").
 
-**Cliente** (`cliente@teste.dev`):
-1. Meus Posts mostra o aviso "Coloque a sua marca nos Posts" → Preencher Perfil de Marca.
-   - Preencha nome, @ e uma cor, e envie um logo PNG.
-   - A prévia à direita muda ao vivo. Salvar volta para Meus Posts.
-2. Novo Post → escreva uma frase.
-   - A imagem mostra o @ e o logo.
-3. Coluna da direita (Ajustes):
-   - Tamanho P/M/G
-   - Posição: em cima, no meio, embaixo
-   - Cores: a da marca, 6 prontas, claro/escuro
-   - Na imagem: liga e desliga @/nome, Logo, Selo
-   - CTA
-4. Trava de texto cortado:
-   - cole umas 60 palavras no Acento → aviso vermelho, e "Baixar imagem" fica desligado
-   - clique em "Usar Manchete" ou "Diminuir a letra" → o aviso some
-5. Envie uma foto → Letra fina:
-   - mude a posição do texto e o tamanho (só P/M nesse Estilo)
-   - se a letra ficar difícil de ler: Trava de contraste → "Escurecer atrás do texto" ou "Mover o texto para…"
-6. Baixar imagem, Copiar legenda, recarregar a página: tudo continua igual.
-7. Tela Entrar → Mailpit: o email chega como "Seu link para entrar no Teu Marketing".
+## Roteiro de teste para o usuário (Fase B)
+Preparar: `pnpm exec supabase start` → `pnpm teste:usuarios` → `pnpm dev:local` (reinicie o dev para pegar o Motor novo) → entrar como `cliente@teste.dev`.
 
-**Parceiro** (`parceiro@teste.dev`):
-- Igual ao M2: painel de Uso, Convites, reenviar.
-- Ele não tem acesso ao Perfil de Marca nem aos Posts dos Clientes. Isso é garantido pelo RLS e testado no pgTAP.
+1. **Acento:** escreva "Menos ruído, mais *resultado*".
+   - Sai como o E1 da skill: letra grande, 3 pontos e a palavra marcada na cor.
+   - Cores: Villela, Noite e Verde, mais a cor da marca, se o Perfil tiver.
+   - Teste também sem asterisco: o Motor escolhe a palavra sozinho.
+2. **Zona calma:** a frase fica dentro da pílula, sobre os raios.
+   - Cores: Gil, Neon ou a da marca.
+   - Com foto, aparece a Variação "Com a foto" (a foto saturada no lugar dos raios).
+   - O CTA e o @ ficam dentro da pílula.
+3. **Síncope:** "eu *nasci* assim hoje".
+   - A palavra marcada sai da coluna; sem marcação, as palavras se alternam.
+   - Variação com bloco (letra em negativo no canto) ou sem bloco (fundo cheio Azul, ou da marca).
+4. **Letra fina** (com foto):
+   - linhas de até 9 letras ocupando a largura, peso fino e regular alternados
+   - Variação P&B ou Duotom (azul, ou na cor da marca)
+   - a letra fica clara ou escura conforme a área atrás do texto
+5. **Texto longo** (umas 30 palavras) no Acento: a letra encolhe até caber.
+   - Para ver a Trava, use a Síncope: ela corta, e "Usar Manchete" resolve.
+6. **Perfil com cor de marca:** todos os Estilos novos já saem na cor da marca. Trocar para uma paleta pronta em Cores vale mais que ela.
 
-**Isolamento** (`parceiro-b@teste.dev`): só vê `cliente-b@teste.dev`.
+**Parceiro / isolamento:** igual antes (painel de Uso; Parceiro B só vê o próprio Cliente).
 
 ## Pendências do usuário (não bloqueiam)
 - Trocar a branch padrão do GitHub para `main`.
-- PRs pelo painel, nesta ordem:
-  1. `m0-m1-motor-acento → main`
-  2. `m3-foto`
-  3. `m3-ajustes`
-- Staging: `supabase link` + `db push` no hospedado (agora são **3 migrations**: `inicio`, `foto`, `marca`), projeto na Vercel e conta no Resend. No painel do hospedado, **Auth → Email Templates → Magic Link**: copiar `supabase/templates/magic_link.html` e o assunto "Seu link para entrar no Teu Marketing".
+- PRs pelo painel, nesta ordem: `m0-m1-motor-acento → main`, depois `m3-foto`, depois `m3-ajustes`.
+- Staging:
+  - `supabase link` + `db push` (agora são **4 migrations**: `inicio`, `foto`, `marca`, `perfil_sem_contato`)
+  - Vercel e Resend
+  - no painel do hospedado, Auth → Email Templates → Magic Link: copiar `supabase/templates/magic_link.html`
 
 ## Próximo passo
-1. Receber o retorno do usuário sobre a Fase A e corrigir o que ele apontar.
-2. **Fase B:**
-   - ler a skill `tipografia-igor` (`SKILL.md`, `REGRAS.md`, `presets.ts`)
-   - perguntar a origem do conhecimento, se precisar
-   - propor ao usuário o mapa skill → Estilos/Variações **antes de codar**
-   - lembrar: o MVP é post estático 4:5. A skill também cobre lyric video, que está fora do escopo.
-3. Depois disso: `variacao_trocada`, Número (precisa do fix do `_numero` no publi) e staging.
+1. Receber o retorno do usuário sobre as Fases A e B.
+2. Depois: Riscada e misturas (quando ele pedir), features de imagem (incluindo a Trava de rosto), Número (precisa do fix do `_numero` no publi) e staging.
 
 ## Contexto que não está nos docs
 - **O usuário deixa o `dev:local` rodando na 3000.** Não mate.
   - Para o seu teste: `pnpm build`, depois `PORT=3001 node apps/web/scripts/local.mjs node apps/web/.output/server/index.mjs` (em background) e `PORT=3001 BASE=http://localhost:3001 node apps/web/scripts/local.mjs pnpm --filter @teu/web e2e`.
-  - O `local.mjs` é obrigatório também no E2E: sem ele, o `criar-parceiro` lê o `.env` do hospedado ("Could not find the table").
   - Para parar um servidor, use o PID da porta (`ss -ltnp | grep :3001`), nunca `pkill -f`.
-- Mudar `supabase/config.toml` exige `supabase stop && supabase start`. Os dados ficam (backup automático). Foi feito nesta sessão (template e redirect da 3001).
-- As fixtures do pgTAP usam `@pgtap.dev`: nunca `@teste.dev`, que colide com os usuários de teste.
-- Ajustes no Motor:
-  - sem Ajuste, a Cena = publi; a regressão garante isso
-  - Ajuste novo precisa manter `motor(e) == motor({...e, ajustes: {}})`, que tem teste em `test/ajustes.test.ts`
-  - o que cada Estilo oferece fica em `SUPORTE` (`packages/motor/src/ajustes.ts`); a UI só mostra o que está lá
-- Na tela, as Travas vêm dos `avisos` do Motor mapeados por regex (`TRAVAS` e `DICAS` em `apps/web/app/pages/posts/[id].vue`). Aviso novo no Motor precisa de uma linha ali.
+- Oráculo da skill:
+  - `npm ci --prefix packages/oraculo/tipografia`, depois `node packages/oraculo/tipografia/gerar.mjs [estilo]`
+  - leva ~2,5 min para os 25 casos
+  - usa o `/usr/bin/google-chrome`
+  - as referências ficam em `packages/oraculo/saida/tipografia` (fora do git)
+  - `test/__diff__` recebe as diferenças; `DIFF=1` grava todas
+- Porte "como o CSS" (`packages/motor/src/estilos/css.ts`):
+  - kerning ligado só nesses Estilos (`kern: true` no item); `larguraKern` tem cache por palavra
+  - linha de base = métricas da fonte (hhea/typo) dentro do `line-height`
+  - o Remotion usa `box-sizing: border-box`
+- As fixtures do pgTAP usam `@pgtap.dev` (`@teste.dev` colide com os usuários de teste).
+- Na tela, Travas e dicas vêm dos `avisos` do Motor por regex (`TRAVAS`/`DICAS` em `apps/web/app/pages/posts/[id].vue`).
+- **Não inventar produto:** campo ou comportamento que o usuário não disse vira pergunta. O contato/hashtags que inventei custou retrabalho.
 - **Como o usuário trabalha:**
   - rapidez e respostas curtas (caveman, PT-BR)
   - interface leiga, **nunca virar Canva**
-  - pronto = build + E2E passando
-  - quer o roteiro de teste como Parceiro e como Cliente
+  - pronto = build + E2E
+  - roteiro de teste como Parceiro e como Cliente
   - commit só em branch, PR quem abre é ele
 
 ## Skills sugeridas
-- `tipografia-igor` (ler, sem executar): é a fonte da Fase B
-- `grill-with-docs`: fechar com o usuário o mapa Estilos/Variações
-- `tdd`: porte de Estilo/Variação
-- `nuxt-ui`: grade de Variações no editor
-- `diagnose`: regressão visual reprovando
+- `tipografia-igor` (ler): referência das regras; a origem de cada número está em `motion-videos-mappings/tipografia-lab/MAPA.md`
+- `tdd`: Riscada e misturas
+- `diagnose`: regressão reprovando

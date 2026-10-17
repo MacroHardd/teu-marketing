@@ -30,6 +30,12 @@ export interface Pedido {
   el: Record<Elemento, boolean>
   cta: string
   reforco: boolean
+  /** Variação do Estilo; sem valor, a padrão. */
+  variacao?: string
+  /** Paleta escolhida (Ajuste de cor): nome da paleta, tema ou 'marca'. Sem valor, a padrão do Estilo. */
+  cor?: string
+  /** O Cliente marcou palavras (*assim*): a escolha dele manda sobre a regra. */
+  marcado: boolean
 }
 
 export interface Contexto {
@@ -81,7 +87,7 @@ export function areaDaCor(itens: Item[], cor: Cor, fontes: Fontes, W: number, H:
     if (it.cor.some((v, i) => v !== cor[i])) continue
     if (it.tipo === 'texto') soma += fontes[it.fonte].tinta(it.texto, it.tam)
     else if (it.tipo === 'circulo') soma += Math.PI * it.r * it.r
-    else soma += it.w * it.h
+    else if (it.tipo === 'ret') soma += it.w * it.h
   }
   return soma / (W * H) * 100
 }
@@ -117,7 +123,7 @@ const iniciais = (s: string) => s.replace(/^@/, '').split(/[\s._-]+/u).filter(Bo
  * Mesmo lugar em todo Estilo: o Cliente liga e desliga, não move.
  */
 export function elementos({ p, av, fontes }: Contexto, x0: number, y0: number, x1: number, y1: number,
-  cores: { tinta: Cor, acc: Cor }): Item[] {
+  cores: { tinta: Cor, acc: Cor }, pula: Partial<Record<Elemento, false>> = {}): Item[] {
   const itens: Item[] = []
   const m = p.marca
   if (p.el.logo && m.logo) {
@@ -137,7 +143,7 @@ export function elementos({ p, av, fontes }: Contexto, x0: number, y0: number, x
     const [sobe, desce] = f.fonte.caixa(s, f.tam)
     itens.push(texto('grot-xbold', f.tam, px(cx) - largura(f, s) / 2, px(cy) - (sobe + desce) / 2, s, cor))
   }
-  if (p.el.cta) {
+  if (p.el.cta && pula.cta !== false) {
     const b = new Bloco(fontes, limpaTexto(p.cta, av), 'grot-bold', x1 - x0, 100, 40, 28, { lh: 1.15, maxLinhas: 2 })
     const y = y1 - 52 - b.alto
     itens.push(ret(px(x0), px(y - 14), px(x0 + 56), px(y - 8), cores.acc)) // barrinha acima, como chamada

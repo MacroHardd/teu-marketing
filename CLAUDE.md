@@ -26,7 +26,10 @@ O trabalho fica restrito a este diretório. Configurações de outras ferramenta
 ## Decisões que moldam o código
 
 - **Motor de render (ADR 0001):** `packages/motor` é TypeScript puro, sem dependência do Nuxt. É uma função pura: recebe conteúdo, Estilo, Variação, Ajustes, Perfil de Marca e os metadados da foto, e devolve uma Cena com o resultado das Travas. Um único Desenhista Canvas transforma a Cena em imagem. O preview ao vivo **e** a Exportação PNG 1080×1350 rodam no browser com o mesmo código, de modo que o PNG sai idêntico ao preview. O Motor nunca lê pixels: a foto é analisada uma vez no upload (luminância por região, cor dominante, rosto) e o resultado vira metadado. Não use `ctx.filter`, que tem suporte irregular no Safari: efeitos de pixel são feitos à mão ou em WebGL.
-- **publi = oráculo, nunca roda em produção.** O motor Python/Pillow original está em `~/projetos/publi-lab/entregavel/publi.zip`. Para ler, extraia para `packages/oraculo/publi/`. Ele tem os 13 Estilos (`ESTILOS`), a escolha de Estilo por regex (`_escolhe`), a separação de campos sem alterar o texto (`_campos`), as Travas e as opções pós-render. A porta para TS é validada por regressão visual contra PNGs gerados pelo publi no CI (`packages/oraculo`). Estilos e Variações novos nascem no publi e depois são portados.
+- **Oráculos: nunca rodam em produção (ADR 0001 e 0003).** A porta para TS é validada por regressão visual (< 1% de pixels) contra PNGs gerados no CI (`packages/oraculo`).
+  - **Skill `tipografia-igor`** (`~/.claude/skills/tipografia-igor`, kit Remotion) é o oráculo de **Acento, Zona calma, Síncope e Letra fina**. Os estáticos estão copiados sem mudança em `packages/oraculo/tipografia`. Variações = as variantes aprovadas na skill. Riscada e misturas de regras ficam para depois.
+  - **publi** (Python/Pillow, `~/projetos/publi-lab/entregavel/publi.zip`, extraído em `packages/oraculo/publi/`) é o oráculo de **Manchete e Foto e legenda**. Também é a fonte da escolha de Estilo por regex (`_escolhe`) e da separação de campos sem alterar o texto (`_campos`).
+  - A palavra marcada pelo Cliente (`*assim*`) e a cor da marca dele valem mais que a regra do Estilo (decisão do usuário).
 - **Regras invioláveis do produto:**
   - o motor **nunca altera o texto do Cliente**, só distribui entre os campos (com teste)
   - o CTA é sempre escrito pelo Cliente

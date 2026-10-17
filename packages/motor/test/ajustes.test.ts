@@ -31,7 +31,7 @@ describe('P/M/G', () => {
 
 describe('zona', () => {
   it.each(['acento', 'manchete', 'fina'] as TipoEstilo[])('%s: topo acima de centro acima de base', (e) => {
-    const y = (zona: 'topo' | 'centro' | 'base') => primeiraLinha(roda(e, { zona, elementos: { assinatura: false, logo: false } }).cena.itens)
+    const y = (zona: 'topo' | 'centro' | 'base') => primeiraLinha(roda(e, { zona, elementos: { assinatura: false, logo: false } }, { texto: 'Menos ruído' }).cena.itens)
     expect(y('topo')).toBeLessThan(y('centro'))
     expect(y('centro')).toBeLessThan(y('base'))
   })
@@ -77,12 +77,15 @@ describe('Elementos opcionais', () => {
 })
 
 describe('Trava de contraste', () => {
-  it('reforço escurece o fundo atrás da letra e aumenta o contraste', () => {
-    const f = foto('clara.png').meta
-    const a = motor({ texto: 'Feito à mão, feito pra você', estilo: 'fina', foto: f }, fontes()).cena.travas
-    const b = motor({ texto: 'Feito à mão, feito pra você', estilo: 'fina', foto: f, ajustes: { reforco: true } }, fontes()).cena.travas
-    expect(b.luminanciaAtras!).toBeLessThan(a.luminanciaAtras!)
-    expect(b.contraste!).toBeGreaterThan(a.contraste!)
+  it('reforço: véu atrás do texto e letra clara legível em qualquer foto', () => {
+    for (const arq of ['clara.png', 'mista.png', 'escura.png']) {
+      const f = foto(arq).meta
+      const a = motor({ texto: 'Feito à mão, feito pra você', estilo: 'fina', foto: f }, fontes()).cena
+      const b = motor({ texto: 'Feito à mão, feito pra você', estilo: 'fina', foto: f, ajustes: { reforco: true } }, fontes()).cena
+      expect(b.itens.filter(i => i.tipo === 'degrade').length).toBeGreaterThan(a.itens.filter(i => i.tipo === 'degrade').length)
+      expect(b.travas.letra).toBe('clara')
+      expect(b.travas.luminanciaAtras!).toBeLessThanOrEqual(a.travas.luminanciaAtras!)
+    }
   })
   it('Estilos sem foto sempre passam (tema com contraste garantido)', () => {
     for (const e of ['acento', 'manchete', 'ogilvy'] as TipoEstilo[]) {

@@ -105,16 +105,26 @@ await c.getByPlaceholder('Escreva a legenda do Instagram').fill('Legenda do Post
 await c.getByRole('button', { name: '@ / nome' }).waitFor()
 log('editor: Elementos do Perfil ligados; legenda com hashtags do Post')
 
-// Trava: texto longo demais no Acento → bloqueia a Exportação → correção com 1 clique
+// Trava: texto longo demais na Síncope (1 palavra por linha) → bloqueia a Exportação → correção com 1 clique
 await c.getByRole('textbox').first().fill('Quando você entende o que o seu cliente sente de verdade, a venda deixa de ser um empurrão e passa a ser a consequência natural de uma conversa honesta, feita com calma e atenção aos detalhes. E isso vale para qualquer negócio: da padaria da esquina ao escritório de advocacia, quem escuta antes de oferecer vende mais e vende melhor, sempre')
-await c.getByRole('button', { name: 'Acento' }).click()
+await c.getByRole('button', { name: 'Síncope' }).click()
 await c.locator('[data-testid=trava]').first().waitFor({ timeout: 5000 })
 if (await c.getByRole('button', { name: 'Baixar imagem' }).isEnabled()) throw new Error('Trava bloqueante devia desabilitar a Exportação')
 await c.getByRole('button', { name: 'Usar Manchete' }).click()
 await c.locator('[data-testid=trava]').waitFor({ state: 'detached', timeout: 5000 })
 log('Trava de texto cortado: bloqueou e "Usar Manchete" resolveu')
 
+// Variação: Síncope com bloco → sem bloco muda o preview e fica salva
+await c.getByRole('textbox').first().fill('menos ruído mais *resultado*')
+await c.getByRole('button', { name: 'Síncope' }).click()
+await c.getByRole('button', { name: 'Com bloco' }).waitFor()
+const comBloco = await c.$eval('canvas[aria-label="Prévia do Post"]', cv => cv.toDataURL())
+await c.getByRole('button', { name: 'Sem bloco' }).click()
+if (await c.$eval('canvas[aria-label="Prévia do Post"]', cv => cv.toDataURL()) === comBloco) throw new Error('Variação não mudou o preview')
+log('Variação: Síncope sem bloco')
+
 // Ajustes: P/M/G, posição, cor, CTA
+await c.getByRole('button', { name: 'Acento' }).click()
 const antes = await c.$eval('canvas[aria-label="Prévia do Post"]', cv => cv.toDataURL())
 await c.getByRole('button', { name: 'Letra P' }).click()
 await c.getByRole('button', { name: 'Texto em cima' }).click()

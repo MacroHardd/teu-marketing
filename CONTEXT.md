@@ -111,5 +111,5 @@ Parte que transforma a Cena em imagem. É a mesma para o preview e para a Export
 _Evitar_: renderer
 
 **Oráculo**:
-O publi original, usado só para conferir que o Motor desenha igual a ele. Nunca roda em produção.
+Referência aprovada usada só para conferir que o Motor desenha igual: o kit da skill tipografia-igor (Acento, Zona calma, Síncope, Letra fina) ou o publi original (Manchete, Foto e legenda). Nunca roda em produção.
 _Evitar_: referência, legado

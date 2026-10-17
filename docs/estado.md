@@ -22,12 +22,11 @@
   - legenda por Post + copiar
   - telemetria: `ajuste_aplicado`, `trava_disparada`, `trava_resolvida`, `perfil_atualizado`, `legenda_copiada`
   - email de login local em PT-BR
-- **Em validação com o usuário (Fase A desta rodada):** roteiro em [handoff.md](handoff.md). Depois do ok, vem a **Fase B**: levar o conhecimento da skill `tipografia-igor` (Estilos puros e Variações) para a plataforma.
+- **Fase B (feita, aguardando validação do usuário):** Estilos da skill `tipografia-igor` (ADR 0003). Acento e Letra fina passaram a seguir a skill; Zona calma e Síncope são novos. Variações = as aprovadas na skill. A cor da marca e a palavra marcada pelo Cliente mandam. Roteiro de teste em [handoff.md](handoff.md).
 - **Falta no M3:**
-  - Variações (Fase B, a partir da `tipografia-igor`)
-  - Trava de rosto: vai junto com as features de tratamento de imagem, decisão do usuário em 2026-10-16
+  - Riscada e misturas de regras (decisão do usuário: depois)
+  - Trava de rosto: vai junto com as features de tratamento de imagem (decisão do usuário, 2026-10-16)
   - Número: depende do fix do `_numero` no publi
-  - `variacao_trocada`
 - **Teste manual local:** `pnpm teste:usuarios` + `pnpm dev:local` (ver [plano.md](plano.md#como-validamos-cada-feature)). Usuários: `parceiro@teste.dev` (Escritório Teste, 3 Assentos: `cliente@`, `cliente2@`, Convite pendente `pendente@`) e `parceiro-b@teste.dev` (Agência Outra: `cliente-b@`), todos `@teste.dev`.
 - **Bloqueios:** staging e merge/default branch dependem do usuário.
 - **Pendência no publi:** `_numero` corta data/hora ("20/11" → "11"). Corrigir no publi antes de portar Número e Herói (ver `packages/oraculo/README.md`).
@@ -47,6 +46,34 @@
   - o Perfil de Marca é invisível para o Parceiro (como os Posts)
 
 ## Histórico
+
+### 2026-10-17. M3 Fase B: Estilos da skill tipografia-igor
+- Decisões do usuário:
+  - a skill substitui o publi no Acento e na Letra fina
+  - entram Acento, Zona calma, Síncope e Fina; Riscada e misturas ficam para depois
+  - a palavra marcada pelo Cliente manda mesmo quebrando a regra
+  - a paleta do Cliente manda (a regra é aplicada sobre a marca)
+  - texto longo encolhe até caber
+- Oráculo novo: `packages/oraculo/tipografia` (Remotion 4.0.530, estáticos da skill copiados sem mudança, fontes = os .ttf do Motor). 25 casos em `casos/tipografia.json`, gerados no Chrome do sistema.
+- Motor:
+  - novos itens de Cena: `forma` (raios, onda, pílula) e texto com `kern`/`clip`
+  - filtros CSS feitos à mão
+  - layout "como o CSS": `estilos/css.ts`
+  - paletas da skill: `paletas.ts`
+  - `VARIACOES`, `PALETAS_ESTILO`, `variacaoPadrao`
+- Regressão: os 25 casos passam com < 1%. Isso inclui os exemplos aprovados da skill (E1 ×3, E3 ×3, E6 ×2, E9 ×2).
+- Achados no porte:
+  - o estático E9 mede a linha em minúsculas e desenha em maiúsculas (o vídeo da regra mede em maiúsculas); o oráculo passa maiúsculas
+  - a pílula do E3 é `border-box`
+  - na Zona calma, CTA e @ foram para dentro da pílula (sobre os raios ficavam ilegíveis)
+- Testes: 165 funcionais passam. O de desempenho (p95 < 50 ms, Node) falhou nesta máquina com um jogo usando ~285% de CPU e swap: os Estilos novos medem p95 17 ms, e os antigos sem mudança, 32 ms nessa carga. Conferir no CI.
+- App:
+  - 6 Estilos
+  - grade de Variação
+  - cores por Estilo (paletas da skill + a da marca)
+  - `variacao_trocada`
+  - `posts.variacao` salvo
+  - E2E cobre a Trava na Síncope e a troca de Variação
 
 ### 2026-10-17. Correção do usuário: contato e hashtags fora do Perfil
 - Contato e hashtags tinham sido inventados no Perfil de Marca e nos Posts (estavam nos docs desde o planejamento, sem base do usuário). Hashtags são de cada Post (legenda); contato é para a Plataforma falar com o Cliente e nunca vai para Post. Removidos do Motor (Elemento `contato`), do banco (migration `perfil_sem_contato`), do app e dos docs (CONTEXT, escopo, PRD, MVP, plano).

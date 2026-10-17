@@ -48,6 +48,7 @@ function areaPath(cmds: PathCommand[]): number {
 export class Fonte {
   readonly upm: number
   private glifos = new Map<string, Glifo>()
+  private kern = new Map<string, number>()
 
   constructor(readonly nome: NomeFonte, readonly ot: Font) {
     this.upm = ot.unitsPerEm
@@ -73,6 +74,31 @@ export class Fonte {
     let soma = 0
     for (const c of s) soma += this.glifo(c).avanco
     return soma * tam / this.upm
+  }
+
+  /** Largura com kerning (como o texto do navegador), em px, no tamanho `tam` (com fração). */
+  larguraKern(s: string, tam: number): number {
+    let u = this.kern.get(s) // linear no tamanho: guarda a largura em 1 px
+    if (u === undefined) {
+      u = this.ot.getAdvanceWidth(s, 1, { kerning: true, features: { liga: false, rlig: false } })
+      this.kern.set(s, u)
+    }
+    return u * tam
+  }
+
+  /**
+   * Métricas verticais como o navegador usa no CSS (hhea; ou OS/2 typo com USE_TYPO_METRICS),
+   * em px no tamanho `tam`, arredondadas como o Chrome: subida, descida e entrelinha.
+   */
+  metricas(tam: number): { sobe: number, desce: number, entre: number } {
+    const os2 = this.ot.tables.os2!
+    const hhea = this.ot.tables.hhea!
+    const typo = !!((os2.fsSelection ?? 0) & 0x80)
+    const [a, d, g] = typo
+      ? [os2.sTypoAscender, -os2.sTypoDescender, os2.sTypoLineGap]
+      : [hhea.ascender, -hhea.descender, hhea.lineGap]
+    const k = tam / this.upm
+    return { sobe: Math.round(a * k), desce: Math.round(d * k), entre: Math.round(g * k) }
   }
 
   /** Área pintada em px² no tamanho `tam`. É assim que o Motor mede cor sem ler pixel. */

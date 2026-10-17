@@ -47,7 +47,7 @@
 - [ ] O envio respeita o limite do Resend: o excedente fica na fila para o dia seguinte, e o status mostra "agendado".
 
 ### Motor e editor
-- [ ] Os Estilos do corte (abaixo) têm 3 Variações cada e passam na regressão visual contra o publi.
+- [ ] Os Estilos do corte (abaixo) têm as suas Variações e passam na regressão visual contra o oráculo (skill tipografia-igor ou publi).
 - [ ] O PNG exportado é idêntico ao preview (teste automatizado).
 - [x] O texto do Cliente nunca é alterado pelo motor (teste automatizado).
 - [ ] O preview atualiza ao vivo (p95 < 50 ms) em todo Ajuste.
@@ -70,7 +70,7 @@
 
 | Item | No MVP vendável | Depois (backlog) |
 |---|---|---|
-| Estilos | **5 Estilos × 3 Variações**: Acento, Manchete, Número (sem foto), Letra fina, Foto e legenda (com foto) | os outros 8 Estilos do publi |
+| Estilos | Acento, Manchete, Zona calma, Síncope, Número (sem foto), Letra fina, Foto e legenda (com foto). Variações = as aprovadas na skill tipografia-igor (Zona: raios/foto; Síncope: com/sem bloco; Fina: P&B/duotom) | Riscada e misturas de regras da skill; os outros Estilos do publi |
 | Planilha de Convites | colar emails + **CSV** | XLSX |
 | Painel do Parceiro | Assentos, Convites, lista de Clientes, destaque de Cliente parado, desativar | resumo mensal, exportação CSV, gráficos |
 | Admin | tela mínima ou script | painel completo |

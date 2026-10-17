@@ -18,6 +18,12 @@ export interface Ctx2D {
   bezierCurveTo(c1x: number, c1y: number, c2x: number, c2y: number, x: number, y: number): void
   arc(x: number, y: number, r: number, a0: number, a1: number): void
   fill(): void
+  stroke(): void
+  clip(): void
+  lineWidth: number
+  strokeStyle: unknown
+  lineJoin: string
+  lineCap: string
   imageSmoothingEnabled: boolean
   imageSmoothingQuality: string
   drawImage(img: unknown, sx: number, sy: number, sw: number, sh: number, dx: number, dy: number, dw: number, dh: number): void
@@ -74,14 +80,39 @@ function item(ctx: Ctx2D, it: Item, fontes: Fontes, foto?: ProvedorFoto, logo?: 
     return
   }
   ctx.fillStyle = css(it.cor)
-  if (it.tipo === 'ret') {
+  if (it.tipo === 'forma') {
+    ctx.beginPath()
+    for (const c of it.cmds) {
+      if (c[0] === 'M') ctx.moveTo(c[1], c[2])
+      else if (c[0] === 'L') ctx.lineTo(c[1], c[2])
+      else if (c[0] === 'Q') ctx.quadraticCurveTo(c[1], c[2], c[3], c[4])
+      else if (c[0] === 'A') ctx.arc(c[1], c[2], c[3], c[4], c[5])
+      else ctx.closePath()
+    }
+    if (it.traco) {
+      ctx.strokeStyle = css(it.cor)
+      ctx.lineWidth = it.traco
+      ctx.lineJoin = 'miter'
+      ctx.lineCap = 'butt'
+      ctx.stroke()
+    } else {
+      ctx.fill()
+    }
+  } else if (it.tipo === 'ret') {
     ctx.fillRect(it.x, it.y, it.w, it.h)
   } else if (it.tipo === 'circulo') {
     ctx.beginPath()
     ctx.arc(it.cx, it.cy, it.r, 0, Math.PI * 2)
     ctx.fill()
   } else {
-    const path = fontes[it.fonte].ot.getPath(it.texto, it.x, it.y, it.tam, { kerning: false, features: { liga: false, rlig: false } })
+    if (it.clip) {
+      ctx.save()
+      ctx.beginPath()
+      it.clip.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)))
+      ctx.closePath()
+      ctx.clip()
+    }
+    const path = fontes[it.fonte].ot.getPath(it.texto, it.x, it.y, it.tam, { kerning: !!it.kern, features: { liga: false, rlig: false } })
     ctx.beginPath()
     for (const c of path.commands) {
       if (c.type === 'M') ctx.moveTo(c.x, c.y)
@@ -91,5 +122,6 @@ function item(ctx: Ctx2D, it: Item, fontes: Fontes, foto?: ProvedorFoto, logo?: 
       else ctx.closePath()
     }
     ctx.fill()
+    if (it.clip) ctx.restore()
   }
 }

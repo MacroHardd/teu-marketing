@@ -86,3 +86,12 @@ export const temSaida = (conjunto: string) => existsSync(join(ORACULO, 'saida', 
 
 /** Caso do oráculo → Entrada do Motor (o `tipo` do caso força o Estilo). */
 export const entrada = (c: Caso) => ({ ...c, estilo: c.tipo as TipoEstilo | undefined, foto: c.foto ? foto(c.foto).meta : undefined })
+
+/** Caso dos Estilos da skill tipografia-igor (packages/oraculo/casos/tipografia.json). */
+export interface CasoT { id: string, estilo: TipoEstilo, variacao?: string, texto: string, paleta?: string, foto?: string, ink?: string, marca?: { perfil?: string, nome?: string } }
+export const casosT = (): CasoT[] => JSON.parse(readFileSync(join(ORACULO, 'casos', 'tipografia.json'), 'utf8'))
+export const entradaT = (c: CasoT) => ({
+  texto: c.texto, estilo: c.estilo, variacao: c.variacao, marca: c.marca,
+  ajustes: c.paleta ? { cor: c.paleta } : undefined,
+  foto: c.foto ? foto(c.foto).meta : undefined,
+})

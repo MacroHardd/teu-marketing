@@ -1,0 +1,30 @@
+[
+  {"id": "exemplo", "estilo": "acento", "texto": "*fogo* no peito"},
+  {"id": "exemplo-noite", "estilo": "acento", "texto": "*fogo* no peito", "paleta": "noite"},
+  {"id": "exemplo-verde", "estilo": "acento", "texto": "*fogo* no peito", "paleta": "verde"},
+  {"id": "curta", "estilo": "acento", "texto": "Menos ruído, mais *resultado*"},
+  {"id": "acentos", "estilo": "acento", "texto": "Ação, atenção e *coração*", "paleta": "verde"},
+  {"id": "media", "estilo": "acento", "texto": "Seu cliente não quer barato, quer *confiança*"},
+  {"id": "credito", "estilo": "acento", "texto": "O segredo é *constância*", "marca": {"perfil": "@studiolua"}},
+  {"id": "duas", "estilo": "acento", "texto": "*Pare* de esperar e *comece*", "paleta": "noite"},
+
+  {"id": "exemplo", "estilo": "zona", "texto": "ninguém segura essa *noite*"},
+  {"id": "exemplo-neon", "estilo": "zona", "texto": "ninguém segura essa *noite*", "paleta": "neon"},
+  {"id": "exemplo-foto", "estilo": "zona", "variacao": "foto", "texto": "ninguém segura essa *noite*", "foto": "mista.png"},
+  {"id": "curta", "estilo": "zona", "texto": "Seu negócio no *centro*"},
+  {"id": "longa", "estilo": "zona", "texto": "Quem escuta antes de oferecer vende mais e *melhor*", "paleta": "neon"},
+  {"id": "foto-clara", "estilo": "zona", "variacao": "foto", "texto": "Feito à *mão*", "foto": "clara.png"},
+
+  {"id": "exemplo", "estilo": "sincope", "texto": "eu *nasci* assim"},
+  {"id": "exemplo-azul", "estilo": "sincope", "variacao": "sem-bloco", "texto": "eu *nasci* assim"},
+  {"id": "auto", "estilo": "sincope", "texto": "menos ruído mais resultado"},
+  {"id": "cinco", "estilo": "sincope", "texto": "Hoje *tem* samba no *quintal*"},
+  {"id": "sete", "estilo": "sincope", "variacao": "sem-bloco", "texto": "quem dança seus males espanta sempre assim"},
+
+  {"id": "exemplo", "estilo": "fina", "texto": "eu nasci assim", "foto": "escura.png"},
+  {"id": "exemplo-duotom", "estilo": "fina", "variacao": "duotom", "texto": "eu nasci assim", "foto": "escura.png"},
+  {"id": "mista", "estilo": "fina", "texto": "Coragem para começar de novo", "foto": "mista.png"},
+  {"id": "clara", "estilo": "fina", "texto": "Feito à mão, feito pra você", "foto": "clara.png", "ink": "#111111"},
+  {"id": "acentos", "estilo": "fina", "texto": "Ação e atenção no detalhe", "foto": "escura.png"},
+  {"id": "duotom-clara", "estilo": "fina", "variacao": "duotom", "texto": "A noite é nossa", "foto": "clara.png"}
+]

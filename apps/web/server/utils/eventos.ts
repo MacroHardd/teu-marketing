@@ -37,6 +37,7 @@ export const PROPS = {
     bloqueante: z.boolean()
   }).strict(),
   trava_resolvida: z.object({ trava: z.enum(['texto_cortado', 'contraste']), acao: z.enum(['variacao', 'estilo', 'ajuste']) }).strict(),
+  variacao_trocada: z.object({ estilo: z.string().max(20), de: z.string().max(20).nullable(), para: z.string().max(20) }).strict(),
   legenda_copiada: z.object({ n_hashtags: z.int().min(0) }).strict(),
   erro_motor: z.object({
     estilo: z.string().max(20),
@@ -51,7 +52,7 @@ export type NomeEvento = keyof typeof PROPS
 /** Eventos que o browser do Cliente pode mandar por /api/eventos. */
 export const DO_CLIENTE = [
   'editor_aberto', 'post_criado', 'estilo_trocado', 'foto_enviada', 'post_exportado', 'erro_motor',
-  'perfil_atualizado', 'ajuste_aplicado', 'trava_disparada', 'trava_resolvida', 'legenda_copiada'
+  'perfil_atualizado', 'ajuste_aplicado', 'trava_disparada', 'trava_resolvida', 'legenda_copiada', 'variacao_trocada'
 ] as const satisfies NomeEvento[]
 
 export async function registraEvento(event: H3Event, e: {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Editor. Preview e Exportação usam o mesmo canvas 1080×1350: o PNG é exatamente o que está na tela (ADR 0001).
 import {
-  desenha, ENQUADRAMENTO_PADRAO, escolhe, motor, SUPORTE, TEMAS, ZONA_PADRAO,
+  amostraPaleta, desenha, ENQUADRAMENTO_PADRAO, escolhe, motor, NOMES_PALETA, PALETAS_ESTILO, SUPORTE, TEMAS, VARIACOES, ZONA_PADRAO,
   type Ajustes, type Ctx2D, type Elemento, type Enquadramento, type Fontes, type MetaFoto, type NomeTema,
   type ProvedorFoto, type Resultado, type Tamanho, type TipoEstilo, type Zona
 } from '@teu/motor'
@@ -25,6 +25,8 @@ if (!post.value) throw createError({ statusCode: 404, statusMessage: 'Post não 
 const ESTILOS: { tipo: TipoEstilo, nome: string, foto: boolean }[] = [
   { tipo: 'acento', nome: 'Acento', foto: false },
   { tipo: 'manchete', nome: 'Manchete', foto: false },
+  { tipo: 'zona', nome: 'Zona calma', foto: false },
+  { tipo: 'sincope', nome: 'Síncope', foto: false },
   { tipo: 'fina', nome: 'Letra fina', foto: true },
   { tipo: 'ogilvy', nome: 'Foto e legenda', foto: true }
 ]
@@ -87,7 +89,28 @@ const ELEMENTOS_UI: { k: Exclude<Elemento, 'cta'>, nome: string, dado: () => boo
 ]
 const tamanho = computed(() => ajustes.value.tamanho ?? 'M')
 const zona = computed(() => ajustes.value.zona ?? ZONA_PADRAO[estilo.value])
-const corAtual = computed(() => ajustes.value.cor ?? (marca.value.cor ? 'marca' : (ajustes.value.modo === 'escuro' ? 'noite' : 'creme')))
+/** Paletas do Estilo atual: as aprovadas da skill (Acento, Zona calma, Síncope) ou os temas (Estilos do publi). */
+const paletas = computed(() => {
+  const nomes = PALETAS_ESTILO[estilo.value]
+  if (nomes) return nomes.map(k => ({ k, nome: NOMES_PALETA[k]!, cores: amostraPaleta(k)!.map(c => `rgb(${c.join(',')})`) }))
+  return (Object.keys(NOMES_TEMA) as NomeTema[]).map(k => ({ k, nome: NOMES_TEMA[k], cores: [TEMAS[k].fundo, TEMAS[k].acento] }))
+})
+const corAtual = computed(() => {
+  const c = ajustes.value.cor
+  if (c && (c === 'marca' || paletas.value.some(p => p.k === c))) return c
+  return marca.value.cor ? 'marca' : (PALETAS_ESTILO[estilo.value]?.[0] ?? (ajustes.value.modo === 'escuro' ? 'noite' : 'creme'))
+})
+
+// ------------------------------------------------------------------ Variações
+const variacaoEscolhida = ref<string | null>(post.value.variacao)
+const variacoes = computed(() => (VARIACOES[estilo.value] ?? []).filter(v => !v.foto || temFoto.value))
+const variacao = computed(() => resultado.value?.variacao ?? null)
+function trocaVariacao(v: string) {
+  if (v === variacao.value) return
+  ultimaAcao = 'variacao'
+  evento('variacao_trocada', { estilo: estilo.value, de: variacao.value, para: v }, id)
+  variacaoEscolhida.value = v
+}
 const elementoLigado = (e: (typeof ELEMENTOS_UI)[number]) => e.dado() && (ajustes.value.elementos?.[e.k] ?? (e.k !== 'selo'))
 
 function ajusta(tipo: TipoAjuste, mudanca: Partial<Ajustes>) {
@@ -160,7 +183,7 @@ function mensagemTrava(t: NomeTrava): { titulo: string, acoes: Acao[] } {
   const acoes: Acao[] = []
   if (suporte.value.tamanho.includes('P') && tamanho.value !== 'P') acoes.push({ label: 'Diminuir a letra', faz: () => ajusta('tamanho', { tamanho: 'P' }) })
   if (estilo.value === 'fina') acoes.push({ label: 'Usar Foto e legenda', faz: () => trocaEstilo('ogilvy') })
-  else if (estilo.value === 'acento') acoes.push({ label: 'Usar Manchete', faz: () => trocaEstilo('manchete') })
+  else if (['acento', 'zona', 'sincope'].includes(estilo.value)) acoes.push({ label: 'Usar Manchete', faz: () => trocaEstilo('manchete') })
   return { titulo: 'O texto não cabe inteiro: uma parte foi cortada. Encurte, divida em 2 Posts ou use uma das opções.', acoes }
 }
 
@@ -170,7 +193,7 @@ let travasAvisadas: NomeTrava[] = []
 const conferirTravas = useDebounceFn(() => {
   const agora = travas.value
   for (const t of agora.filter(t => !travasAvisadas.includes(t))) {
-    evento('trava_disparada', { estilo: estilo.value, variacao: null, trava: t, bloqueante: true }, id)
+    evento('trava_disparada', { estilo: estilo.value, variacao: variacao.value, trava: t, bloqueante: true }, id)
   }
   for (const t of travasAvisadas.filter(t => !agora.includes(t))) evento('trava_resolvida', { trava: t, acao: ultimaAcao }, id)
   travasAvisadas = [...agora]
@@ -182,6 +205,7 @@ function entrada() {
   return {
     texto: texto.value || ' ',
     estilo: estilo.value,
+    variacao: variacaoEscolhida.value ?? undefined,
     foto: fotoMeta.value ?? undefined,
     enquadramento: enquadramento.value,
     marca: marca.value,
@@ -195,13 +219,13 @@ function render() {
   try {
     resultado.value = motor(entrada(), fontes.value)
   } catch (e) {
-    return evento('erro_motor', { estilo: estilo.value, variacao: null, etapa: 'layout', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
+    return evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'layout', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
   }
   try {
     desenha(canvas.value.getContext('2d') as unknown as Ctx2D, resultado.value.cena, fontes.value, 1, provedor.value, logo.value)
     msRender = performance.now() - t0
   } catch (e) {
-    evento('erro_motor', { estilo: estilo.value, variacao: null, etapa: 'desenho', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
+    evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'desenho', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
   }
 }
 
@@ -211,6 +235,7 @@ const salva = useDebounceFn(async () => {
   const { error } = await supabase.from('posts').update({
     texto: texto.value,
     estilo: estiloEscolhido.value,
+    variacao: variacaoEscolhida.value,
     ajustes: { ...ajustes.value, enquadramento: enquadramento.value } as never,
     legenda: legenda.value,
     foto_path: fotoPath.value,
@@ -228,7 +253,7 @@ function mudou() {
   salvo.value = 'salvando'
   salva()
 }
-watch([texto, estiloEscolhido, enquadramento, fotoMeta, ajustes, legenda, logo], mudou, { deep: true })
+watch([texto, estiloEscolhido, variacaoEscolhida, enquadramento, fotoMeta, ajustes, legenda, logo], mudou, { deep: true })
 watch(texto, () => {
   ultimaAcao = 'ajuste'
   aplicou('texto')
@@ -247,6 +272,7 @@ function trocaEstilo(t: TipoEstilo) {
   ultimaAcao = 'estilo'
   evento('estilo_trocado', { de: estilo.value, para: t, posicao_na_lista: ESTILOS.findIndex(e => e.tipo === t) }, id)
   estiloEscolhido.value = t
+  variacaoEscolhida.value = null
 }
 
 // ------------------------------------------------------------------ foto
@@ -270,7 +296,7 @@ async function enviaFoto(ev: Event) {
     evento('foto_enviada', { formato_origem: f.formato, bytes: arquivo.size, ms_processamento: f.ms, rosto_detectado: false }, id)
   } catch (e) {
     const msg = e instanceof ErroFoto ? e.message : 'Não deu para usar essa foto. Tente outra.'
-    if (!(e instanceof ErroFoto)) evento('erro_motor', { estilo: estilo.value, variacao: null, etapa: 'foto', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
+    if (!(e instanceof ErroFoto)) evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'foto', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
     toast.add({ title: msg, color: 'error' })
   } finally {
     enviandoFoto.value = false
@@ -329,7 +355,7 @@ async function exporta() {
   const blob = await new Promise<Blob | null>(r => canvas.value!.toBlob(r, 'image/png'))
   if (!blob) {
     exportando.value = false
-    evento('erro_motor', { estilo: estilo.value, variacao: null, etapa: 'exportacao', mensagem_curta: 'toBlob vazio' }, id)
+    evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'exportacao', mensagem_curta: 'toBlob vazio' }, id)
     return toast.add({ title: 'Não deu para gerar a imagem', color: 'error' })
   }
   const a = document.createElement('a')
@@ -341,7 +367,7 @@ async function exporta() {
   await supabase.from('posts').update({ texto: texto.value, legenda: legenda.value, status: 'exportado', exportado_em: new Date().toISOString() }).eq('id', id)
   post.value!.status = 'exportado'
   evento('post_exportado', {
-    estilo: estilo.value, variacao: null, n_trocas_estilo: trocasEstilo, n_ajustes: nAjustes,
+    estilo: estilo.value, variacao: variacao.value, n_trocas_estilo: trocasEstilo, n_ajustes: nAjustes,
     tempo_ativo_ms: tempo.ms(), ms_export: Math.round(performance.now() - t0), reexport
   }, id)
   exportando.value = false
@@ -457,6 +483,20 @@ onMounted(async () => {
               </UButton>
             </div>
           </UFormField>
+
+          <UFormField v-if="variacoes.length > 1" label="Variação">
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="v in variacoes"
+                :key="v.id"
+                :label="v.nome"
+                size="sm"
+                :color="v.id === variacao ? 'primary' : 'neutral'"
+                :variant="v.id === variacao ? 'solid' : 'outline'"
+                @click="trocaVariacao(v.id)"
+              />
+            </div>
+          </UFormField>
         </div>
 
         <div class="flex flex-col gap-3 w-full max-w-md">
@@ -533,16 +573,16 @@ onMounted(async () => {
                   @click="ajusta('cor', { cor: 'marca' })"
                 />
               </UTooltip>
-              <UTooltip v-for="(n, k) in NOMES_TEMA" :key="k" :text="n">
+              <UTooltip v-for="p in paletas" :key="p.k" :text="p.nome">
                 <button
                   type="button"
                   class="size-8 rounded-full ring-2 ring-offset-2 ring-offset-default overflow-hidden flex"
-                  :class="corAtual === k ? 'ring-primary' : 'ring-transparent'"
-                  :aria-label="`Cores ${n}`"
-                  @click="ajusta('cor', { cor: k })"
+                  :class="corAtual === p.k ? 'ring-primary' : 'ring-transparent'"
+                  :aria-label="`Cores ${p.nome}`"
+                  @click="ajusta('cor', { cor: p.k })"
                 >
-                  <span class="w-1/2 h-full" :style="{ background: TEMAS[k].fundo }" />
-                  <span class="w-1/2 h-full" :style="{ background: TEMAS[k].acento }" />
+                  <span class="w-1/2 h-full" :style="{ background: p.cores[0] }" />
+                  <span class="w-1/2 h-full" :style="{ background: p.cores[1] }" />
                 </button>
               </UTooltip>
             </div>

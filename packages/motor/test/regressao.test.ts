@@ -16,7 +16,7 @@ import { casos, entrada, foto, fontes, referencia, renderiza, RAIZ, temSaida } f
 const LIMITE_PCT = 1
 const DIFF = join(RAIZ, 'test', '__diff__')
 
-for (const conjunto of ['acento', 'manchete', 'fina', 'ogilvy']) {
+for (const conjunto of ['manchete', 'ogilvy']) {
   describe.skipIf(!temSaida(conjunto))(`regressão ${conjunto}`, () => {
     for (const c of casos(conjunto)) {
       it(c.id, () => {

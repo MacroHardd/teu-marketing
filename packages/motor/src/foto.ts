@@ -27,13 +27,25 @@ export interface Recorte {
   sh: number
 }
 
-/** Preto e branco com contraste (o filtro do Estilo Letra fina). `media` = média de luminância do recorte. */
-export interface Filtro {
+/** Preto e branco com contraste em volta da média (o filtro do publi). `media` = média de luminância do recorte. */
+export interface FiltroCinza {
   tipo: 'cinza'
   media: number
   contraste: number
   brilho: number
 }
+
+/**
+ * Funções de `filter` do CSS, na ordem (como o navegador aplica nos estáticos da skill tipografia-igor),
+ * mais `multiplica` (camada de cor com mix-blend-mode: multiply, o duotom).
+ */
+export type OpCss = readonly ['cinza' | 'saturar' | 'contraste' | 'brilho', number] | readonly ['multiplica', readonly [number, number, number]]
+export interface FiltroCss {
+  tipo: 'css'
+  ops: OpCss[]
+}
+
+export type Filtro = FiltroCinza | FiltroCss
 
 /** Luminância "L" do Pillow (ITU-R 601, inteiro). */
 export const lumL = (r: number, g: number, b: number) => (r * 19595 + g * 38470 + b * 7471 + 0x8000) >> 16
@@ -98,8 +110,43 @@ export function mediaRecorte(m: MetaFoto, r: Recorte, passos = 48): number {
   return soma / (passos * passos)
 }
 
+const lim = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v)
+
+/** Um pixel (0–255) pelas funções de filtro do CSS (matrizes da especificação Filter Effects). */
+function pixelCss(r: number, g: number, b: number, ops: OpCss[]): [number, number, number] {
+  for (const op of ops) {
+    if (op[0] === 'multiplica') {
+      const t = op[1]
+      r = r * t[0] / 255
+      g = g * t[1] / 255
+      b = b * t[2] / 255
+    } else if (op[0] === 'cinza' || op[0] === 'saturar') {
+      const s = op[0] === 'cinza' ? 1 - op[1] : op[1]
+      const nr = (0.2126 + 0.7874 * s) * r + (0.7152 - 0.7152 * s) * g + (0.0722 - 0.0722 * s) * b
+      const ng = (0.2126 - 0.2126 * s) * r + (0.7152 + 0.2848 * s) * g + (0.0722 - 0.0722 * s) * b
+      const nb = (0.2126 - 0.2126 * s) * r + (0.7152 - 0.7152 * s) * g + (0.0722 + 0.9278 * s) * b
+      r = lim(nr)
+      g = lim(ng)
+      b = lim(nb)
+    } else if (op[0] === 'contraste') {
+      r = lim((r - 127.5) * op[1] + 127.5)
+      g = lim((g - 127.5) * op[1] + 127.5)
+      b = lim((b - 127.5) * op[1] + 127.5)
+    } else {
+      r = lim(r * op[1])
+      g = lim(g * op[1])
+      b = lim(b * op[1])
+    }
+  }
+  return [r, g, b]
+}
+
 /** Um valor de luminância passando pelo filtro (mesma conta do `aplicaFiltro`). */
 export function filtraLum(v: number, f: Filtro): number {
+  if (f.tipo === 'css') {
+    const [r, g, b] = pixelCss(v, v, v, f.ops)
+    return lumL(r, g, b)
+  }
   const c = Math.min(255, Math.max(0, f.media + f.contraste * (v - f.media)))
   return Math.trunc(Math.trunc(c) * f.brilho)
 }
@@ -109,6 +156,15 @@ export function filtraLum(v: number, f: Filtro): number {
  * e entrega o resultado ao Desenhista. Feito à mão: `ctx.filter` não funciona igual no Safari.
  */
 export function aplicaFiltro(rgba: Uint8ClampedArray | Uint8Array, f: Filtro): void {
+  if (f.tipo === 'css') {
+    for (let i = 0; i < rgba.length; i += 4) {
+      const [r, g, b] = pixelCss(rgba[i]!, rgba[i + 1]!, rgba[i + 2]!, f.ops)
+      rgba[i] = Math.round(r)
+      rgba[i + 1] = Math.round(g)
+      rgba[i + 2] = Math.round(b)
+    }
+    return
+  }
   const tab = new Uint8Array(256)
   for (let v = 0; v < 256; v++) tab[v] = filtraLum(v, f)
   for (let i = 0; i < rgba.length; i += 4) {
@@ -119,4 +175,5 @@ export function aplicaFiltro(rgba: Uint8ClampedArray | Uint8Array, f: Filtro): v
   }
 }
 
-export const chaveFiltro = (f?: Filtro) => (f ? `${f.tipo}:${Math.round(f.media)}:${f.contraste}:${f.brilho}` : 'original')
+export const chaveFiltro = (f?: Filtro) =>
+  !f ? 'original' : f.tipo === 'css' ? `css:${JSON.stringify(f.ops)}` : `${f.tipo}:${Math.round(f.media)}:${f.contraste}:${f.brilho}`

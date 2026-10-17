@@ -13,8 +13,8 @@ export type Elemento = (typeof ELEMENTOS)[number]
 export interface Ajustes {
   tamanho?: Tamanho
   zona?: Zona
-  /** Cor da paleta: um tema curado ou a cor do Perfil de Marca. */
-  cor?: NomeTema | 'marca'
+  /** Cor da paleta: uma paleta aprovada do Estilo (ou tema curado, nos Estilos do publi) ou a cor do Perfil de Marca. */
+  cor?: NomeTema | 'marca' | (string & {})
   modo?: 'claro' | 'escuro'
   /** Liga/desliga. Sem valor: liga quando o dado existe no Perfil de Marca (o CTA, quando foi escrito). */
   elementos?: Partial<Record<Elemento, boolean>>
@@ -33,14 +33,43 @@ export interface Suporte {
 }
 
 export const SUPORTE: Partial<Record<TipoEstilo, Suporte>> = {
-  acento: { tamanho: ['P', 'M', 'G'], zona: true, cor: true, modo: true },
+  acento: { tamanho: ['P', 'M', 'G'], zona: true, cor: true, modo: false },
   manchete: { tamanho: ['P', 'M', 'G'], zona: true, cor: true, modo: true },
+  zona: { tamanho: ['P', 'M', 'G'], zona: false, cor: true, modo: false },
+  sincope: { tamanho: ['P', 'M', 'G'], zona: false, cor: true, modo: false },
   fina: { tamanho: ['P', 'M'], zona: true, cor: false, modo: false },
   ogilvy: { tamanho: ['P', 'M', 'G'], zona: false, cor: true, modo: true },
 }
 
-/** Zona em que cada Estilo põe o texto quando o Cliente não escolhe (a do publi). */
-export const ZONA_PADRAO: Partial<Record<TipoEstilo, Zona>> = { acento: 'centro', manchete: 'centro', fina: 'topo' }
+/** Zona em que cada Estilo põe o texto quando o Cliente não escolhe. Acento: a posição do estático da skill. */
+export const ZONA_PADRAO: Partial<Record<TipoEstilo, Zona>> = { manchete: 'centro', fina: 'topo' }
+
+/** Paletas que o Ajuste de cor oferece em cada Estilo (além da cor da marca). Os do publi usam os temas curados. */
+export const PALETAS_ESTILO: Partial<Record<TipoEstilo, string[]>> = {
+  acento: ['villela', 'noite', 'verde'],
+  zona: ['gil', 'neon'],
+  sincope: ['villela', 'azul'],
+}
+
+export interface Variacao {
+  id: string
+  nome: string
+  /** Só aparece com foto. */
+  foto?: boolean
+}
+
+/** Variações de layout de cada Estilo (as aprovadas na skill tipografia-igor). A primeira é a padrão. */
+export const VARIACOES: Partial<Record<TipoEstilo, Variacao[]>> = {
+  zona: [{ id: 'desenho', nome: 'Raios' }, { id: 'foto', nome: 'Com a foto', foto: true }],
+  sincope: [{ id: 'bloco', nome: 'Com bloco' }, { id: 'sem-bloco', nome: 'Sem bloco' }],
+  fina: [{ id: 'pb', nome: 'Preto e branco' }, { id: 'duotom', nome: 'Duotom' }],
+}
+
+/** Variação que vale quando o Cliente não escolheu (Zona calma usa a foto, se houver). */
+export function variacaoPadrao(estilo: TipoEstilo, temFoto: boolean): string | undefined {
+  if (estilo === 'zona') return temFoto ? 'foto' : 'desenho'
+  return VARIACOES[estilo]?.[0]?.id
+}
 
 /** Fator de escala da letra. M = publi. */
 export const ESCALA: Record<Tamanho, number> = { P: 0.8, M: 1, G: 1.18 }

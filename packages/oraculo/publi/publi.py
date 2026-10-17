@@ -1152,9 +1152,11 @@ def _destaque(texto):
 
 def _numero(texto):
     """Primeiro número exato do texto (com unidade curta), ou None."""
+    datas = [d.span() for d in _DATA.finditer(texto)]
     for m in _NUM.finditer(texto):
         s = m.group(0).strip().rstrip(".,")
-        if re.search(r"\d", s) and not _DATA.match(texto, m.start()):
+        # teu-marketing: pula número dentro de data/hora ("20/11" não vira "11"); o original só olhava o início
+        if re.search(r"\d", s) and not any(a < m.end() and m.start() < b for a, b in datas):
             return s
     return None
 

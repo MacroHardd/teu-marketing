@@ -55,7 +55,7 @@ export function foto(arquivo: string): FotoTeste {
 
 export function renderiza(cena: Cena, provedor?: ProvedorFoto) {
   const cv = createCanvas(cena.largura, cena.altura)
-  desenha(cv.getContext('2d') as unknown as Ctx2D, cena, fontes(), 1, provedor)
+  desenha(cv.getContext('2d') as unknown as Ctx2D, cena, fontes(), { foto: provedor, tela: (w, h) => createCanvas(w, h) })
   return cv
 }
 
@@ -68,6 +68,7 @@ export interface Caso {
   modo?: 'claro' | 'escuro'
   tema?: NomeTema
   destaque?: boolean
+  variacao?: string
   /** Arquivo em packages/oraculo/fotos. */
   foto?: string
 }
@@ -86,3 +87,12 @@ export const temSaida = (conjunto: string) => existsSync(join(ORACULO, 'saida', 
 
 /** Caso do oráculo → Entrada do Motor (o `tipo` do caso força o Estilo). */
 export const entrada = (c: Caso) => ({ ...c, estilo: c.tipo as TipoEstilo | undefined, foto: c.foto ? foto(c.foto).meta : undefined })
+
+/** Caso dos Estilos da skill tipografia-igor (packages/oraculo/casos/tipografia.json). */
+export interface CasoT { id: string, estilo: TipoEstilo, variacao?: string, texto: string, paleta?: string, foto?: string, ink?: string, marca?: { perfil?: string, nome?: string } }
+export const casosT = (): CasoT[] => JSON.parse(readFileSync(join(ORACULO, 'casos', 'tipografia.json'), 'utf8'))
+export const entradaT = (c: CasoT) => ({
+  texto: c.texto, estilo: c.estilo, variacao: c.variacao, marca: c.marca,
+  ajustes: c.paleta ? { cor: c.paleta } : undefined,
+  foto: c.foto ? foto(c.foto).meta : undefined,
+})

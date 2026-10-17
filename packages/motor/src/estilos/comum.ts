@@ -1,8 +1,9 @@
-import type { Cor, Tema } from '../cor'
+import { BRANCO, contraste, type Cor, type Tema } from '../cor'
 import type { Item, Travas } from '../cena'
 import type { Fontes } from '../fontes'
-import { recorteCover, type Enquadramento, type Filtro, type MetaFoto } from '../foto'
-import { fonte, largura, px, texto } from '../texto'
+import type { Elemento, Zona } from '../ajustes'
+import { lumEm, recorteCover, type Enquadramento, type Filtro, type MetaFoto } from '../foto'
+import { Bloco, fonte, largura, limpaTexto, px, ret, texto } from '../texto'
 
 export type Formato = 'post' | 'story'
 
@@ -10,6 +11,8 @@ export interface Marca {
   nome?: string
   perfil?: string
   cor?: string
+  /** Tamanho do logo (px). A imagem fica com o app, como a foto. */
+  logo?: { largura: number, altura: number }
 }
 
 /** O que cada Estilo recebe: campos já separados, tema resolvido e onde anotar avisos. */
@@ -20,6 +23,19 @@ export interface Pedido {
   modo?: 'claro' | 'escuro'
   foto?: MetaFoto
   enquadramento: Enquadramento
+  /** Escala da letra (Ajuste P/M/G; 1 = publi). */
+  k: number
+  /** Zona do texto escolhida; sem valor, a do Estilo. */
+  zona?: Zona
+  el: Record<Elemento, boolean>
+  cta: string
+  reforco: boolean
+  /** Variação do Estilo; sem valor, a padrão. */
+  variacao?: string
+  /** Paleta escolhida (Ajuste de cor): nome da paleta, tema ou 'marca'. Sem valor, a padrão do Estilo. */
+  cor?: string
+  /** O Cliente marcou palavras (*assim*): a escolha dele manda sobre a regra. */
+  marcado: boolean
 }
 
 export interface Contexto {
@@ -67,11 +83,11 @@ export function assinatura(fontes: Fontes, t: Tema, marca: Marca, x: number, y: 
 export function areaDaCor(itens: Item[], cor: Cor, fontes: Fontes, W: number, H: number): number {
   let soma = 0
   for (const it of itens) {
-    if (it.tipo === 'foto' || it.tipo === 'degrade') continue
+    if (it.tipo === 'foto' || it.tipo === 'degrade' || it.tipo === 'imagem' || it.tipo === 'radial' || it.tipo === 'sombra') continue
     if (it.cor.some((v, i) => v !== cor[i])) continue
     if (it.tipo === 'texto') soma += fontes[it.fonte].tinta(it.texto, it.tam)
     else if (it.tipo === 'circulo') soma += Math.PI * it.r * it.r
-    else soma += it.w * it.h
+    else if (it.tipo === 'ret') soma += it.w * it.h
   }
   return soma / (W * H) * 100
 }
@@ -82,4 +98,78 @@ export function fotoCover(p: Pedido, x0: number, y0: number, x1: number, y1: num
   const w = px(x1 - x0)
   const h = px(y1 - y0)
   return { tipo: 'foto', x: px(x0) / 2, y: px(y0) / 2, w: w / 2, h: h / 2, recorte: recorteCover(p.foto, w, h, p.enquadramento), filtro }
+}
+
+/**
+ * Luz média (0–255) da foto numa caixa da peça, pelo metadado (ninguém lê pixel). `foto` = o item da foto na Cena;
+ * `veu(y)` = opacidade de um véu preto por cima, em y; `cor` = cor do véu (padrão preto).
+ */
+export function luzAtras(p: Pedido, foto: Item & { tipo: 'foto' }, x0: number, y0: number, x1: number, y1: number,
+  veu: (y: number) => number = () => 0, cor = 0, passo = 6): number {
+  const m = p.foto
+  if (!m) return 0
+  const r = foto.recorte
+  let soma = 0
+  let n = 0
+  for (let y = Math.max(y0, foto.y) + passo / 2; y < Math.min(y1, foto.y + foto.h); y += passo) {
+    const a = veu(y)
+    for (let x = Math.max(x0, foto.x) + passo / 2; x < Math.min(x1, foto.x + foto.w); x += passo) {
+      const v = lumEm(m, r.sx + (x - foto.x) / foto.w * r.sw, r.sy + (y - foto.y) / foto.h * r.sh)
+      soma += v * (1 - a) + cor * a
+      n++
+    }
+  }
+  return n ? soma / n : 0
+}
+
+/** Contraste mínimo (WCAG para letra grande). Abaixo disso, a Trava de contraste dispara. */
+export const CONTRASTE_MIN = 3
+
+// ------------------------------------------------------------------ Elementos opcionais (fora do publi)
+/** Espaço que os Elementos tiram da área do texto: logo/selo em cima, CTA embaixo. */
+export function reserva(p: Pedido): { topo: number, base: number } {
+  return { topo: p.el.logo || p.el.selo ? 110 : 0, base: p.el.cta ? 100 : 0 }
+}
+
+/** Topo do bloco de texto (alto `alto`) na zona pedida, dentro da área já sem as reservas. */
+export function yZona(zona: Zona, y0: number, y1: number, alto: number, centro: number): number {
+  if (zona === 'topo') return y0 + 40
+  if (zona === 'base') return y1 - alto - 90
+  return centro
+}
+
+const iniciais = (s: string) => s.replace(/^@/, '').split(/[\s._-]+/u).filter(Boolean).slice(0, 2).map(w => [...w][0]!.toUpperCase()).join('')
+
+/**
+ * Logo (topo esq.), selo (topo dir.) e CTA (acima da linha de base).
+ * Mesmo lugar em todo Estilo: o Cliente liga e desliga, não move.
+ */
+export function elementos({ p, av, fontes }: Contexto, x0: number, y0: number, x1: number, y1: number,
+  cores: { tinta: Cor, acc: Cor }, pula: Partial<Record<Elemento, false>> = {}): Item[] {
+  const itens: Item[] = []
+  const m = p.marca
+  if (p.el.logo && m.logo) {
+    const k = Math.min(240 / m.logo.largura, 80 / m.logo.altura)
+    itens.push({ tipo: 'imagem', chave: 'logo', x: x0, y: y0, w: m.logo.largura * k, h: m.logo.altura * k })
+  }
+  const nome = m.nome || m.perfil || ''
+  if (p.el.selo && nome) {
+    const r = 46
+    const cx = x1 - r
+    const cy = y0 + r
+    itens.push({ tipo: 'circulo', cx, cy, r, cor: cores.acc })
+    const s = iniciais(nome)
+    const f = fonte(fontes, 'grot-xbold', px(34))
+    const quase: Cor = [18, 18, 18]
+    const cor = contraste(BRANCO, cores.acc) >= contraste(quase, cores.acc) ? BRANCO : quase
+    const [sobe, desce] = f.fonte.caixa(s, f.tam)
+    itens.push(texto('grot-xbold', f.tam, px(cx) - largura(f, s) / 2, px(cy) - (sobe + desce) / 2, s, cor))
+  }
+  if (p.el.cta && pula.cta !== false) {
+    const b = new Bloco(fontes, limpaTexto(p.cta, av), 'grot-bold', x1 - x0, 100, 40, 28, { lh: 1.15, maxLinhas: 2 })
+    const y = y1 - 52 - b.alto
+    itens.push(ret(px(x0), px(y - 14), px(x0 + 56), px(y - 8), cores.acc)) // barrinha acima, como chamada
+    itens.push(...b.desenha(x0, y, cores.acc))
+  }
+  return itens
 }

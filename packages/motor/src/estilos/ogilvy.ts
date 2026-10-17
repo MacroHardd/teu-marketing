@@ -1,12 +1,15 @@
 // P8 · ordem de leitura (com foto) — princípio de David Ogilvy (1983): foto em cima, título, legenda
-import { acentoSobre, mistura, neutros } from '../cor'
+import { acentoSobre, contraste, mistura, neutros } from '../cor'
 import type { Item } from '../cena'
 import { Bloco, limpaTexto, px, ret, separaFrase } from '../texto'
-import { area, fotoCover, type Contexto, type Saida } from './comum'
+import { area, elementos, fotoCover, type Contexto, type Saida } from './comum'
 
-export function ogilvy({ p, W, H, t, av, fontes }: Contexto): Saida {
+export function ogilvy(c: Contexto): Saida {
+  const { p, W, H, t, av, fontes } = c
   const [fundo, tinta] = neutros(t)
-  const [x0, y0, x1, y1] = area(H, p.formato)
+  const [x0, y0, x1, y10] = area(H, p.formato)
+  // o CTA fica na base: a legenda termina antes dele
+  const y1 = y10 - (p.el.cta ? 100 : 0)
   const story = p.formato === 'story'
   const fotoY1 = story ? y0 + (y1 - y0) * 0.66 : H * 0.62
   const itens: Item[] = []
@@ -20,12 +23,12 @@ export function ogilvy({ p, W, H, t, av, fontes }: Contexto): Saida {
   const texto = limpaTexto(p.campos.texto ?? '', av)
   let [tit, leg] = separaFrase(texto)
   let legMarca = false
-  if (!leg) { // a legenda sempre existe: na falta, é quem assina
+  if (!leg && p.el.assinatura) { // a legenda sempre existe: na falta, é quem assina
     leg = p.marca.nome || p.marca.perfil || ''
     legMarca = true
   }
   const ty = fotoY1 + 50
-  const bt = new Bloco(fontes, tit, 'grot-xbold', x1 - x0, story ? 320 : 250, story ? 84 : 74, 40, { lh: 1.12, maxLinhas: 3, avisos: av })
+  const bt = new Bloco(fontes, tit, 'grot-xbold', x1 - x0, (story ? 320 : 250) * p.k, (story ? 84 : 74) * p.k, 40, { lh: 1.12, maxLinhas: 3, avisos: av })
   itens.push(...bt.desenha(x0, ty, tinta, { corA: acentoSobre(t, fundo) }))
   const ly = ty + bt.alto + 26
   if (leg) {
@@ -33,5 +36,7 @@ export function ogilvy({ p, W, H, t, av, fontes }: Contexto): Saida {
       { lh: 1.35, maxLinhas: 5, avisos: av })
     itens.push(...bl.desenha(x0, ly, mistura(tinta, fundo, 0.3)))
   }
-  return { fundo, itens, travas: { tituloPx: bt.tam } }
+  const acc = acentoSobre(t, fundo)
+  itens.push(...elementos(c, x0, y0, x1, y10, { tinta, acc }))
+  return { fundo, itens, travas: { tituloPx: bt.tam, contraste: contraste(tinta, fundo) } }
 }

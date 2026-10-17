@@ -1,0 +1,14 @@
+[
+  {
+    "id": "papel",
+    "nome": "Papel",
+    "arquivo": "papel.jpg",
+    "provisoria": true
+  },
+  {
+    "id": "grao",
+    "nome": "Grão",
+    "arquivo": "grao.jpg",
+    "provisoria": true
+  }
+]

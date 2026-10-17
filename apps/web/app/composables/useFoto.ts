@@ -55,11 +55,11 @@ export async function preparaFoto(arquivo: File): Promise<FotoPronta> {
 }
 
 /**
- * A foto pronta para o Desenhista: a original ou com filtro, guardada por filtro (poucas entradas:
- * o filtro muda quando o enquadramento muda a média de luz do recorte).
+ * A foto pronta para o Desenhista: a original (ou já tratada, no caso de Ativo) ou com filtro, guardada por filtro
+ * (poucas entradas: o filtro muda quando o enquadramento muda a média de luz do recorte).
  */
-export async function provedorDe(blob: Blob): Promise<ProvedorFoto> {
-  const bmp = await createImageBitmap(blob)
+export async function provedorDe(fonte: Blob | HTMLCanvasElement): Promise<ProvedorFoto> {
+  const bmp = fonte instanceof Blob ? await createImageBitmap(fonte) : fonte
   const cache = new Map<string, CanvasImageSource>()
   let pixels: ImageData | undefined
   return (filtro?: Filtro) => {

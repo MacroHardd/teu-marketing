@@ -1,4 +1,4 @@
-import { carregaFontes, NOMES_FONTES, type Fontes, type NomeFonte } from '@teu/motor'
+import { carregaFontes, NOMES_FONTES, type FabricaTela, type Fontes, type NomeFonte } from '@teu/motor'
 
 const urls = import.meta.glob('../../../../packages/motor/fontes/*.ttf', { query: '?url', import: 'default', eager: true }) as Record<string, string>
 
@@ -15,4 +15,13 @@ export function useFontes(): Promise<Fontes> {
     return carregaFontes(arquivos)
   })()
   return promessa
+}
+
+/** Tela fora da peça para os efeitos feitos à mão do Desenhista (a textura da Riscada). */
+export const novaTela: FabricaTela = (w, h) => {
+  if (typeof OffscreenCanvas !== 'undefined') return new OffscreenCanvas(w, h)
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = h
+  return c
 }

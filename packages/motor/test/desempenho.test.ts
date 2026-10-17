@@ -2,18 +2,19 @@
 // Aqui é Node (@napi-rs/canvas); a medição no browser fica na página /spike do apps/web.
 import { describe, expect, it } from 'vitest'
 import { motor } from '../src'
-import { casos, entrada, foto, fontes, renderiza } from './util'
+import { casos, casosT, entrada, entradaT, foto, fontes, renderiza } from './util'
 
 describe('desempenho', () => {
   it('p95 < 50 ms', () => {
-    const cs = ['acento', 'fina', 'ogilvy'].flatMap(casos)
-    const quadro = (c: (typeof cs)[number]) => renderiza(motor(entrada(c), fontes()).cena, c.foto ? foto(c.foto).provedor : undefined)
-    for (const c of cs) quadro(c) // aquece caches de glifo e de filtro da foto
+    const cs = [...['manchete', 'ogilvy'].flatMap(casos).map(entrada), ...casosT().map(entradaT)]
+    const fotos = [...casos('ogilvy'), ...casosT()].map(c => c.foto)
+    const quadro = (i: number) => renderiza(motor(cs[i]!, fontes()).cena, fotos[i - casos('manchete').length] ? foto(fotos[i - casos('manchete').length]!).provedor : undefined)
+    for (let i = 0; i < cs.length; i++) quadro(i) // aquece caches de glifo e de filtro da foto
     const tempos: number[] = []
     for (let i = 0; i < 10; i++) {
-      for (const c of cs) {
+      for (let j = 0; j < cs.length; j++) {
         const t0 = performance.now()
-        quadro(c)
+        quadro(j)
         tempos.push(performance.now() - t0)
       }
     }

@@ -4,14 +4,14 @@ create extension if not exists pgtap with schema extensions;
 select plan(9);
 
 insert into auth.users (id, email, aud, role) values
-  ('00000000-0000-0000-0000-00000000000a', 'parceiro-a@teste.dev', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-0000000000ca', 'cliente-a@teste.dev', 'authenticated', 'authenticated'),
-  ('00000000-0000-0000-0000-0000000000cb', 'cliente-b@teste.dev', 'authenticated', 'authenticated');
+  ('00000000-0000-0000-0000-00000000000a', 'parceiro-a@pgtap.dev', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-0000000000ca', 'cliente-a@pgtap.dev', 'authenticated', 'authenticated'),
+  ('00000000-0000-0000-0000-0000000000cb', 'cliente-b@pgtap.dev', 'authenticated', 'authenticated');
 insert into public.parceiros (id, nome, email_responsavel, usuario_id, assentos) values
-  ('10000000-0000-0000-0000-00000000000a', 'Parceiro A', 'parceiro-a@teste.dev', '00000000-0000-0000-0000-00000000000a', 5);
+  ('10000000-0000-0000-0000-00000000000a', 'Parceiro A', 'parceiro-a@pgtap.dev', '00000000-0000-0000-0000-00000000000a', 5);
 insert into public.clientes (id, parceiro_id, usuario_id, email) values
-  ('20000000-0000-0000-0000-0000000000ca', '10000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000ca', 'cliente-a@teste.dev'),
-  ('20000000-0000-0000-0000-0000000000cb', '10000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000cb', 'cliente-b@teste.dev');
+  ('20000000-0000-0000-0000-0000000000ca', '10000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000ca', 'cliente-a@pgtap.dev'),
+  ('20000000-0000-0000-0000-0000000000cb', '10000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-0000000000cb', 'cliente-b@pgtap.dev');
 insert into storage.objects (bucket_id, name, owner_id) values
   ('fotos', '20000000-0000-0000-0000-0000000000ca/p1/a.jpg', '00000000-0000-0000-0000-0000000000ca'),
   ('fotos', '20000000-0000-0000-0000-0000000000cb/p2/b.jpg', '00000000-0000-0000-0000-0000000000cb');

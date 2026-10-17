@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Estado atual
 
-Monorepo, spike do motor (M1, Estilo Acento) e fatia vertical local (M2: Admin → Parceiro → Convite → Cliente → PNG) prontos; M3 em andamento (foto + Estilos Letra fina e Foto e legenda feitos). Falta staging. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
+Monorepo, spike do motor (M1, Estilo Acento) e fatia vertical local (M2: Admin → Parceiro → Convite → Cliente → PNG) prontos; M3 em andamento (foto, Ajustes, Travas e todos os 13 Estilos mapeados feitos). Falta staging. O status vivo (o que está feito, o que está em andamento e o próximo passo) fica em [`docs/estado.md`](docs/estado.md). **Leia esse arquivo primeiro.**
 
 Produto: **Teu Marketing**, uma plataforma B2B2C. O Parceiro (escritório, mentor ou agência) distribui o acesso aos seus Clientes, e o Cliente cria sozinho posts estáticos de Instagram. O objetivo é **vender o mais rápido possível**: o MVP precisa funcionar, não precisa estar perfeito. O alvo de construção é [`docs/mvp.md`](docs/mvp.md) (jornadas + checklist de aceite + corte), e não o PRD inteiro.
 
@@ -26,12 +26,16 @@ O trabalho fica restrito a este diretório. Configurações de outras ferramenta
 ## Decisões que moldam o código
 
 - **Motor de render (ADR 0001):** `packages/motor` é TypeScript puro, sem dependência do Nuxt. É uma função pura: recebe conteúdo, Estilo, Variação, Ajustes, Perfil de Marca e os metadados da foto, e devolve uma Cena com o resultado das Travas. Um único Desenhista Canvas transforma a Cena em imagem. O preview ao vivo **e** a Exportação PNG 1080×1350 rodam no browser com o mesmo código, de modo que o PNG sai idêntico ao preview. O Motor nunca lê pixels: a foto é analisada uma vez no upload (luminância por região, cor dominante, rosto) e o resultado vira metadado. Não use `ctx.filter`, que tem suporte irregular no Safari: efeitos de pixel são feitos à mão ou em WebGL.
-- **publi = oráculo, nunca roda em produção.** O motor Python/Pillow original está em `~/projetos/publi-lab/entregavel/publi.zip`. Para ler, extraia para `packages/oraculo/publi/`. Ele tem os 13 Estilos (`ESTILOS`), a escolha de Estilo por regex (`_escolhe`), a separação de campos sem alterar o texto (`_campos`), as Travas e as opções pós-render. A porta para TS é validada por regressão visual contra PNGs gerados pelo publi no CI (`packages/oraculo`). Estilos e Variações novos nascem no publi e depois são portados.
+- **Oráculos: nunca rodam em produção (ADR 0001 e 0003).** A porta para TS é validada por regressão visual (< 1% de pixels) contra PNGs gerados no CI (`packages/oraculo`).
+  - **Skill `tipografia-igor`** (`~/.claude/skills/tipografia-igor`, kit Remotion) é o oráculo de **Acento, Zona calma, Síncope, Letra fina e Riscada**. Os estáticos estão copiados sem mudança em `packages/oraculo/tipografia`. Variações = as variantes aprovadas na skill. Misturas de regras ficam para depois.
+  - **publi** (Python/Pillow, `~/projetos/publi-lab/entregavel/publi.zip`, extraído em `packages/oraculo/publi/`) é o oráculo de **Manchete, Número, Foto que fala, Vazio, Foto e legenda, Herói e Depoimento**. **Duas tintas** = o Blue Note em revisão no publi-lab (`publi/bluenote_src.py`, só faixa e janela). A cópia daqui tem o fix do `_numero` (ver `packages/oraculo/README.md`). Também é a fonte da escolha de Estilo por regex (`_escolhe`) e da separação de campos sem alterar o texto (`_campos`).
+  - A palavra marcada pelo Cliente (`*assim*`) e a cor da marca dele valem mais que a regra do Estilo (decisão do usuário).
 - **Regras invioláveis do produto:**
   - o motor **nunca altera o texto do Cliente**, só distribui entre os campos (com teste)
   - o CTA é sempre escrito pelo Cliente
   - os Ajustes ficam numa lista fechada, ver `docs/mvp.md`: nada de fonte livre, color picker, camadas ou mover elementos livremente. A interface é limpa e leiga: **nunca virar Canva**
-- **Sem IA no MVP.** A IA será tratada separadamente depois. Quando entrar, será sempre opcional, sob demanda e marcada como IA na interface.
+- **Sem IA no MVP.** A IA será tratada separadamente depois. Quando entrar, será sempre opcional, sob demanda e marcada como IA na interface. Remover fundo e recorte do objeto esperam essa fase (decisão do usuário, 2026-10-17).
+- **Ativos (ADR 0004):** imagem do Cliente = original no Storage + receita (`tratamento.ts`, função pura) aplicada no browser, fora do Motor; o Motor recebe o metadado da imagem tratada. Texturas = catálogo global em `apps/web/public/texturas/catalogo.json` (as atuais são provisórias, geradas por `apps/web/scripts/texturas_provisorias.py`). Não usar texturas da Texturelabs (skill `texturas-igor`): a licença proíbe redistribuir.
 - **Tenancy (ADR 0002):** Supabase com RLS é a fronteira entre tenants. O Parceiro só lê o Uso agregado, **nunca Posts nem fotos**, e isso é garantido no banco e testado no CI. Toda tabela nova precisa de política RLS. Fotos ficam num bucket privado com URL assinada. Entrada **só por link mágico** e só por Convite (o Parceiro é criado pelo Admin). Não existe signup.
 - **Telemetria:** a tabela `eventos` nunca recebe conteúdo do Cliente (texto, legenda, foto). O schema de `props` é validado com zod. Eventos e métricas estão em `docs/medicao/tecnico.md`.
 

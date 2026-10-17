@@ -42,16 +42,15 @@
 
 ### M4. Catálogo
 
-- Portar os outros 12 Estilos, cada um passando na regressão.
-- Pelo menos 3 Variações por Estilo (o design nasce no publi e depois é portado).
+- Estilos e Variações vêm da skill `tipografia-igor` (ADR 0003: Acento, Zona calma, Síncope, Letra fina, Riscada; misturas de regras quando o usuário pedir) e do publi (os outros 8). Variações = as aprovadas na fonte, sem número fixo por Estilo.
 - Sugestão de Estilo por código + grade de Estilos compatíveis com miniaturas ao vivo.
 
-**Pronto quando:** os 13 Estilos × 3 Variações estão verdes no CI.
+**Pronto quando:** todo Estilo do catálogo está verde na regressão contra o seu oráculo no CI.
 
 ### M5. Cliente completo
 
 - Perfil de Marca, com todos os campos opcionais e Elementos ligados automaticamente.
-- Legenda + hashtags do Perfil + copiar.
+- Legenda (com as hashtags do Post) + copiar.
 - Meus Posts: grade, duplicar, excluir.
 
 ### M6. Parceiro completo
@@ -78,7 +77,7 @@ Seguir [medição operacional](medicao/operacional.md).
 
 O alvo é o [MVP vendável](mvp.md), e não o PRD inteiro. Na prática:
 
-- **M4 entra reduzido:** 5 Estilos × 3 Variações.
+- **M4:** os 13 Estilos mapeados já estão portados (2026-10-17).
 - **M5 entra completo.**
 - **M6 entra sem resumo mensal e sem exportação CSV.**
 - **M7 entra reduzido:** termos, backup, Sentry e os 7 eventos.

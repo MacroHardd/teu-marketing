@@ -1,14 +1,28 @@
 import type { Cena } from './cena'
-import { tema, type NomeTema } from './cor'
+import { tema, TEMAS, type NomeTema } from './cor'
 import { escolhe, separa, type Campos, type TipoEstilo } from './campos'
 import type { Fontes } from './fontes'
 import { acento } from './estilos/acento'
 import { fina } from './estilos/fina'
+import { manchete } from './estilos/manchete'
+import { zona } from './estilos/zona'
+import { sincope } from './estilos/sincope'
 import { ogilvy } from './estilos/ogilvy'
+import { numero } from './estilos/numero'
+import { selo } from './estilos/selo'
+import { duotom } from './estilos/duotom'
+import { vazio } from './estilos/vazio'
+import { heroi } from './estilos/heroi'
+import { citacao } from './estilos/citacao'
+import { riscada } from './estilos/riscada'
 import { ENQUADRAMENTO_PADRAO, type Enquadramento, type MetaFoto } from './foto'
 import type { Contexto, Formato, Marca, Saida } from './estilos/comum'
+import { ELEMENTOS, ESCALA, VARIACOES, variacaoPadrao, type Ajustes, type Elemento } from './ajustes'
+import { FORCA_TEXTURA } from './tratamento'
 
-const ESTILOS: Partial<Record<TipoEstilo, (c: Contexto) => Saida>> = { acento, fina, ogilvy }
+const ESTILOS: Partial<Record<TipoEstilo, (c: Contexto) => Saida>> = {
+  acento, manchete, numero, fina, selo, duotom, vazio, ogilvy, heroi, citacao, zona, sincope, riscada,
+}
 
 export const estilosPortados = () => Object.keys(ESTILOS) as TipoEstilo[]
 
@@ -22,13 +36,18 @@ export interface Entrada {
   modo?: 'claro' | 'escuro'
   tema?: NomeTema
   destaque?: boolean
+  /** Variação do Estilo (ver VARIACOES). */
+  variacao?: string
   /** Metadado da foto (analisada no upload). O Motor nunca vê os pixels. */
   foto?: MetaFoto
   enquadramento?: Enquadramento
+  ajustes?: Ajustes
 }
 
 export interface Resultado {
   estilo: TipoEstilo
+  /** Variação usada (a pedida, se existe no Estilo; senão a padrão). */
+  variacao?: string
   campos: Campos
   cena: Cena
 }
@@ -45,13 +64,34 @@ export function motor(e: Entrada, fontes: Fontes): Resultado {
   const W = 1080
   const H = formato === 'story' ? 1920 : 1350
   const marca = e.marca ?? {}
+  const aj = e.ajustes ?? {}
+  const variacao = VARIACOES[estilo]?.some(v => v.id === e.variacao) ? e.variacao : variacaoPadrao(estilo, foto, !!e.marca?.cor)
   const av: string[] = []
-  const t = tema({ cor: marca.cor, modo: e.modo, tema: e.tema })
+  const modo = aj.modo ?? e.modo
+  // cor da paleta: tema curado escolhido > cor da marca > tema da Entrada
+  const ehTema = !!aj.cor && aj.cor in TEMAS
+  const cor = aj.cor && aj.cor !== 'marca' ? undefined : marca.cor
+  const t = tema({ cor, modo, tema: ehTema ? aj.cor as NomeTema : e.tema })
   const enquadramento = e.enquadramento ?? ENQUADRAMENTO_PADRAO
-  const s = desenha({ p: { campos: c, formato, marca, modo: e.modo, foto: e.foto, enquadramento }, W, H, t, av, fontes })
+  const cta = (aj.cta ?? '').trim()
+  const tem: Record<Elemento, boolean> = {
+    assinatura: !!(marca.perfil || marca.nome), logo: !!marca.logo, selo: false, cta: !!cta,
+  }
+  // um Elemento só liga se o dado existe
+  const el = Object.fromEntries(ELEMENTOS.map(k => [k, (aj.elementos?.[k] ?? tem[k]) && (k === 'selo' ? !!(marca.nome || marca.perfil) : tem[k])])) as Record<Elemento, boolean>
+  const p = {
+    campos: c, formato, marca, modo, foto: e.foto, enquadramento,
+    k: ESCALA[aj.tamanho ?? 'M'], zona: aj.zona, el, cta, reforco: !!aj.reforco,
+    variacao, cor: aj.cor, marcado: texto.includes('*'),
+  }
+  const s = desenha({ p, W, H, t, av, fontes })
   return {
     estilo,
+    variacao,
     campos: c,
-    cena: { largura: W, altura: H, fundo: s.fundo, itens: s.itens, travas: { ...s.travas, avisos: [...new Set(av)].sort() } },
+    cena: {
+      largura: W, altura: H, fundo: s.fundo, itens: s.itens, travas: { ...s.travas, avisos: [...new Set(av)].sort() },
+      ...(aj.textura?.id ? { textura: { id: aj.textura.id, onde: aj.textura.onde, forca: FORCA_TEXTURA[aj.textura.forca ?? 'leve'] } } : {}),
+    },
   }
 }

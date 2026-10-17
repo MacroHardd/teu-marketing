@@ -63,6 +63,8 @@ def _fonte(nome, tam):
 
 
 publi.fonte = _fonte
+# estilo 6 novo (Blue Note) entra por cima do motor, como no publi-lab (teste/bluenote.py)
+exec(open(os.path.join(AQUI, "publi", "bluenote_src.py"), encoding="utf-8").read(), publi.__dict__)
 
 
 def gera(arquivo):
@@ -73,12 +75,16 @@ def gera(arquivo):
         texto = c["texto"]
         foto = os.path.join(AQUI, "fotos", c["foto"]) if c.get("foto") else None
         tipo = c.get("tipo") or publi._escolhe(texto, "f" if foto else None)
-        campos = publi._campos(tipo, texto, c.get("destaque", True))
+        campos = publi._campos(tipo, texto, c.get("destaque", True), "f" if foto else None)
         assert publi._confere(texto, campos), c["id"]
         pedido = {"tipo": tipo, "formato": c.get("formato", "post"), "marca": c.get("marca") or {}, **campos,
                   "nome": c["id"], "pasta": pasta}
         if foto:
             pedido["imagem"] = foto
+        if tipo == "duotom":  # Duas tintas = Blue Note; Variação = composição (faixa | janela)
+            pedido["tipo"] = "bluenote"
+            if foto:
+                pedido["composicao"] = c.get("variacao", "faixa")
         for k in ("modo", "tema"):
             if c.get(k):
                 pedido[k] = c[k]

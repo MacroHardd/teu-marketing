@@ -41,12 +41,15 @@ RLS: Cliente e Parceiro **não leem** a tabela. Quem grava é o servidor (ou uma
 | `estilo_sugerido` | o motor sugere um Estilo | `{estilo}` |
 | `estilo_trocado` | o Cliente troca o Estilo | `{de, para, posicao_na_lista}` |
 | `variacao_trocada` | troca de Variação | `{estilo, de, para}` |
-| `ajuste_aplicado` | cada Ajuste (com debounce de 1 s) | `{tipo: texto\|tamanho\|zona\|foto_enquadre\|cor\|elemento\|cta}` |
-| `trava_disparada` | uma Trava acende | `{estilo, variacao, trava, bloqueante}` |
+| `ajuste_aplicado` | cada Ajuste (com debounce de 1 s) | `{tipo: texto\|tamanho\|zona\|foto_enquadre\|cor\|elemento\|cta\|reforco\|textura, ms_render}` |
+| `trava_disparada` | uma Trava acende (estável por 1,5 s) | `{estilo, variacao, trava: texto_cortado\|contraste, bloqueante}` |
 | `trava_resolvida` | a Trava apaga | `{trava, acao: variacao\|estilo\|ajuste}` |
 | `foto_enviada` | upload concluído | `{formato_origem, bytes, ms_processamento, rosto_detectado}` |
 | `post_exportado` | PNG gerado | `{estilo, variacao, n_trocas_estilo, n_ajustes, tempo_ativo_ms, ms_export, reexport: bool}` |
 | `legenda_copiada` | clique em copiar | `{n_hashtags}` |
+| `ativo_enviado` | imagem enviada aos Ativos (aba Ativos ou editor) | `{formato_origem, bytes, ms_processamento}` |
+| `tratamento_aplicado` | receita do Ativo salva | `{tipo: corte\|duotom\|pixel\|velho\|textura\|original, ms}` |
+| `ativo_excluido` | Ativo apagado | `{em_uso}` (nº de Posts que usavam) |
 | `post_duplicado` / `post_excluido` | | |
 | `cliente_desativado` | ação do Parceiro | |
 | `erro_motor` | exceção no layout ou no desenho | `{estilo, variacao, etapa, mensagem_curta}` |

@@ -58,13 +58,20 @@ export function destaque(texto: string): string {
   return ws.join(' ')
 }
 
+/** Palavra-chave da Riscada sem marcação do Cliente: a de tom escuro (medo, cansaço…), senão a do destaque. */
+export function chaveRiscada(texto: string): string {
+  if (texto.includes('*')) return texto
+  const m = ESCURO.exec(texto)
+  return m ? texto.slice(0, m.index) + '*' + m[0] + '*' + texto.slice(m.index + m[0].length) : destaque(texto)
+}
+
 /** Primeiro número exato do texto (com unidade curta), ou null. */
 export function numero(texto: string): string | null {
-  const data = new RegExp(DATA.source, 'iuy')
+  const datas = [...texto.matchAll(new RegExp(DATA.source, 'giu'))].map(d => [d.index, d.index + d[0].length] as const)
   for (const m of texto.matchAll(NUM)) {
     const s = m[0].trim().replace(/[.,]+$/, '')
-    data.lastIndex = m.index
-    if (/\d/.test(s) && !data.test(texto)) return s
+    // pula número dentro de data/hora ("20/11" não vira "11"): fix feito também na cópia do publi
+    if (/\d/.test(s) && !datas.some(([a, b]) => a < m.index + m[0].length && m.index < b)) return s
   }
   return null
 }

@@ -1,0 +1,15 @@
+[
+  {"id": "media", "texto": "Seu cliente não quer o mais barato, ele quer confiar em quem atende"},
+  {"id": "curta", "tipo": "manchete", "texto": "Menos ruído, mais resultado"},
+  {"id": "longa", "texto": "Quando você entende o que seu cliente sente de verdade, a venda deixa de ser um empurrão e vira consequência natural de uma boa conversa com ele"},
+  {"id": "muito-longa", "tipo": "manchete", "texto": "Quando você entende o que seu cliente sente de verdade, a venda deixa de ser um empurrão e vira consequência natural de uma boa conversa, feita com calma, atenção, escuta ativa e respeito pelo tempo de cada pessoa que chega até o seu negócio procurando ajuda de verdade e não mais uma promessa vazia de resultado rápido"},
+  {"id": "marca", "texto": "Atendimento que encanta começa antes da venda e continua depois dela", "marca": {"nome": "Studio Lua", "perfil": "@studiolua"}},
+  {"id": "cor-marca", "texto": "Atendimento que encanta começa antes da venda e continua depois dela", "marca": {"perfil": "@clinicabem", "cor": "#1f8a70"}},
+  {"id": "escuro", "texto": "Foco no que importa: menos tarefas, mais decisões que mudam o mês", "modo": "escuro"},
+  {"id": "escuro-cor", "tipo": "manchete", "texto": "Sabor que abraça e faz voltar no domingo com a família inteira", "modo": "escuro", "marca": {"cor": "#d9480f", "perfil": "@cantina"}},
+  {"id": "tema-salvia", "texto": "Respire fundo, organize a semana e recomece com o que dá resultado", "tema": "salvia"},
+  {"id": "acentos", "texto": "Ação, coração e atenção no detalhe é o que separa você da concorrência", "marca": {"perfil": "@ação"}},
+  {"id": "quebra", "texto": "Primeiro o básico bem feito\nDepois o resto vem com o tempo e com constância"},
+  {"id": "emoji", "texto": "Bora crescer juntos neste ano com planejamento e foco no cliente 🚀"},
+  {"id": "story", "texto": "Seu cliente não quer o mais barato, ele quer confiar em quem atende", "formato": "story", "marca": {"perfil": "@teumarketing"}}
+]

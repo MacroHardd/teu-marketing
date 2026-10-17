@@ -29,9 +29,13 @@ jobs:
           pnpm install
           python -m venv packages/oraculo/.venv
           packages/oraculo/.venv/bin/pip install -r packages/oraculo/requirements.txt
+          npm ci --prefix packages/oraculo/tipografia
 
       - name: Oráculo (publi gera as referências)
         run: packages/oraculo/.venv/bin/python packages/oraculo/gerar.py
+
+      - name: Oráculo (skill tipografia-igor gera as referências no Chrome)
+        run: node packages/oraculo/tipografia/gerar.mjs
 
       - name: Lint
         run: pnpm run lint

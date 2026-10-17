@@ -1,0 +1,11 @@
+[
+  {"id": "preco", "texto": "Por apenas R$ 49,90 no combo"},
+  {"id": "desconto", "texto": "Black Friday: 50% de desconto", "marca": {"perfil": "@lojaboa"}},
+  {"id": "leve", "texto": "Leve 3 pague 2"},
+  {"id": "cor-marca", "texto": "Promoção de inverno: tudo com 30% off", "marca": {"nome": "Casa Bela", "cor": "#c2185b"}},
+  {"id": "longo", "tipo": "heroi", "texto": "R$ 99 no plano anual com acesso completo e suporte direto todos os dias"},
+  {"id": "sem-valor", "tipo": "heroi", "texto": "Combo especial"},
+  {"id": "foto", "tipo": "heroi", "texto": "Novo sabor", "foto": "clara.png", "marca": {"perfil": "@docearia"}},
+  {"id": "foto-escura", "tipo": "heroi", "texto": "Edição limitada de inverno", "foto": "escura.png"},
+  {"id": "story", "texto": "Por apenas R$ 49,90 no combo", "formato": "story", "marca": {"perfil": "@lanche"}}
+]

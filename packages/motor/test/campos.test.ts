@@ -18,10 +18,12 @@ describe('regra inviolável: o Motor nunca altera o texto do Cliente', () => {
     })
   }
 
-  it('bug herdado do publi: `numero` corta data ("20/11" → "11"); `separa` segura', () => {
+  it('`numero` pula data e hora (fix do bug do publi "20/11" → "11")', () => {
     const t = 'Workshop no sábado 20/11'
-    expect(confere(t, campos('numero', t, true))).toBe(false)
-    expect(separa('numero', t, true)).toEqual({ texto: t })
+    expect(numero(t)).toBeNull()
+    expect(separa('numero', t, true)).toEqual({ numero: '', texto: t })
+    expect(numero('Aula 8:30 com 1.200 alunos')).toBe('1.200')
+    expect(numero('Feira 20/11 às 8:30 com 30% off')).toBe('30%')
   })
 
   it('confere pega palavra trocada, tirada ou acrescentada', () => {

@@ -17,4 +17,22 @@ O publi mede texto com o avanço do FreeType **com hinting**, que não existe no
 
 ## Bugs conhecidos do publi
 
-- `_numero` pega pedaço de data/hora: "20/11" → "11", "8:30" → "30", e corta a palavra. O `criar` do publi esconde isso com fallback; o Motor TS também (`separa`). **Corrigir no publi antes de portar os Estilos Número e Herói.**
+- `_numero` pegava pedaço de data/hora ("20/11" → "11", "8:30" → "30"). **Corrigido só na cópia daqui** (`publi/publi.py`, comentário `teu-marketing`): número que encosta numa data/hora é pulado. O Motor TS tem o mesmo fix. Falta levar o fix para o `publi-lab`.
+
+## Duas tintas (Blue Note)
+
+O estilo 6 do publi está sendo refeito no `publi-lab` como Blue Note (`render/bluenote_src.py`, sem commit lá em 2026-10-16). `publi/bluenote_src.py` é cópia sem mudança; o `gerar.py` carrega por cima do motor, como o `teste/bluenote.py` do publi-lab, e desenha o tipo `duotom` com ele. Variação = composição: **faixa** e **janela** (aprovadas). A **parede** ficou de fora até o usuário aprovar o controle de contraste dela. Ao atualizar no publi-lab, copiar de novo e rodar a regressão.
+
+## Oráculo da skill tipografia-igor (`tipografia/`)
+
+Os Estilos **Acento, Zona calma, Síncope, Letra fina e Riscada** seguem as regras da skill `tipografia-igor` (v0.1.0), não o publi (decisão do usuário, 2026-10-16; ADR 0003). O oráculo deles é o próprio kit Remotion da skill: `tipografia/src/estaticos.tsx` é cópia **sem mudança** dos estáticos 4:5 aprovados. Ao redor dele:
+
+- `presets.ts`: as paletas da skill; as fontes vêm dos **mesmos .ttf do Motor** (mesmas famílias do Google Fonts que a skill usa), para os dois desenharem o mesmo glifo.
+- `casos.tsx`: caso → props, como o Igor passaria à mão. `*palavra*` = palavra escolhida (acento, ou fora da coluna na Síncope). As linhas da Fina vão em maiúsculas, como o vídeo da regra 9 mede.
+
+```bash
+npm ci --prefix packages/oraculo/tipografia
+node packages/oraculo/tipografia/gerar.mjs [estilo ...]   # casos/tipografia.json → saida/tipografia/<estilo>/<id>.png (usa o Chrome do sistema; CHROME=...)
+```
+
+Diferenças conhecidas e aceitas: rasterização (borda de 1 px) e a opacidade do crédito; tudo abaixo de 1% da peça.

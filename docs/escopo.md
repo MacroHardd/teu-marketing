@@ -26,12 +26,12 @@ A Plataforma permite que o **Cliente** cuide sozinho do próprio marketing no In
 
 **Cliente**
 - Entrar pelo Convite, com link mágico por email.
-- Perfil de Marca com todos os campos opcionais: nome exibido, @, cor, logo, foto, contato e hashtags.
+- Perfil de Marca com todos os campos opcionais: nome exibido, @, cor, logo e foto.
 - Criar Post: escrever o texto da arte (com a Pauta opcional) e subir uma foto, também opcional.
 - Ver o Estilo sugerido pelo motor, trocar por qualquer um dos 13 e trocar de Variação com um clique.
 - Ajustes: texto, tamanho P/M/G, zona do texto, enquadramento e zoom da foto, cor da paleta, Elementos opcionais e CTA.
 - Ver os avisos das Travas ao vivo, enquanto edita.
-- Escrever a legenda, com as hashtags do Perfil de Marca entrando automaticamente.
+- Escrever a legenda, com as hashtags daquele Post.
 - Exportar o PNG 1080×1350 e copiar a legenda.
 - Usar "Meus Posts": abrir, duplicar e excluir. O salvamento é automático e o Post fica como Rascunho ou Exportado.
 

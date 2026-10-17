@@ -23,7 +23,7 @@ _Evitar_: usuário final, assinante, lead
 ## Conteúdo
 
 **Perfil de Marca**:
-Dados de marca do Cliente que aparecem nos Posts: nome exibido, @, cor da marca, logo, foto, contato e hashtags. Todos os campos são opcionais. Quando um dado existe, o Elemento opcional correspondente já vem ligado. A tipografia não faz parte: ela vem do Estilo.
+Dados de marca do Cliente que aparecem nos Posts: nome exibido, @, cor da marca, logo e foto. Contato e hashtags não fazem parte: as hashtags são de cada Post (na legenda), e o contato do Cliente serve só para a Plataforma falar com ele, nunca aparece em Post. Todos os campos são opcionais. Quando um dado existe, o Elemento opcional correspondente já vem ligado. A tipografia não faz parte: ela vem do Estilo.
 _Evitar_: briefing, perfil, branding
 
 **Pauta**:
@@ -35,7 +35,7 @@ Direção visual pronta que o Cliente escolhe antes de gerar um Post. Define lay
 _Evitar_: template, tema, layout, modelo
 
 **Trava**:
-Regra de qualidade de um Estilo, que reprova um Post quebrado: texto cortado, falta de contraste, texto em cima de rosto. Um Post que falha numa Trava não chega ao Cliente.
+Regra de qualidade de um Estilo, que reprova um Post quebrado: texto cortado, falta de contraste, texto em cima de rosto. Quando uma Trava acende, o Cliente vê o aviso com uma correção de 1 clique, e a Exportação fica bloqueada até resolver.
 _Evitar_: validação, checagem, regra
 
 **Variação**:
@@ -47,15 +47,31 @@ Peça estática de Instagram com uma única imagem, feita de uma Pauta e um Esti
 _Evitar_: publicação, criativo, arte, peça
 
 **Elemento opcional**:
-Item de marca que o Cliente liga ou desliga em um Post (logo, @, entre outros), sem mexer na posição.
+Item de marca que o Cliente liga ou desliga em um Post (logo, @ ou nome, selo, CTA), sem mexer na posição.
 _Evitar_: camada, componente
+
+**Selo**:
+Elemento opcional: círculo com as iniciais da marca, no canto de cima.
+_Evitar_: carimbo, badge
 
 **CTA**:
 Chamada para ação do Post. Quem escreve é sempre o Cliente: a Plataforma nunca gera nem preenche um CTA sozinha.
 _Evitar_: chamada, botão
 
+**Ativo**:
+Imagem que o Cliente enviou, guardada na aba Ativos para tratar e usar nos Posts. O original fica guardado: o tratamento é uma receita que dá para trocar ou desfazer a qualquer hora. Só o Cliente vê os próprios Ativos.
+_Evitar_: arquivo, mídia, upload, biblioteca
+
+**Tratamento**:
+O que o Cliente aplica num Ativo, dentro de uma lista fechada: um efeito por vez (duotom, pixelar, envelhecer), textura por cima e recorte.
+_Evitar_: filtro, edição de imagem
+
+**Textura**:
+Imagem pronta do catálogo da Plataforma (papel, grão...) que entra por cima da foto, no fundo do Post ou dentro das letras.
+_Evitar_: overlay, padrão
+
 **Ajuste**:
-Mudança que o Cliente faz num Post já gerado, sempre dentro de um conjunto pequeno de controles essenciais (regra 80/20). A Plataforma não é um editor de design livre.
+Mudança que o Cliente faz num Post já gerado, sempre dentro de um conjunto pequeno de controles essenciais (regra 80/20). A Plataforma não é um editor de design livre: o texto pode ser arrastado na prévia, mas sempre encaixa numa das posições prontas do Estilo (em cima, no meio, embaixo).
 _Evitar_: edição, customização
 
 **Rascunho**:
@@ -107,5 +123,5 @@ Parte que transforma a Cena em imagem. É a mesma para o preview e para a Export
 _Evitar_: renderer
 
 **Oráculo**:
-O publi original, usado só para conferir que o Motor desenha igual a ele. Nunca roda em produção.
+Referência aprovada usada só para conferir que o Motor desenha igual: o kit da skill tipografia-igor (Acento, Zona calma, Síncope, Letra fina) ou o publi original (Manchete, Foto e legenda). Nunca roda em produção.
 _Evitar_: referência, legado

@@ -257,10 +257,23 @@ const salva = useDebounceFn(async () => {
   }
 }, 800)
 
+// miniatura de Meus Posts: grava um tempo depois da última mudança, ao sair do editor e na Exportação
+const { gravaMiniatura } = usePosts()
+let miniaturaPendente = false
+function miniatura() {
+  if (!miniaturaPendente || !canvas.value || !resultado.value) return
+  miniaturaPendente = false
+  gravaMiniatura(post.value!.cliente_id, id, canvas.value).catch(e => console.warn('miniatura não gravada', e))
+}
+const miniaturaDepois = useDebounceFn(miniatura, 4000)
+onBeforeRouteLeave(miniatura)
+
 function mudou() {
   render()
   salvo.value = 'salvando'
   salva()
+  miniaturaPendente = true
+  miniaturaDepois()
 }
 watch([texto, estiloEscolhido, variacaoEscolhida, enquadramento, fotoMeta, ajustes, legenda, logo, ativoId], mudou, { deep: true })
 watch(versaoTexturas, render)
@@ -465,6 +478,8 @@ async function exporta() {
   const reexport = post.value!.status === 'exportado'
   await supabase.from('posts').update({ texto: texto.value, legenda: legenda.value, status: 'exportado', exportado_em: new Date().toISOString() }).eq('id', id)
   post.value!.status = 'exportado'
+  miniaturaPendente = true
+  miniatura()
   evento('post_exportado', {
     estilo: estilo.value, variacao: variacao.value, n_trocas_estilo: trocasEstilo, n_ajustes: nAjustes,
     tempo_ativo_ms: tempo.ms(), ms_export: Math.round(performance.now() - t0), reexport

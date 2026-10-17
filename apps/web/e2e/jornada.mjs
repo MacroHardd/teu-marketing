@@ -1,4 +1,4 @@
-// Jornada J1 → J3 do MVP de ponta a ponta, num Chrome de verdade.
+// Jornada J1 → J4 do MVP de ponta a ponta, num Chrome de verdade.
 // Pré-requisitos: `pnpm exec supabase start` + `pnpm dev` (porta 3000, sem Resend: emails no Mailpit).
 // Outra porta (ex.: com o dev rodando na 3000): BASE=http://localhost:3001 (3001 já liberada no Auth local).
 //   pnpm --filter @teu/web e2e            (CHROME=/caminho/do/chrome para outro navegador)
@@ -247,6 +247,54 @@ await c.waitForFunction(a => document.querySelector('canvas[aria-label="Prévia 
 await c.getByText('Salvo', { exact: true }).waitFor({ timeout: 10000 })
 const [download3] = await Promise.all([c.waitForEvent('download'), c.getByRole('button', { name: 'Baixar imagem' }).click()])
 log('textura na letra + PNG baixado:', download3.suggestedFilename())
+
+// ------------------------------------------------------------------ J4: Cliente volta (Meus Posts)
+await abre(c, `${BASE}/posts`)
+const cartoes = c.locator('[data-testid=post]')
+await c.waitForFunction(() => document.querySelectorAll('[data-testid=post]').length === 3, null, { timeout: 10000 })
+await c.waitForFunction(() => [...document.querySelectorAll('[data-testid=post] img')].some(i => i.complete && i.naturalWidth > 0), null, { timeout: 15000 })
+log('Meus Posts: 3 Posts, com miniatura')
+// reabre um Post Exportado, corrige e exporta de novo
+await c.getByRole('link', { name: /Abrir Post: Seu cliente não quer barato/ }).click()
+await c.waitForURL('**/posts/*')
+await abre(c)
+await c.getByRole('textbox').first().fill('Seu cliente não quer barato, quer *segurança*')
+await c.getByText('Salvo', { exact: true }).waitFor({ timeout: 10000 })
+const [download4] = await Promise.all([c.waitForEvent('download'), c.getByRole('button', { name: 'Baixar imagem' }).click()])
+log('reabriu o Post Exportado, corrigiu e exportou de novo:', download4.suggestedFilename())
+// duplica: abre um Rascunho igual (texto, Estilo e foto do Ativo)
+await abre(c, `${BASE}/posts`)
+const textoOriginal = 'Feito à mão, feito pra você'
+await cartoes.filter({ has: c.getByRole('link', { name: `Abrir Post: ${textoOriginal}` }) }).first().getByRole('button', { name: 'Duplicar' }).click()
+await c.getByText('Post duplicado', { exact: true }).waitFor()
+await c.waitForURL(u => !u.pathname.endsWith('/posts'), { timeout: 10000 })
+await abre(c)
+if (await c.locator('textarea').first().inputValue() !== textoOriginal) throw new Error('duplicado veio com outro texto')
+await c.waitForFunction(() => {
+  const d = document.querySelector('canvas[aria-label="Prévia do Post"]').getContext('2d').getImageData(540, 300, 1, 1).data
+  return d[2] > d[0] + 40 && d[2] > d[1] + 20
+}, null, { timeout: 15000 })
+log('duplicou: mesmo texto, mesmo Estilo e mesma foto tratada')
+await abre(c, `${BASE}/posts`)
+await c.waitForFunction(() => document.querySelectorAll('[data-testid=post]').length === 4, null, { timeout: 10000 })
+await cartoes.first().getByRole('button', { name: 'Excluir' }).click()
+await c.getByRole('button', { name: 'Excluir Post' }).click()
+await c.getByText('Post excluído', { exact: true }).waitFor()
+await c.waitForFunction(() => document.querySelectorAll('[data-testid=post]').length === 3, null, { timeout: 10000 })
+log('excluiu o duplicado: voltou a 3 Posts')
+
+// telemetria gravada no banco (a constraint de nomes já recusou eventos calada)
+if (process.env.NUXT_SUPABASE_SECRET_KEY && process.env.NUXT_PUBLIC_SUPABASE_URL) {
+  const { createClient } = await import('@supabase/supabase-js')
+  const adm = createClient(process.env.NUXT_PUBLIC_SUPABASE_URL, process.env.NUXT_SUPABASE_SECRET_KEY)
+  const { data: cl } = await adm.from('clientes').select('id').eq('email', CLIENTE).single()
+  await new Promise(res => setTimeout(res, 1000))
+  const { data: evs } = await adm.from('eventos').select('nome').eq('cliente_id', cl.id)
+  const nomes = new Set(evs.map(e => e.nome))
+  const faltam = ['post_criado', 'post_exportado', 'ativo_enviado', 'tratamento_aplicado', 'post_duplicado', 'post_excluido'].filter(n => !nomes.has(n))
+  if (faltam.length) throw new Error(`eventos não gravados: ${faltam.join(', ')}`)
+  log('eventos gravados no banco')
+}
 
 // o mesmo link de Convite ainda entra (mesmo usuário), não ocupa outro Assento
 const c2 = await novaAba()

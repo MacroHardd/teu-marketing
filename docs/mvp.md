@@ -1,6 +1,6 @@
 # MVP vendável: o que precisa funcionar
 
-*Atualizado em 2026-10-16. Este é o documento de referência para "está pronto para vender?". Detalhes em [PRD](prd-fase1-post-estatico.md). Os termos seguem o [`CONTEXT.md`](../CONTEXT.md).*
+*Atualizado em 2026-10-17. Este é o documento de referência para "está pronto para vender?". Detalhes em [PRD](prd-fase1-post-estatico.md). Os termos seguem o [`CONTEXT.md`](../CONTEXT.md).*
 
 **Regra:** não precisa estar perfeito, precisa **funcionar**. Tudo o que não está nesta página espera o primeiro Parceiro pagante.
 
@@ -50,7 +50,7 @@
 - [x] Os Estilos do corte (abaixo) têm as suas Variações e passam na regressão visual contra o oráculo (skill tipografia-igor ou publi).
 - [ ] O PNG exportado é idêntico ao preview (teste automatizado).
 - [x] O texto do Cliente nunca é alterado pelo motor (teste automatizado).
-- [ ] O preview atualiza ao vivo (p95 < 50 ms) em todo Ajuste.
+- [ ] O preview atualiza ao vivo em todo Ajuste, sem travar a digitação. (A meta fina de p95 < 50 ms saiu do aceite em 2026-10-17, decisão do usuário: fica no backlog.)
 - [x] Os Ajustes disponíveis são só: texto, P/M/G, zona (topo/centro/base, por botão ou arrastando o texto na prévia, que encaixa numa das 3), enquadramento e zoom da foto, cor da paleta, Elementos opcionais (logo, @ ou nome, selo, CTA) e CTA escrito pelo Cliente.
 - [ ] As Travas avisam quando o texto é cortado, quando falta contraste e quando há texto em cima de um rosto, e sugerem uma correção. Uma Trava bloqueante impede a Exportação até ser resolvida.
 - [ ] Foto: JPEG, PNG e HEIC de até 10 MB, redimensionada no browser.

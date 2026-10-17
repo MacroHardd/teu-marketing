@@ -82,6 +82,10 @@ _Evitar_: draft, pendente
 Post que já teve pelo menos uma Exportação. Continua editável e pode ser exportado de novo.
 _Evitar_: publicado, finalizado, concluído
 
+**Miniatura**:
+Imagem pequena do Post na grade de Meus Posts, para o Cliente achar o Post de olho. Não é Exportação.
+_Evitar_: thumbnail, capa
+
 **Sugestão de IA**:
 Texto proposto pela IA (Pauta, texto da arte, legenda) quando o Cliente pede. É sempre opcional, aparece claramente marcado como IA e pode ser editado. Nunca preenche um campo sozinho.
 _Evitar_: geração automática, conteúdo gerado

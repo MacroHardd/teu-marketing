@@ -4,14 +4,17 @@
 
 ## Agora
 
-- **Fase:** construção. M1 aprovado; M2 pronto local; **M3 em andamento**. Branch atual: `m3-estilos` (empilhada sobre `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`; nenhum PR mergeado ainda). M0 só falta staging.
+- **Fase:** construção. M1 aprovado; M2 pronto local; M3 feito (aguardando validação); **M5 (J4) feito** nesta sessão. Branch atual: `m5-meus-posts` (empilhada sobre `m3-estilos` → `m3-ajustes` → `m3-foto` → `m0-m1-motor-acento`; nenhum PR mergeado ainda). M0 só falta staging.
+- **Restante até vender:** ~6 iterações (plano em [plano.md](plano.md#restante-até-vender-2026-10-17)). Próxima: M6a (Convites).
+- **Fase E (estilização):** só visual, em paralelo, quebrada em tarefas para agentes: [estilizacao.md](estilizacao.md). Começa pelo E0 (direção visual, o usuário escolhe).
+- **Desempenho fino:** fora do aceite do MVP (decisão do usuário, 2026-10-17). O teste de desempenho agora só barra piora grosseira (p95 < 150 ms); a meta de 50 ms segue no log e no backlog.
 - **Handoff da última sessão:** [handoff.md](handoff.md).
 - **Git / produção:**
   - `origin/main` ainda está no 1º commit (`c5ea7ad`), **sem o fix do build**: o deploy da `main` quebra até o merge do PR `m0-m1-motor-acento → main`. Na branch o build passa (`pnpm build` e `NITRO_PRESET=vercel`).
   - `m3-foto` enviada ao GitHub (PR pelo painel).
   - A branch padrão do GitHub está como `m0-m1-motor-acento`. Trocar para `main` em Settings → General → Default branch (sem `gh`/token aqui, não dá para fazer daqui).
   - Ordem sugerida: trocar a default para `main` → mergear `m0-m1-motor-acento` → abrir PR `m3-foto → main`.
-- **Supabase hospedado:** projeto criado, `apps/web/.env` aponta para ele, mas as **migrations não foram aplicadas** (erro `PGRST205`). Falta `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push` (agora são 2 migrations: `inicio` e `foto`, que cria o bucket `fotos`) + configurar o painel (`docs/infra.md`).
+- **Supabase hospedado:** projeto criado, `apps/web/.env` aponta para ele, mas as **migrations não foram aplicadas** (erro `PGRST205`). Falta `pnpm exec supabase link --project-ref <ref>` + `pnpm exec supabase db push` (6 migrations hoje; `foto` cria o bucket `fotos`) + configurar o painel (`docs/infra.md`).
 - **Feito no M3 até agora:**
   - foto: upload JPEG/PNG/HEIC até 10 MB, reduzida a 2160 px no browser, analisada, bucket privado
   - Estilos: Acento, **Manchete**, Letra fina e Foto e legenda, todos passando na regressão; troca de Estilo com 1 clique (com sugestão)
@@ -30,7 +33,7 @@
   - Duas tintas "parede": espera o usuário aprovar no publi-lab
   - remover fundo e recorte do objeto: fase de IA (decisão do usuário, 2026-10-17)
   - texturas definitivas: o usuário vai fornecer os arquivos
-  - Trava de rosto: vai junto com as features de tratamento de imagem (decisão do usuário, 2026-10-16)
+  - Trava de rosto: adiada junto com as features de imagem (decisão do usuário, 2026-10-16), mas está no aceite do MVP. **Pergunta aberta:** fica no MVP ou vai para o backlog?
 - **Teste manual local:** `pnpm teste:usuarios` + `pnpm dev:local` (ver [plano.md](plano.md#como-validamos-cada-feature)). Usuários: `parceiro@teste.dev` (Escritório Teste, 3 Assentos: `cliente@`, `cliente2@`, Convite pendente `pendente@`) e `parceiro-b@teste.dev` (Agência Outra: `cliente-b@`), todos `@teste.dev`.
 - **Bloqueios:** staging e merge/default branch dependem do usuário.
 - **Pendência no publi-lab (do usuário):** levar o fix do `_numero` (feito só na cópia daqui, `packages/oraculo/publi/publi.py`) e, quando aprovar, a "parede" do Blue Note.
@@ -64,6 +67,12 @@
     - arrastar o texto só na vertical (3 posições) e só nos Estilos que já tinham posição (Acento, Manchete, Número, Letra fina); os botões de posição continuam
 
 ## Histórico
+
+### 2026-10-17. M5: Meus Posts (J4) + planejamento até vender
+- Decisões do usuário: desempenho fino não é preocupação agora (saiu do aceite; teste vira guarda de p95 < 150 ms); depois do MVP vêm mais controles, mais fontes e texturas e um Perfil de Marca com algo parecido com um gerador de paleta; a estilização da Plataforma é uma fase só visual, a qualquer tempo, quebrada para agentes (`docs/estilizacao.md`).
+- Meus Posts: grade com **Miniatura** (cópia 270×338 da prévia, gravada pelo editor 4 s depois da última mudança, ao sair e na Exportação; mora no bucket `fotos` em `<cliente>/miniaturas/<post>.jpg`), **duplicar** (abre um Rascunho igual: texto, Estilo, Variação, Ajustes, legenda e foto; foto antiga de antes dos Ativos é copiada no Storage) e **excluir** (janela de confirmação; apaga miniatura e foto antiga, o Ativo fica). Eventos `post_duplicado {tem_foto}` e `post_excluido {exportado}`.
+- **Bug achado:** a constraint `eventos_nome_check` não tinha `ativo_enviado`, `tratamento_aplicado` nem `ativo_excluido`: desde a Fase D esses eventos falhavam calados. Migration `eventos_ativos_e_posts` + pgTAP `eventos.test.sql` (todo nome do `PROPS` precisa caber). O E2E agora confere no banco que os eventos foram gravados.
+- Verificado: lint, typecheck, 242 testes do motor, 74 de banco, build e o E2E J1→J4 contra o build (reabrir Exportado → corrigir → exportar de novo; duplicar; excluir; miniatura aparece; eventos no banco).
 
 ### 2026-10-17. M3 Fase D: Ativos e tratamento de imagem
 - Pedido do usuário: texturas (ele fornece os arquivos), duotom, pixelar, envelhecer, remover fundo e recortar; imagens enviadas ficam numa aba de Ativos do usuário. Decisões: remover fundo fica para a fase de IA (logo, recorte do objeto também); recortar = crop agora; texturas no fundo, na letra e sobre a foto; receita não destrutiva + texturas globais (ADR 0004).

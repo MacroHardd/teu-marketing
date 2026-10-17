@@ -84,6 +84,24 @@ O alvo é o [MVP vendável](mvp.md), e não o PRD inteiro. Na prática:
 
 O resto vai para o backlog depois do primeiro Parceiro pagante. O piloto (M8) pode ser feito já com Parceiros pagantes.
 
+## Restante até vender (2026-10-17)
+
+Prioridade do usuário: **todas as features do MVP bem feitas e funcionando**. Desempenho fino fica para depois (o p95 < 50 ms saiu do aceite; o teste de desempenho continua como medida, sem bloquear). Cada iteração fecha com lint, typecheck, test, `db:test`, build e E2E.
+
+| It. | Conteúdo | Jornada / aceite |
+|---|---|---|
+| 1 | **M5:** Meus Posts com duplicar, excluir e miniatura; eventos `post_duplicado`/`post_excluido` | J4 |
+| 2 | **M6a, Convites:** CSV, fila do Resend (100/dia, "agendado"), expiração em 7 dias por cron, reenvio com link novo, mesmo email não ativo em dois Parceiros | J2 |
+| 3 | **M6b, painel:** Posts exportados no mês, último acesso, destaque de Cliente parado, desativar libera Assento; números do Uso batem com os eventos (teste) | J5 |
+| 4 | **Fechamento do editor:** teste automático PNG = prévia, salvamento ao fechar a aba (teste), HEIC conferido, 375 px sem quebrar, varredura de texto em inglês | J3, Motor e editor |
+| 5 | **M7 reduzido:** termo de uso e privacidade com aceite no 1º acesso (texto vem do usuário), `pg_dump` diário via Actions, Sentry, conferência dos 7 eventos | Operação mínima |
+| 6 | **Produção:** staging/produção (precisa do usuário: `supabase link`, Vercel, Resend com domínio), J1–J5 com emails de verdade, Chrome/Safari/Edge | Gerais |
+| 7 | **Teste com 3 pessoas de fora** (< 10 min sem ajuda) e correções | Gerais |
+
+**Em paralelo, a qualquer momento:** [Fase E, estilização](estilizacao.md) (só visual, quebrada em tarefas para agentes).
+
+**Depois do MVP (backlog, pedido do usuário):** mais controles; mais opções de fonte e textura no Post; **Perfil de Marca 2** com algo parecido com um gerador de paleta. Isso é feature (mexe no Motor e na regressão), não estilização. Junto ficam: desempenho fino (Riscada e picos da Manchete, ver `docs/estado.md`), misturas de regras da skill, Duas tintas "parede", IA.
+
 ## Dependências
 
 ```

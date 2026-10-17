@@ -55,7 +55,7 @@ export function foto(arquivo: string): FotoTeste {
 
 export function renderiza(cena: Cena, provedor?: ProvedorFoto) {
   const cv = createCanvas(cena.largura, cena.altura)
-  desenha(cv.getContext('2d') as unknown as Ctx2D, cena, fontes(), 1, provedor, undefined, (w, h) => createCanvas(w, h))
+  desenha(cv.getContext('2d') as unknown as Ctx2D, cena, fontes(), { foto: provedor, tela: (w, h) => createCanvas(w, h) })
   return cv
 }
 

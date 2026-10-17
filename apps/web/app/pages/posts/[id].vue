@@ -3,7 +3,7 @@
 import {
   amostraPaleta, desenha, ENQUADRAMENTO_PADRAO, escolhe, motor, NOMES_PALETA, PALETAS_ESTILO, SUPORTE, TEMAS, VARIACOES, ZONA_PADRAO,
   type Ajustes, type Ctx2D, type Elemento, type Enquadramento, type Fontes, type MetaFoto, type NomeTema,
-  type ProvedorFoto, type Resultado, type Tamanho, type TipoEstilo, type Zona
+  type ProvedorFoto, type Receita, type Resultado, type Tamanho, type TipoEstilo, type Zona
 } from '@teu/motor'
 
 useSeoMeta({ title: 'Editor' })
@@ -53,8 +53,10 @@ const legenda = ref(post.value.legenda)
 /** null = o Cliente não escolheu: vale a sugestão do Motor. */
 const estiloEscolhido = ref<TipoEstilo | null>(ehEstilo(post.value.estilo) ? post.value.estilo : null)
 const enquadramento = ref<Enquadramento>({ ...ENQUADRAMENTO_PADRAO, ...enq0 })
-const fotoPath = ref<string | null>(post.value.foto_path)
-const fotoMeta = shallowRef<MetaFoto | null>(post.value.foto_meta as MetaFoto | null)
+/** Foto do Post = um Ativo (tratado na aba Ativos). Posts antigos têm a foto direto no Post (foto_path). */
+const ativoId = ref<string | null>(post.value.ativo_id)
+const fotoPath = ref<string | null>(post.value.ativo_id ? null : post.value.foto_path)
+const fotoMeta = shallowRef<MetaFoto | null>(post.value.ativo_id ? null : post.value.foto_meta as MetaFoto | null)
 const provedor = shallowRef<ProvedorFoto>()
 const enviandoFoto = ref(false)
 const inputFoto = ref<HTMLInputElement>()
@@ -129,7 +131,7 @@ function alternaElemento(e: (typeof ELEMENTOS_UI)[number]) {
 }
 
 // ajuste_aplicado: 1 evento por tipo a cada 1 s de calmaria (sem conteúdo, só o tipo)
-type TipoAjuste = 'texto' | 'tamanho' | 'zona' | 'foto_enquadre' | 'cor' | 'elemento' | 'cta' | 'reforco'
+type TipoAjuste = 'texto' | 'tamanho' | 'zona' | 'foto_enquadre' | 'cor' | 'elemento' | 'cta' | 'reforco' | 'textura'
 const pendentes = new Set<TipoAjuste>()
 const enviaAjustes = useDebounceFn(() => {
   for (const tipo of pendentes) {
@@ -228,7 +230,7 @@ function render() {
     return evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'layout', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
   }
   try {
-    desenha(canvas.value.getContext('2d') as unknown as Ctx2D, resultado.value.cena, fontes.value, 1, provedor.value, logo.value, novaTela)
+    desenha(canvas.value.getContext('2d') as unknown as Ctx2D, resultado.value.cena, fontes.value, { foto: provedor.value, logo: logo.value, tela: novaTela, textura: texturaDe })
     msRender = performance.now() - t0
   } catch (e) {
     evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'desenho', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
@@ -244,8 +246,9 @@ const salva = useDebounceFn(async () => {
     variacao: variacaoEscolhida.value,
     ajustes: { ...ajustes.value, enquadramento: enquadramento.value } as never,
     legenda: legenda.value,
+    ativo_id: ativoId.value,
     foto_path: fotoPath.value,
-    foto_meta: fotoMeta.value as never
+    foto_meta: (fotoPath.value ? fotoMeta.value : null) as never
   }).eq('id', id)
   salvo.value = error ? 'erro' : 'salvo'
   if (!error && !criadoAvisado && texto.value.trim()) {
@@ -259,7 +262,8 @@ function mudou() {
   salvo.value = 'salvando'
   salva()
 }
-watch([texto, estiloEscolhido, variacaoEscolhida, enquadramento, fotoMeta, ajustes, legenda, logo], mudou, { deep: true })
+watch([texto, estiloEscolhido, variacaoEscolhida, enquadramento, fotoMeta, ajustes, legenda, logo, ativoId], mudou, { deep: true })
+watch(versaoTexturas, render)
 watch(texto, () => {
   ultimaAcao = 'ajuste'
   aplicou('texto')
@@ -281,7 +285,17 @@ function trocaEstilo(t: TipoEstilo) {
   variacaoEscolhida.value = null
 }
 
-// ------------------------------------------------------------------ foto
+// ------------------------------------------------------------------ foto (Ativo)
+/** Usa um Ativo no Post: baixa o original, aplica a receita e analisa a imagem tratada. */
+async function usaAtivo(a: Ativo) {
+  const blob = await originalDe(supabase, a.path)
+  if (!blob) return toast.add({ title: 'Não deu para abrir a imagem deste Post', color: 'warning' })
+  const t = await ativoTratado(blob, a.receita as Receita, marca.value.cor)
+  provedor.value = await provedorDe(t.canvas)
+  fotoMeta.value = t.meta
+  render()
+}
+
 async function enviaFoto(ev: Event) {
   const input = ev.target as HTMLInputElement
   const arquivo = input.files?.[0]
@@ -289,17 +303,11 @@ async function enviaFoto(ev: Event) {
   if (!arquivo) return
   enviandoFoto.value = true
   try {
-    const f = await preparaFoto(arquivo)
-    const caminho = `${post.value!.cliente_id}/${id}/${crypto.randomUUID()}.jpg`
-    const { error } = await supabase.storage.from('fotos').upload(caminho, f.blob, { contentType: 'image/jpeg' })
-    if (error) throw new ErroFoto('Não deu para enviar a foto. Confira a internet e tente de novo.')
-    const antiga = fotoPath.value
-    provedor.value = await provedorDe(f.blob)
-    fotoPath.value = caminho
-    enquadramento.value = { ...ENQUADRAMENTO_PADRAO }
-    fotoMeta.value = f.meta
-    if (antiga) supabase.storage.from('fotos').remove([antiga])
-    evento('foto_enviada', { formato_origem: f.formato, bytes: arquivo.size, ms_processamento: f.ms, rosto_detectado: false }, id)
+    // a foto enviada no editor também fica nos Ativos (dá para tratar e reusar)
+    const r = await enviaAtivo(supabase, post.value!.cliente_id, arquivo)
+    evento('ativo_enviado', { formato_origem: r.formato, bytes: arquivo.size, ms_processamento: r.ms })
+    evento('foto_enviada', { formato_origem: r.formato, bytes: arquivo.size, ms_processamento: r.ms, rosto_detectado: false }, id)
+    await trocaAtivo(r.ativo)
   } catch (e) {
     const msg = e instanceof ErroFoto ? e.message : 'Não deu para usar essa foto. Tente outra.'
     if (!(e instanceof ErroFoto)) evento('erro_motor', { estilo: estilo.value, variacao: variacao.value, etapa: 'foto', mensagem_curta: String((e as Error).message).slice(0, 120) }, id)
@@ -309,19 +317,54 @@ async function enviaFoto(ev: Event) {
   }
 }
 
+async function trocaAtivo(a: Ativo) {
+  escolhendoAtivo.value = false
+  if (fotoPath.value) supabase.storage.from('fotos').remove([fotoPath.value]) // foto antiga, de antes dos Ativos
+  fotoPath.value = null
+  enquadramento.value = { ...ENQUADRAMENTO_PADRAO }
+  ativoId.value = a.id
+  await usaAtivo(a)
+}
+
+/** Tira a foto do Post (o Ativo continua na aba Ativos). */
 function removeFoto() {
   if (fotoPath.value) supabase.storage.from('fotos').remove([fotoPath.value])
   fotoPath.value = null
+  ativoId.value = null
   fotoMeta.value = null
   provedor.value = undefined
 }
 
 async function carregaFoto() {
+  if (ativoId.value) {
+    const { data } = await supabase.from('ativos').select('*').eq('id', ativoId.value).maybeSingle()
+    if (data) return usaAtivo(data)
+    ativoId.value = null
+    return
+  }
   if (!fotoPath.value) return
   const { data, error } = await supabase.storage.from('fotos').download(fotoPath.value)
   if (error || !data) return toast.add({ title: 'Não deu para abrir a foto deste Post', color: 'warning' })
   provedor.value = await provedorDe(data)
   render()
+}
+
+// escolher dos Ativos
+const escolhendoAtivo = ref(false)
+const { data: listaAtivos, refresh: atualizaAtivos } = await useAsyncData('ativos-editor', async () => {
+  const { data } = await supabase.from('ativos').select('*').order('criado_em', { ascending: false })
+  return data ?? []
+}, { lazy: true, server: false })
+function abreAtivos() {
+  atualizaAtivos()
+  escolhendoAtivo.value = true
+}
+
+// ------------------------------------------------------------------ textura no Post (fundo ou letra)
+const texturas = ref<Textura[]>([])
+const textura = computed(() => ajustes.value.textura ?? null)
+function escolheTextura(t: string | null) {
+  ajusta('textura', { textura: t ? { id: t, onde: textura.value?.onde ?? 'fundo', forca: textura.value?.forca ?? 'leve' } : undefined })
 }
 
 // arrastar na prévia: o texto (encaixa em cima / no meio / embaixo) ou a foto (enquadrar)
@@ -435,6 +478,7 @@ onMounted(async () => {
   fontes.value = await useFontes()
   render()
   carregaFoto()
+  texturas.value = await useCatalogoTexturas()
   logo.value = await carregaLogo(supabase, perfil.value?.logo_path)
 })
 </script>
@@ -488,7 +532,7 @@ onMounted(async () => {
               data-testid="input-foto"
               @change="enviaFoto"
             >
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
               <UButton
                 :label="temFoto ? 'Trocar foto' : 'Enviar foto'"
                 icon="i-lucide-image-plus"
@@ -498,14 +542,52 @@ onMounted(async () => {
                 @click="inputFoto?.click()"
               />
               <UButton
+                label="Dos Ativos"
+                icon="i-lucide-folder-open"
+                color="neutral"
+                variant="outline"
+                @click="abreAtivos"
+              />
+              <UButton
+                v-if="ativoId"
+                label="Tratar imagem"
+                icon="i-lucide-wand-sparkles"
+                color="neutral"
+                variant="ghost"
+                :to="`/ativos?id=${ativoId}`"
+              />
+              <UButton
                 v-if="temFoto"
                 label="Remover"
-                icon="i-lucide-trash-2"
+                icon="i-lucide-x"
                 color="neutral"
                 variant="ghost"
                 @click="removeFoto"
               />
             </div>
+            <UModal v-model:open="escolhendoAtivo" title="Escolher dos Ativos" :ui="{ content: 'sm:max-w-3xl' }">
+              <template #body>
+                <UEmpty
+                  v-if="!listaAtivos?.length"
+                  icon="i-lucide-images"
+                  title="Nenhuma imagem nos Ativos ainda"
+                  description="Use Enviar foto: ela entra nos Ativos e no Post."
+                />
+                <div v-else class="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  <button
+                    v-for="a in listaAtivos"
+                    :key="a.id"
+                    type="button"
+                    class="rounded-md ring-2 ring-offset-2 ring-offset-default"
+                    :class="a.id === ativoId ? 'ring-primary' : 'ring-transparent hover:ring-accented'"
+                    data-testid="escolhe-ativo"
+                    @click="trocaAtivo(a)"
+                  >
+                    <AtivosMiniatura :path="a.path" :receita="a.receita as Receita" :cor-marca="marca.cor" />
+                  </button>
+                </div>
+              </template>
+            </UModal>
           </UFormField>
 
           <UFormField v-if="temFoto && estiloComFoto" label="Zoom da foto" help="Arraste a foto na prévia para enquadrar.">
@@ -668,6 +750,30 @@ onMounted(async () => {
                 :color="(ajustes.modo ?? 'claro') === m ? 'primary' : 'neutral'"
                 :variant="(ajustes.modo ?? 'claro') === m ? 'solid' : 'outline'"
                 @click="ajusta('cor', { modo: m })"
+              />
+            </div>
+          </UFormField>
+
+          <UFormField v-if="texturas.length" label="Textura">
+            <SeletorTextura :texturas="texturas" :valor="textura?.id ?? null" @escolhe="escolheTextura" />
+            <div v-if="textura" class="flex flex-wrap gap-2 mt-3">
+              <UButton
+                v-for="o in ([['fundo', 'No fundo'], ['letra', 'Na letra']] as const)"
+                :key="o[0]"
+                :label="o[1]"
+                size="sm"
+                :color="textura.onde === o[0] ? 'primary' : 'neutral'"
+                :variant="textura.onde === o[0] ? 'solid' : 'outline'"
+                @click="ajusta('textura', { textura: { ...textura, onde: o[0] } })"
+              />
+              <UButton
+                v-for="f in ([['leve', 'Leve'], ['forte', 'Forte']] as const)"
+                :key="f[0]"
+                :label="f[1]"
+                size="sm"
+                :color="(textura.forca ?? 'leve') === f[0] ? 'primary' : 'neutral'"
+                :variant="(textura.forca ?? 'leve') === f[0] ? 'solid' : 'outline'"
+                @click="ajusta('textura', { textura: { ...textura, forca: f[0] } })"
               />
             </div>
           </UFormField>

@@ -68,10 +68,19 @@ export interface Travas {
   avisos: string[]
 }
 
+/** Textura do catálogo no Post (Ajuste): no fundo (antes de tudo) ou dentro das letras. */
+export interface TexturaCena {
+  id: string
+  onde: 'fundo' | 'letra'
+  /** Opacidade da multiplicação (0–1). */
+  forca: number
+}
+
 export interface Cena {
   largura: number
   altura: number
   fundo: Cor
+  textura?: TexturaCena
   itens: Item[]
   travas: Travas
 }

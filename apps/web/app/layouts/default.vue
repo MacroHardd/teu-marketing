@@ -11,6 +11,7 @@ const links = computed<NavigationMenuItem[]>(() => {
   const itens: NavigationMenuItem[] = []
   if (acesso.value?.cliente?.ativo) {
     itens.push({ label: 'Meus Posts', icon: 'i-lucide-images', to: '/posts', onSelect: fecha })
+    itens.push({ label: 'Ativos', icon: 'i-lucide-folder-open', to: '/ativos', onSelect: fecha })
     itens.push({ label: 'Perfil de Marca', icon: 'i-lucide-badge-check', to: '/marca', onSelect: fecha })
   }
   if (acesso.value?.parceiro) itens.push({ label: 'Clientes', icon: 'i-lucide-users', to: '/clientes', onSelect: fecha })

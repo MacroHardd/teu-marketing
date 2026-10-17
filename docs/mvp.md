@@ -54,6 +54,7 @@
 - [x] Os Ajustes disponíveis são só: texto, P/M/G, zona (topo/centro/base, por botão ou arrastando o texto na prévia, que encaixa numa das 3), enquadramento e zoom da foto, cor da paleta, Elementos opcionais (logo, @ ou nome, selo, CTA) e CTA escrito pelo Cliente.
 - [ ] As Travas avisam quando o texto é cortado, quando falta contraste e quando há texto em cima de um rosto, e sugerem uma correção. Uma Trava bloqueante impede a Exportação até ser resolvida.
 - [ ] Foto: JPEG, PNG e HEIC de até 10 MB, redimensionada no browser.
+- [x] Ativos: o Cliente envia imagens para a aba Ativos, trata (duotom, pixelar, envelhecer, textura por cima, recorte) sem perder o original e usa nos Posts; a textura também entra no fundo ou na letra do Post. O Parceiro não vê Ativos (teste de RLS).
 - [ ] O salvamento é automático: fechar a aba e voltar não perde nada.
 
 ### Parceiro e dados
@@ -76,6 +77,7 @@
 | Admin | tela mínima ou script | painel completo |
 | Telemetria | os 7 eventos acima | todos os eventos de [medição técnica](medicao/tecnico.md) + painel de métricas |
 | Perfil de Marca | todos os campos | mesmo conjunto |
+| Tratamento de imagem | Ativos com duotom, pixelar, envelhecer, textura (foto, fundo, letra) e recorte | remover fundo e recorte do objeto (fase de IA); texturas por Parceiro |
 | Meus Posts | grade, abrir, duplicar, excluir | busca e filtros |
 
 Estilos: decisão do usuário (2026-10-17) de ter todos os Estilos mapeados na skill tipografia-igor e no publi, em vez do corte de 7.

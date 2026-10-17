@@ -25,7 +25,7 @@ describe('preview = PNG', () => {
       const k = 0.5
       const w = cena.largura * k, h = cena.altura * k
       const prev = createCanvas(w, h)
-      desenha(prev.getContext('2d') as unknown as Ctx2D, cena, fontes(), k)
+      desenha(prev.getContext('2d') as unknown as Ctx2D, cena, fontes(), { escala: k })
       const red = createCanvas(w, h)
       red.getContext('2d').drawImage(renderiza(cena), 0, 0, w, h)
       const n = pixelmatch(prev.getContext('2d').getImageData(0, 0, w, h).data, red.getContext('2d').getImageData(0, 0, w, h).data, undefined, w, h, { threshold: 0.2 })

@@ -23,7 +23,27 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "clientes": {
+            "ativos": {
+                  Row: {
+                    "atualizado_em": string,"cliente_id": string,"criado_em": string,"id": string,"meta": NonNullable<Json>,"path": string,"receita": NonNullable<Json>
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "atualizado_em"?: string,"cliente_id": string,"criado_em"?: string,"id"?: string,"meta": NonNullable<Json>,"path": string,"receita"?: NonNullable<Json>
+                  }
+                  Update: {
+                    "atualizado_em"?: string,"cliente_id"?: string,"criado_em"?: string,"id"?: string,"meta"?: NonNullable<Json>,"path"?: string,"receita"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ativos_cliente_id_fkey"
+      columns: ["cliente_id"]
+isOneToOne: false
+      referencedRelation: "clientes"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"clientes": {
                   Row: {
                     "aceito_em": string,"ativo": boolean,"desativado_em": string | null,"email": string,"id": string,"parceiro_id": string,"ultimo_acesso_em": string | null,"usuario_id": string
                   }
@@ -131,17 +151,23 @@ isOneToOne: true
                   ]
                 },"posts": {
                   Row: {
-                    "ajustes": NonNullable<Json>,"atualizado_em": string,"cliente_id": string,"criado_em": string,"estilo": string | null,"exportado_em": string | null,"foto_meta": Json | null,"foto_path": string | null,"id": string,"legenda": string,"status": Database["public"]['Enums']["post_status"],"texto": string,"variacao": string | null
+                    "ajustes": NonNullable<Json>,"ativo_id": string | null,"atualizado_em": string,"cliente_id": string,"criado_em": string,"estilo": string | null,"exportado_em": string | null,"foto_meta": Json | null,"foto_path": string | null,"id": string,"legenda": string,"status": Database["public"]['Enums']["post_status"],"texto": string,"variacao": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "ajustes"?: NonNullable<Json>,"atualizado_em"?: string,"cliente_id": string,"criado_em"?: string,"estilo"?: string | null,"exportado_em"?: string | null,"foto_meta"?: Json | null,"foto_path"?: string | null,"id"?: string,"legenda"?: string,"status"?: Database["public"]['Enums']["post_status"],"texto"?: string,"variacao"?: string | null
+                    "ajustes"?: NonNullable<Json>,"ativo_id"?: string | null,"atualizado_em"?: string,"cliente_id": string,"criado_em"?: string,"estilo"?: string | null,"exportado_em"?: string | null,"foto_meta"?: Json | null,"foto_path"?: string | null,"id"?: string,"legenda"?: string,"status"?: Database["public"]['Enums']["post_status"],"texto"?: string,"variacao"?: string | null
                   }
                   Update: {
-                    "ajustes"?: NonNullable<Json>,"atualizado_em"?: string,"cliente_id"?: string,"criado_em"?: string,"estilo"?: string | null,"exportado_em"?: string | null,"foto_meta"?: Json | null,"foto_path"?: string | null,"id"?: string,"legenda"?: string,"status"?: Database["public"]['Enums']["post_status"],"texto"?: string,"variacao"?: string | null
+                    "ajustes"?: NonNullable<Json>,"ativo_id"?: string | null,"atualizado_em"?: string,"cliente_id"?: string,"criado_em"?: string,"estilo"?: string | null,"exportado_em"?: string | null,"foto_meta"?: Json | null,"foto_path"?: string | null,"id"?: string,"legenda"?: string,"status"?: Database["public"]['Enums']["post_status"],"texto"?: string,"variacao"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "posts_ativo_do_cliente"
+      columns: ["ativo_id","cliente_id"]
+isOneToOne: false
+      referencedRelation: "ativos"
+      referencedColumns: ["id","cliente_id"]
+    },{
       foreignKeyName: "posts_cliente_id_fkey"
       columns: ["cliente_id"]
 isOneToOne: false

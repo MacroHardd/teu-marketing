@@ -22,6 +22,8 @@ export interface Ajustes {
   cta?: string
   /** Correção da Trava de contraste: fundo mais escuro atrás do texto, nos Estilos com foto. */
   reforco?: boolean
+  /** Textura do catálogo no Post: id, onde (fundo ou letra) e força. Sem id, nenhuma. */
+  textura?: { id: string, onde: 'fundo' | 'letra', forca?: 'leve' | 'forte' }
 }
 
 /** Quais Ajustes cada Estilo oferece (os outros nem aparecem na tela). */

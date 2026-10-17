@@ -18,6 +18,7 @@ import { riscada } from './estilos/riscada'
 import { ENQUADRAMENTO_PADRAO, type Enquadramento, type MetaFoto } from './foto'
 import type { Contexto, Formato, Marca, Saida } from './estilos/comum'
 import { ELEMENTOS, ESCALA, VARIACOES, variacaoPadrao, type Ajustes, type Elemento } from './ajustes'
+import { FORCA_TEXTURA } from './tratamento'
 
 const ESTILOS: Partial<Record<TipoEstilo, (c: Contexto) => Saida>> = {
   acento, manchete, numero, fina, selo, duotom, vazio, ogilvy, heroi, citacao, zona, sincope, riscada,
@@ -88,6 +89,9 @@ export function motor(e: Entrada, fontes: Fontes): Resultado {
     estilo,
     variacao,
     campos: c,
-    cena: { largura: W, altura: H, fundo: s.fundo, itens: s.itens, travas: { ...s.travas, avisos: [...new Set(av)].sort() } },
+    cena: {
+      largura: W, altura: H, fundo: s.fundo, itens: s.itens, travas: { ...s.travas, avisos: [...new Set(av)].sort() },
+      ...(aj.textura?.id ? { textura: { id: aj.textura.id, onde: aj.textura.onde, forca: FORCA_TEXTURA[aj.textura.forca ?? 'leve'] } } : {}),
+    },
   }
 }

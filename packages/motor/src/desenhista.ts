@@ -34,6 +34,8 @@ export interface Ctx2D {
   shadowBlur: number
   shadowOffsetX: number
   shadowOffsetY: number
+  globalAlpha: number
+  globalCompositeOperation: string
   getImageData(x: number, y: number, w: number, h: number): { data: Uint8ClampedArray, width: number, height: number }
   putImageData(d: { data: Uint8ClampedArray, width: number, height: number }, x: number, y: number): void
   createImageData(w: number, h: number): { data: Uint8ClampedArray, width: number, height: number }
@@ -51,24 +53,55 @@ export type ProvedorFoto = (filtro?: Filtro) => unknown
 const css = (c: Cor) => `rgb(${c[0]},${c[1]},${c[2]})`
 const cssA = (c: CorA) => `rgba(${c[0]},${c[1]},${c[2]},${c[3]})`
 
+/** Textura do catálogo já carregada (imagem para `drawImage`), pelo id. */
+export type ProvedorTextura = (id: string) => { width: number, height: number } | undefined
+
+export interface OpcoesDesenha {
+  /** px do canvas por px da peça (1 na Exportação 1080×1350). */
+  escala?: number
+  foto?: ProvedorFoto
+  /** A imagem do logo do Perfil de Marca, já carregada. */
+  logo?: unknown
+  /** Tela fora da peça, para os efeitos feitos à mão (Riscada). */
+  tela?: FabricaTela
+  textura?: ProvedorTextura
+}
+
+interface Op { escala: number, foto?: ProvedorFoto, logo?: unknown, tela?: FabricaTela, letra?: { img: unknown, forca: number, W: number, H: number } }
+
 /**
- * Único Desenhista: preview e Exportação passam por aqui. `escala` = px do canvas por px da peça
- * (1 na Exportação 1080×1350). Texto vira contorno de glifo, sem depender da fonte do sistema.
- * `logo` = a imagem do logo do Perfil de Marca, já carregada.
+ * Único Desenhista: preview e Exportação passam por aqui. Texto vira contorno de glifo, sem depender da fonte
+ * do sistema. A textura da Cena (fundo ou letra) multiplica por cima, com a opacidade da força.
  */
-export function desenha(ctx: Ctx2D, cena: Cena, fontes: Fontes, escala = 1, foto?: ProvedorFoto, logo?: unknown, tela?: FabricaTela): void {
+export function desenha(ctx: Ctx2D, cena: Cena, fontes: Fontes, { escala = 1, foto, logo, tela, textura }: OpcoesDesenha = {}): void {
   ctx.save()
   ctx.scale(escala, escala)
   ctx.fillStyle = css(cena.fundo)
   ctx.fillRect(0, 0, cena.largura, cena.altura)
-  for (const it of cena.itens) item(ctx, it, fontes, escala, foto, logo, tela)
+  const t = cena.textura
+  const tx = t && textura?.(t.id)
+  if (tx && t.onde === 'fundo') multiplica(ctx, tx, cena.largura, cena.altura, t.forca)
+  const letra = tx && t.onde === 'letra' ? { img: tx, forca: t.forca, W: cena.largura, H: cena.altura } : undefined
+  for (const it of cena.itens) item(ctx, it, fontes, { escala, foto, logo, tela, letra })
+  ctx.restore()
+}
+
+/** Textura em cover na peça (W × H), multiplicada com opacidade (dentro do recorte atual, se houver). */
+function multiplica(ctx: Ctx2D, img: unknown, W: number, H: number, forca: number) {
+  const { width: tw, height: th } = img as { width: number, height: number }
+  const k = Math.max(W / tw, H / th)
+  ctx.save()
+  ctx.globalCompositeOperation = 'multiply'
+  ctx.globalAlpha = forca
+  ctx.imageSmoothingEnabled = true
+  ctx.drawImage(img, 0, 0, tw, th, (W - tw * k) / 2, (H - th * k) / 2, tw * k, th * k)
   ctx.restore()
 }
 
 /** A sombra é desenhada por um retângulo fora da peça: só o desfoque cai dentro. */
 const LONGE = 100000
 
-function item(ctx: Ctx2D, it: Item, fontes: Fontes, escala: number, foto?: ProvedorFoto, logo?: unknown, tela?: FabricaTela) {
+function item(ctx: Ctx2D, it: Item, fontes: Fontes, { escala, foto, logo, tela, letra }: Op) {
   if (it.tipo === 'imagem') {
     const img = logo as { width: number, height: number } | undefined
     if (!img) return
@@ -156,6 +189,12 @@ function item(ctx: Ctx2D, it: Item, fontes: Fontes, escala: number, foto?: Prove
         ctx.lineWidth = it.traco
         ctx.lineJoin = 'miter'
         ctx.stroke()
+      }
+      if (letra) { // textura na letra: só dentro do contorno dos glifos
+        ctx.save()
+        ctx.clip()
+        multiplica(ctx, letra.img, letra.W, letra.H, letra.forca)
+        ctx.restore()
       }
     }
     if (it.clip) ctx.restore()

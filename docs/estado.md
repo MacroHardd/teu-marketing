@@ -23,10 +23,13 @@
   - telemetria: `ajuste_aplicado`, `trava_disparada`, `trava_resolvida`, `perfil_atualizado`, `legenda_copiada`
   - email de login local em PT-BR
 - **Fase B (feita, aguardando validação do usuário):** Estilos da skill `tipografia-igor` (ADR 0003). Acento e Letra fina passaram a seguir a skill; Zona calma e Síncope são novos. Variações = as aprovadas na skill. A cor da marca e a palavra marcada pelo Cliente mandam.
+- **Fase D (feita, aguardando validação do usuário):** **Ativos e tratamento de imagem** (ADR 0004). Aba Ativos: enviar, tratar (duotom, pixelar, envelhecer, textura por cima, recorte) sem perder o original, usar num Post. No editor: "Dos Ativos", "Tratar imagem" e o Ajuste **Textura** (no fundo ou na letra, leve/forte). Texturas atuais são **provisórias** (geradas por nós); faltam os arquivos do usuário.
 - **Fase C (feita, aguardando validação do usuário):** **todos os 13 Estilos mapeados** (Riscada da skill + Número, Herói, Vazio, Foto que fala, Depoimento e Duas tintas do publi) e **arrastar o texto na prévia** com encaixe em cima / no meio / embaixo. Roteiro de teste em [handoff.md](handoff.md).
 - **Falta no M3:**
   - misturas de regras da skill (decisão do usuário: depois)
   - Duas tintas "parede": espera o usuário aprovar no publi-lab
+  - remover fundo e recorte do objeto: fase de IA (decisão do usuário, 2026-10-17)
+  - texturas definitivas: o usuário vai fornecer os arquivos
   - Trava de rosto: vai junto com as features de tratamento de imagem (decisão do usuário, 2026-10-16)
 - **Teste manual local:** `pnpm teste:usuarios` + `pnpm dev:local` (ver [plano.md](plano.md#como-validamos-cada-feature)). Usuários: `parceiro@teste.dev` (Escritório Teste, 3 Assentos: `cliente@`, `cliente2@`, Convite pendente `pendente@`) e `parceiro-b@teste.dev` (Agência Outra: `cliente-b@`), todos `@teste.dev`.
 - **Bloqueios:** staging e merge/default branch dependem do usuário.
@@ -45,6 +48,13 @@
     - a posição "zona" não existe em Foto e legenda (o layout é fixo: foto em cima)
   - Trava de contraste: contraste WCAG < 3 entre a letra e a luz média atrás dela (pelo metadado). A correção "Escurecer atrás do texto" é o véu a 85% em vez de 62%
   - o Perfil de Marca é invisível para o Parceiro (como os Posts)
+  - Fase D (tratamento):
+    - duotom = rampa do quase preto (a cor a 85% de preto) até a cor, contraste 1,15; cores prontas = as da skill (azul, vermelho, verde, amarelo) + a da marca
+    - pixelar P/M/G = 96/48/24 blocos na largura
+    - envelhecer leve/forte = sépia, contraste −12/−20%, preto lavado, vinheta e grão determinístico
+    - textura = multiplicação, leve 35% / forte 70%; um efeito por vez
+    - recorte com 3 formatos: Post (4:5), Quadrado, Livre
+    - foto enviada no editor também vira Ativo; excluir o Ativo tira a foto dos Posts que usam (avisa quantos)
   - Fase C:
     - Foto que fala sem nome no Perfil: sem o retângulo da marca (o publi escrevia "Sua marca")
     - Riscada: a vírgula colada na palavra fica (o estático da skill tira; o Motor nunca altera o texto)
@@ -54,6 +64,15 @@
     - arrastar o texto só na vertical (3 posições) e só nos Estilos que já tinham posição (Acento, Manchete, Número, Letra fina); os botões de posição continuam
 
 ## Histórico
+
+### 2026-10-17. M3 Fase D: Ativos e tratamento de imagem
+- Pedido do usuário: texturas (ele fornece os arquivos), duotom, pixelar, envelhecer, remover fundo e recortar; imagens enviadas ficam numa aba de Ativos do usuário. Decisões: remover fundo fica para a fase de IA (logo, recorte do objeto também); recortar = crop agora; texturas no fundo, na letra e sobre a foto; receita não destrutiva + texturas globais (ADR 0004).
+- Motor: `tratamento.ts` (corte, duotom, pixelar, envelhecer, textura; função pura, roda no Node e no browser); Cena ganhou `textura` (fundo/letra) e o Desenhista multiplica com `globalCompositeOperation`. `desenha` agora recebe um objeto de opções.
+- Banco: migration `ativos` (tabela + RLS só do dono + `posts.ativo_id` com chave composta do mesmo Cliente, `on delete set null`). pgTAP: 12 testes novos (55 no total).
+- App: `/ativos` (grade, envio múltiplo, tratar com prévia ao vivo e recorte arrastável), editor com "Dos Ativos"/"Tratar imagem"/Textura. Eventos novos: `ativo_enviado`, `tratamento_aplicado`, `ativo_excluido`; `ajuste_aplicado.tipo` ganhou `textura`.
+- Texturas da skill `texturas-igor` são da Texturelabs: a licença proíbe redistribuir, então ficaram de fora. Duas texturas provisórias (Papel, Grão) geradas por `apps/web/scripts/texturas_provisorias.py`.
+- Verificado: 241 testes do motor (sem o de desempenho), 55 de RLS, lint, typecheck, build e o E2E completo contra o build (Ativos: enviar → duotom → recorte quadrado → salvar → usar num Post → textura na letra → PNG).
+- Achado: o jsonb do Postgres reordena as chaves; comparar receita por `JSON.stringify` cru dava "mudou" sempre (corrigido com chaves ordenadas).
 
 ### 2026-10-17. M3 Fase C: todos os Estilos mapeados + arrastar o texto
 - Pedido do usuário: todos os Estilos da skill `tipografia-igor` e do publi, e controle simples por arrastar. Decisões (pergunta desta sessão): arrastar = texto com encaixe; Duas tintas = Blue Note faixa + janela; `_numero` corrigido na cópia daqui.

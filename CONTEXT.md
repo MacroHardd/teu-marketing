@@ -58,6 +58,18 @@ _Evitar_: carimbo, badge
 Chamada para ação do Post. Quem escreve é sempre o Cliente: a Plataforma nunca gera nem preenche um CTA sozinha.
 _Evitar_: chamada, botão
 
+**Ativo**:
+Imagem que o Cliente enviou, guardada na aba Ativos para tratar e usar nos Posts. O original fica guardado: o tratamento é uma receita que dá para trocar ou desfazer a qualquer hora. Só o Cliente vê os próprios Ativos.
+_Evitar_: arquivo, mídia, upload, biblioteca
+
+**Tratamento**:
+O que o Cliente aplica num Ativo, dentro de uma lista fechada: um efeito por vez (duotom, pixelar, envelhecer), textura por cima e recorte.
+_Evitar_: filtro, edição de imagem
+
+**Textura**:
+Imagem pronta do catálogo da Plataforma (papel, grão...) que entra por cima da foto, no fundo do Post ou dentro das letras.
+_Evitar_: overlay, padrão
+
 **Ajuste**:
 Mudança que o Cliente faz num Post já gerado, sempre dentro de um conjunto pequeno de controles essenciais (regra 80/20). A Plataforma não é um editor de design livre: o texto pode ser arrastado na prévia, mas sempre encaixa numa das posições prontas do Estilo (em cima, no meio, embaixo).
 _Evitar_: edição, customização

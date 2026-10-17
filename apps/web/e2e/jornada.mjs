@@ -208,6 +208,46 @@ log('recarregou: Foto e legenda com a foto do Storage')
 const [download2] = await Promise.all([c.waitForEvent('download'), c.getByRole('button', { name: 'Baixar imagem' }).click()])
 log('PNG com foto baixado:', download2.suggestedFilename())
 
+// ------------------------------------------------------------------ Ativos: tratar imagem e usar no Post
+await abre(c, `${BASE}/ativos`)
+// a foto enviada no editor já está nos Ativos
+await c.locator('[data-testid=ativo]').first().waitFor({ timeout: 10000 })
+await c.setInputFiles('[data-testid=input-ativo]', new URL('../../../packages/oraculo/fotos/mista.png', import.meta.url).pathname)
+await c.waitForFunction(() => document.querySelectorAll('[data-testid=ativo]').length >= 2, null, { timeout: 20000 })
+log('Ativos: imagem enviada')
+await c.locator('[data-testid=ativo]').first().click()
+const previa = 'canvas[aria-label="Prévia da imagem"]'
+await c.waitForFunction(s => document.querySelector(s)?.width > 0, previa, { timeout: 10000 })
+await c.getByRole('button', { name: 'Duotom', exact: true }).click()
+await c.getByLabel('Duotom Azul').click()
+await c.getByRole('button', { name: 'Recortar' }).click()
+await c.locator('[data-testid=caixa-corte]').waitFor()
+await c.getByRole('button', { name: 'Quadrado' }).click()
+await c.getByRole('button', { name: 'Aplicar recorte' }).click()
+await c.waitForFunction(s => Math.abs(document.querySelector(s).width - document.querySelector(s).height) <= 1, previa, { timeout: 5000 })
+await c.getByRole('button', { name: 'Salvar' }).click()
+await c.getByText('Imagem salva', { exact: true }).waitFor()
+log('Ativos: duotom azul + recorte quadrado salvos (o original fica)')
+await c.getByRole('button', { name: 'Usar num Post novo' }).click()
+await c.waitForURL('**/posts/*')
+await abre(c)
+await c.fill('textarea', 'Feito à mão, feito pra você')
+await c.getByRole('link', { name: 'Tratar imagem' }).waitFor({ timeout: 15000 })
+// Foto e legenda: a foto do Ativo em cima, tingida de azul (duotom)
+await c.getByRole('button', { name: /^Foto e legenda(\s*sugerido)?$/ }).click()
+await c.waitForFunction(() => {
+  const d = document.querySelector('canvas[aria-label="Prévia do Post"]').getContext('2d').getImageData(540, 300, 1, 1).data
+  return d[2] > d[0] + 40 && d[2] > d[1] + 20
+}, null, { timeout: 15000 })
+log('Post novo com o Ativo tratado (duotom azul no preview)')
+const semTextura = await c.$eval('canvas[aria-label="Prévia do Post"]', el => el.toDataURL())
+await c.getByLabel('Textura Papel').click()
+await c.getByRole('button', { name: 'Na letra' }).click()
+await c.waitForFunction(a => document.querySelector('canvas[aria-label="Prévia do Post"]').toDataURL() !== a, semTextura, { timeout: 10000 })
+await c.getByText('Salvo', { exact: true }).waitFor({ timeout: 10000 })
+const [download3] = await Promise.all([c.waitForEvent('download'), c.getByRole('button', { name: 'Baixar imagem' }).click()])
+log('textura na letra + PNG baixado:', download3.suggestedFilename())
+
 // o mesmo link de Convite ainda entra (mesmo usuário), não ocupa outro Assento
 const c2 = await novaAba()
 await c2.goto(linkDe(convite, /\/convite\//))
